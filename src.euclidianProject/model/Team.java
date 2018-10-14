@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Timer;
 
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Category;
 
 public class Team {
 	
@@ -12,14 +13,16 @@ public class Team {
 	private String name;
 	private ArrayList<Player> players;
 	private Timer timer;
+	private Category category;
 	
 	public Team(String name, ArrayList<Player> players) {
 		this.name = name;
 		this.players = players;
 	}
 	
-	public Team(String name) {
+	public Team(String name, Category category) {
 		this.name = name;
+		this.category = category;
 	}
 
 	public String getName() {
@@ -52,6 +55,14 @@ public class Team {
 
 	public static void setPermissionsList(ArrayList<Permission> permissionsList) {
 		Team.permissionsList = permissionsList;
+	}
+
+	public Category getCategory() {
+		return category;
+	}
+
+	public void setCategory(Category category) {
+		this.category = category;
 	}
 	
 }

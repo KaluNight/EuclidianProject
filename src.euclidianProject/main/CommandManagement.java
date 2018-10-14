@@ -17,8 +17,6 @@ public class CommandManagement {
 	}
 	
 	public static String addTeamCommand(String commande) {
-		Main.getTeamList().add(new Team(commande));
-		
 		RoleAction role = Main.getController().createRole();
 		role.setName("Division " + commande);
 		role.setColor(Color.RED);
@@ -39,6 +37,8 @@ public class CommandManagement {
 		category.createTextChannel("annonce-" + commande).queue();
 		category.createTextChannel("general-" + commande).queue();
 		category.createVoiceChannel("Général " + commande).queue();
+		
+		Main.getTeamList().add(new Team(commande, category));
 		
 		return "Equipe : " + commande + " créé !";
 	}
