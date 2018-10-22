@@ -1,22 +1,86 @@
 package main;
 
 import java.awt.Color;
+
+import model.Player;
 import model.Team;
 import net.dv8tion.jda.core.entities.Category;
 import net.dv8tion.jda.core.entities.Channel;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.requests.restaction.RoleAction;
+import net.rithms.riot.api.RiotApiException;
+import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
+import net.rithms.riot.constant.Platform;
 
 public class CommandManagement {
+
 	
-	public static String addCommand(String commande) {
-		if(commande.substring(0, 4).equalsIgnoreCase("team")) {
-			return addTeamCommand(commande.substring(5));
+	//							Main Command Section
+	//-------------------------------------------------------------------------
+	
+	public static String registerCommand(String commande, User user) {
+		if(commande.substring(0, 6).equalsIgnoreCase("player")) {
+			return registerPlayerCommand(commande, user);
+		}else {
+			return "Erreur dans l'enregistrement";
 		}
-		return "Erreur";
 	}
 	
-	public static String addTeamCommand(String commande) {
+	public static String addCommand(String commande, User user) {
+		if(commande.substring(0, 4).equalsIgnoreCase("team")) {
+			return addTeamCommand(commande.substring(5));
+		}else {
+			return "Erreur dans le choix de l'ajout";
+		}
+	}
+	
+	public static String deleteCommand(String commande) {
+		if(commande.substring(0, 4).equalsIgnoreCase("team")) {
+			return deleteTeamCommand(commande);
+		}else if (commande.substring(0, 6).equalsIgnoreCase("player")){
+			return "Erreur";
+		}else {
+			return "Erreur dans le choix de la suppression";
+		}
+	}
+	
+	//						    Register Command
+	//-----------------------------------------------------------------------
+	
+	private static String registerPlayerCommand(String commande, User user) {
+		
+		String[] info = commande.split(" ");
+		
+		String region = info[1];
+		String summonerName = info[2];
+		
+		Summoner summoner;
+		
+		try {
+			summoner = Main.getApi().getSummonerByName(Platform.getPlatformByName(region), summonerName);
+		} catch (RiotApiException e) {
+			e.printStackTrace();
+			return "Erreur dans la région ou dans le nom d'invocateur ! Merci de réessayer";
+		}
+		
+		Player player = new Player(user.getName(), user, summoner);
+		
+		Main.getPlayerList().add(player);
+		
+		Member member = Main.getGuild().getMemberById(user.getId());
+		
+		Main.getController().addRolesToMember(member, Main.getRegisteredRole()).queue();
+		
+		return "Vous avez bien été enregisté !";
+	}
+	
+	//							Add Command
+	//-------------------------------------------------------------------------
+	
+	
+	private static String addTeamCommand(String commande) {
 		RoleAction role = Main.getController().createRole();
 		role.setName("Division " + commande);
 		role.setColor(Color.RED);
@@ -38,8 +102,32 @@ public class CommandManagement {
 		category.createTextChannel("general-" + commande).queue();
 		category.createVoiceChannel("Général " + commande).queue();
 		
-		Main.getTeamList().add(new Team(commande, category));
+		Main.getTeamList().add(new Team(commande, category, teamRole));
 		
 		return "Equipe : " + commande + " créé !";
 	}
+	
+	
+	//							Delete Command
+	//-------------------------------------------------------------------------
+	
+	
+	
+	public static String deleteTeamCommand(String commande) {
+		Team team = Main.getTeamByName(commande.split(" ")[1]);
+		
+		for(int i = 0; i < team.getCategory().getChannels().size(); i++) {
+			team.getCategory().getChannels().get(i).delete().queue();
+		}
+		
+		team.getCategory().delete().queue();
+		team.getRole().delete().queue();
+		
+		String name = team.getName();
+		
+		Main.getTeamList().remove(team);
+		
+		return "Equipe " + name + " supprimé !";
+	}
+	
 }
