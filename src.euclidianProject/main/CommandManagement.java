@@ -51,6 +51,14 @@ public class CommandManagement {
 	
 	private static String registerPlayerCommand(String commande, User user) {
 		
+		Member member = Main.getGuild().getMemberById(user.getId());
+		
+		for(int i = 0; i < member.getRoles().size(); i++) {
+			if(member.getRoles().get(i).equals(Main.getRegisteredRole())) {
+				return "Vous êtes déjà enregistée !";
+			}
+		}
+		
 		String[] info = commande.split(" ");
 		
 		String region = info[1];
@@ -68,8 +76,6 @@ public class CommandManagement {
 		Player player = new Player(user.getName(), user, summoner);
 		
 		Main.getPlayerList().add(player);
-		
-		Member member = Main.getGuild().getMemberById(user.getId());
 		
 		Main.getController().addRolesToMember(member, Main.getRegisteredRole()).queue();
 		

@@ -61,6 +61,14 @@ public class EventListener extends ListenerAdapter{
 		} else {
 			Main.setRegisteredRole(Main.getGuild().getRolesByName("Enregistré", true).get(0));
 		}
+		
+		try {
+			Main.loadData();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -99,6 +107,7 @@ public class EventListener extends ListenerAdapter{
 					try {
 						Main.saveData();
 					} catch (IOException e) {
+						e.printStackTrace();
 						System.out.println("Erreur Save");
 					}
 					Main.getJda().shutdown();

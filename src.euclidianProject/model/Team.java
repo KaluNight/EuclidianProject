@@ -26,6 +26,7 @@ public class Team {
 		this.name = name;
 		this.category = category;
 		this.role = role;
+		players = new ArrayList<Player>();
 	}
 
 	public String getName() {
