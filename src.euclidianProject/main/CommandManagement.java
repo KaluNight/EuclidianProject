@@ -1,6 +1,7 @@
 package main;
 
 import java.awt.Color;
+import java.util.ArrayList;
 
 import model.Player;
 import model.Team;
@@ -117,8 +118,6 @@ public class CommandManagement {
 	//							Delete Command
 	//-------------------------------------------------------------------------
 	
-	
-	
 	public static String deleteTeamCommand(String commande) {
 		Team team = Main.getTeamByName(commande.split(" ")[1]);
 		
@@ -135,5 +134,18 @@ public class CommandManagement {
 		
 		return "Equipe " + name + " supprimé !";
 	}
+	
+	//							Postulation
+	//-------------------------------------------------------------------------
+	
+	public static String postulationCommand(String[] postulation, Member member) {
+		String lolPseudo = postulation[1].split(":")[1].replaceAll(" ", "");
+		
+		String[] position = postulation[2].split(":")[1].split(",");
+		
+		
+		
+	}
+	
 	
 }

@@ -40,6 +40,8 @@ public class Main {
 	private static ArrayList<Player> playerList = new ArrayList<Player>();
 
 	private static Role registeredRole;
+	
+	private static ArrayList<Role> rolePosition;
 
 	//-------------------------------
 
@@ -151,6 +153,10 @@ public class Main {
 		}
 	}
 
+	public static Role getPositionRoleByName() {
+		
+	}
+	
 	public static Player getPlayersByDiscordId(String id) {
 		for(int i = 0; i < playerList.size(); i++) {
 			if(playerList.get(i).getDiscordUser().getId().equals(id)) {
@@ -219,5 +225,13 @@ public class Main {
 
 	public static void setRegisteredRole(Role registeredRole) {
 		Main.registeredRole = registeredRole;
+	}
+
+	public static ArrayList<Role> getRolePosition() {
+		return rolePosition;
+	}
+
+	public static void setRolePosition(ArrayList<Role> rolePosition) {
+		Main.rolePosition = rolePosition;
 	}
 }

@@ -62,6 +62,16 @@ public class EventListener extends ListenerAdapter{
 			Main.setRegisteredRole(Main.getGuild().getRolesByName("Enregistré", true).get(0));
 		}
 		
+		ArrayList<Role> posteRole = new ArrayList<Role>();
+		
+		posteRole.add(Main.getGuild().getRolesByName("top", true).get(0));
+		posteRole.add(Main.getGuild().getRolesByName("jungle", true).get(0));
+		posteRole.add(Main.getGuild().getRolesByName("mid", true).get(0));
+		posteRole.add(Main.getGuild().getRolesByName("adc", true).get(0));
+		posteRole.add(Main.getGuild().getRolesByName("support", true).get(0));
+		
+		Main.setRolePosition(posteRole);
+		
 		try {
 			Main.loadData();
 		} catch (ClassNotFoundException e) {
@@ -80,6 +90,13 @@ public class EventListener extends ListenerAdapter{
 		}
 
 		message = message.substring(1);
+		
+		if(event.getTextChannel().getName().equals("postulation")) {
+			String[] postulation = message.split("\n");
+			if(postulation[0].equals("Postulation")) {
+				
+			}
+		}
 
 		List<Role> list = event.getMember().getRoles();
 
