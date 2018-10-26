@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 
 import model.Player;
+import model.Postulation;
 import model.Team;
 import net.dv8tion.jda.core.entities.Category;
 import net.dv8tion.jda.core.entities.Channel;
@@ -17,10 +18,10 @@ import net.rithms.riot.constant.Platform;
 
 public class CommandManagement {
 
-	
+
 	//							Main Command Section
 	//-------------------------------------------------------------------------
-	
+
 	public static String registerCommand(String commande, User user) {
 		if(commande.substring(0, 6).equalsIgnoreCase("player")) {
 			return registerPlayerCommand(commande, user);
@@ -28,7 +29,7 @@ public class CommandManagement {
 			return "Erreur dans l'enregistrement";
 		}
 	}
-	
+
 	public static String addCommand(String commande, User user) {
 		if(commande.substring(0, 4).equalsIgnoreCase("team")) {
 			return addTeamCommand(commande.substring(5));
@@ -36,7 +37,7 @@ public class CommandManagement {
 			return "Erreur dans le choix de l'ajout";
 		}
 	}
-	
+
 	public static String deleteCommand(String commande) {
 		if(commande.substring(0, 4).equalsIgnoreCase("team")) {
 			return deleteTeamCommand(commande);
@@ -46,106 +47,150 @@ public class CommandManagement {
 			return "Erreur dans le choix de la suppression";
 		}
 	}
-	
+
 	//						    Register Command
 	//-----------------------------------------------------------------------
-	
+
 	private static String registerPlayerCommand(String commande, User user) {
-		
+
 		Member member = Main.getGuild().getMemberById(user.getId());
-		
+
 		for(int i = 0; i < member.getRoles().size(); i++) {
 			if(member.getRoles().get(i).equals(Main.getRegisteredRole())) {
 				return "Vous êtes déjà enregistée !";
 			}
 		}
-		
+
 		String[] info = commande.split(" ");
-		
+
 		String region = info[1];
 		String summonerName = info[2];
-		
+
 		Summoner summoner;
-		
+
 		try {
 			summoner = Main.getApi().getSummonerByName(Platform.getPlatformByName(region), summonerName);
 		} catch (RiotApiException e) {
 			e.printStackTrace();
 			return "Erreur dans la région ou dans le nom d'invocateur ! Merci de réessayer";
 		}
-		
+
 		Player player = new Player(user.getName(), user, summoner);
-		
+
 		Main.getPlayerList().add(player);
-		
+
 		Main.getController().addRolesToMember(member, Main.getRegisteredRole()).queue();
-		
+
 		return "Vous avez bien été enregisté !";
 	}
-	
+
 	//							Add Command
 	//-------------------------------------------------------------------------
-	
-	
+
+
 	private static String addTeamCommand(String commande) {
 		RoleAction role = Main.getController().createRole();
 		role.setName("Division " + commande);
 		role.setColor(Color.RED);
 		role.setMentionable(true);
 		role.setPermissions(Team.getPermissionsList());
-		
+
 		Role teamRole = role.complete();
 		Role everyone = Main.getGuild().getPublicRole();
-		
+
 		Channel section = Main.getController().createCategory("Section " + commande).complete();
 		section.createPermissionOverride(teamRole).setAllow(Team.getPermissionsList()).queue();
 		section.createPermissionOverride(everyone).setDeny(Team.getPermissionsList()).queue();
-		
+
 		String sectionId = section.getId();
-		
+
 		Category category = Main.getGuild().getCategoryById(sectionId);
-		
+
 		category.createTextChannel("annonce-" + commande).queue();
 		category.createTextChannel("general-" + commande).queue();
 		category.createVoiceChannel("Général " + commande).queue();
-		
+
 		Main.getTeamList().add(new Team(commande, category, teamRole));
-		
+
 		return "Equipe : " + commande + " créé !";
 	}
-	
-	
+
+
 	//							Delete Command
 	//-------------------------------------------------------------------------
-	
+
 	public static String deleteTeamCommand(String commande) {
 		Team team = Main.getTeamByName(commande.split(" ")[1]);
-		
+
 		for(int i = 0; i < team.getCategory().getChannels().size(); i++) {
 			team.getCategory().getChannels().get(i).delete().queue();
 		}
-		
+
 		team.getCategory().delete().queue();
 		team.getRole().delete().queue();
-		
+
 		String name = team.getName();
-		
+
 		Main.getTeamList().remove(team);
-		
+
 		return "Equipe " + name + " supprimé !";
 	}
-	
+
 	//							Postulation
 	//-------------------------------------------------------------------------
-	
+
 	public static String postulationCommand(String[] postulation, Member member) {
 		String lolPseudo = postulation[1].split(":")[1].replaceAll(" ", "");
 		
+		Summoner summoner;
+		try {
+			summoner = Main.getApi().getSummonerByName(Platform.EUW, lolPseudo);
+		} catch (RiotApiException e) {
+			return "L'api de Riot n'est actuellement pas disponible. Nous ne pouvons pas valider votre pseudo, merci de réssayer plus tard.";
+		} catch (IllegalArgumentException e) {
+			return "Votre pseudo n'est pas valide. Merci de vérifier la typographie du pseudo (Note : Il doit obligatoirement être de la région EUW)";
+		}
+		
 		String[] position = postulation[2].split(":")[1].split(",");
+
+		ArrayList<Role> roles = new ArrayList<Role>();
+
+		try {
+			for(int i = 0; i < position.length; i++) {
+				position[i] = position[i].replaceAll(" ", "");
+				if(Main.getPositionRoleByName(position[i]) == null) {
+					throw new NullPointerException();
+				}else {
+					roles.add(Main.getPositionRoleByName(position[i]));
+				}
+			}
+		}catch (NullPointerException e) {
+			return "Erreur dans la sélection des postes !";
+		}
 		
+		String horaire = postulation[3];
 		
+		int index = Main.getPostulationIndexByMember(member);
 		
+		Postulation postulationObject = new Postulation(member, summoner, roles, horaire);
+		
+		ArrayList<Role> roleWithPostulant = new ArrayList<Role>();
+		roleWithPostulant.addAll(roles);
+		roleWithPostulant.add(Main.getPostulantRole());
+		
+		if(index > -1) {
+			Main.getPostulationsList().remove(index);
+			Main.getPostulationsList().add(postulationObject);
+			Main.getController().modifyMemberRoles(member, roleWithPostulant).queue();
+			return "Votre postulation a bien été modifié";
+		}else {
+			Main.getPostulationsList().add(postulationObject);
+			Main.getController().addRolesToMember(member, roleWithPostulant).queue();
+			return "Merci d'avoir postulé ! Vous recevrez des informations concernant votre potentiel recrutement très bientôt !\n"
+					+ "Votre postulations (Vous pouvez la modifier en renvoyant une postulation) : \n\n"
+					+ postulationObject.toString();
+		}
 	}
-	
-	
+
+
 }

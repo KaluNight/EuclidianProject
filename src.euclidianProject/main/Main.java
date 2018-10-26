@@ -9,12 +9,14 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
 import model.Player;
+import model.Postulation;
 import model.Team;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.entities.Category;
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.managers.GuildController;
@@ -38,8 +40,12 @@ public class Main {
 	private static ArrayList<Team> teamList = new ArrayList<Team>();
 
 	private static ArrayList<Player> playerList = new ArrayList<Player>();
+	
+	private static ArrayList<Postulation> postulationsList = new ArrayList<Postulation>();
 
 	private static Role registeredRole;
+	
+	private static Role postulantRole;
 	
 	private static ArrayList<Role> rolePosition;
 
@@ -152,9 +158,23 @@ public class Main {
 			ois.close();
 		}
 	}
+	
+	public static int getPostulationIndexByMember(Member member) {
+		for(int i = 0; i < postulationsList.size(); i++) {
+			if(postulationsList.get(i).getMember().equals(member)) {
+				return i;
+			}
+		}
+		return -1;
+	}
 
-	public static Role getPositionRoleByName() {
-		
+	public static Role getPositionRoleByName(String str) {
+		for(int i = 0; i < rolePosition.size(); i++) {
+			if(rolePosition.get(i).getName().equalsIgnoreCase(str)) {
+				return rolePosition.get(i);
+			}
+		}
+		return null;
 	}
 	
 	public static Player getPlayersByDiscordId(String id) {
@@ -233,5 +253,21 @@ public class Main {
 
 	public static void setRolePosition(ArrayList<Role> rolePosition) {
 		Main.rolePosition = rolePosition;
+	}
+
+	public static ArrayList<Postulation> getPostulationsList() {
+		return postulationsList;
+	}
+
+	public static void setPostulationsList(ArrayList<Postulation> postulationsList) {
+		Main.postulationsList = postulationsList;
+	}
+
+	public static Role getPostulantRole() {
+		return postulantRole;
+	}
+
+	public static void setPostulantRole(Role postulantRole) {
+		Main.postulantRole = postulantRole;
 	}
 }
