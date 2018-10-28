@@ -28,25 +28,24 @@ public class Main {
 
 	private static final File SAVE_FILE = new File("ressources/save");
 
-
 	//------------------------------
 
 	private static JDA jda;
 
-	private static RiotApi api;
+	private static RiotApi riotApi;
 
 	//-------------------------------
 
 	private static ArrayList<Team> teamList = new ArrayList<Team>();
 
 	private static ArrayList<Player> playerList = new ArrayList<Player>();
-	
+
 	private static ArrayList<Postulation> postulationsList = new ArrayList<Postulation>();
 
 	private static Role registeredRole;
-	
+
 	private static Role postulantRole;
-	
+
 	private static ArrayList<Role> rolePosition;
 
 	//-------------------------------
@@ -70,7 +69,7 @@ public class Main {
 		jda.addEventListener(new EventListener());
 
 		ApiConfig config = new ApiConfig().setKey(args[1]);
-		api = new RiotApi(config);
+		riotApi = new RiotApi(config);
 	}
 
 	public static void saveData() throws IOException {
@@ -97,12 +96,28 @@ public class Main {
 				oos.writeUTF(team.getName()); //Name
 				oos.writeUTF(team.getRole().getId()); //ID of role
 				oos.writeUTF(team.getCategory().getId()); //ID of category
-				
+
 				oos.writeInt(team.getPlayers().size()); //Team size
 
 				for(int j = i; j < team.getPlayers().size(); j++) {
 					oos.writeUTF(team.getPlayers().get(i).getDiscordUser().getId()); //Write Discord ID of players
 				}
+			}
+
+			oos.writeInt(postulationsList.size()); //Number of Postulation
+
+			for(int i = 0; i < postulationsList.size(); i++) {
+				Postulation postulation = postulationsList.get(i);
+
+				oos.writeUTF(postulation.getMember().getUser().getId());
+				oos.writeObject(postulation.getSummoner());
+
+				oos.writeInt(postulation.getRoles().size()); //Number of roles
+				for(int j = 0; j < postulation.getRoles().size(); j++) {
+					oos.writeUTF(postulation.getRoles().get(j).getId());
+				}
+
+				oos.writeUTF(postulation.getHoraires());
 			}
 
 		} finally {
@@ -154,11 +169,37 @@ public class Main {
 				teamList.add(team);
 			}
 
+			int postulationNbr;
+			try {
+				postulationNbr = ois.readInt();
+			} catch (Exception e) {
+				postulationNbr = 0;
+			}
+
+			for(int i = 0; i < postulationNbr; i++) {
+				String userId = ois.readUTF();
+				Member member = guild.getMemberById(userId);
+
+				Summoner summoner = (Summoner) ois.readObject();
+
+				ArrayList<Role> roles = new ArrayList<Role>();
+
+				int roleNmbr = ois.readInt();
+				for(int j = 0; j < roleNmbr; j++) {
+					String roleId = ois.readUTF();
+					roles.add(guild.getRoleById(roleId));
+				}
+
+				String horaires = ois.readUTF();
+
+				postulationsList.add(new Postulation(member, summoner, roles, horaires));
+			}
+
 		} finally {
 			ois.close();
 		}
 	}
-	
+
 	public static int getPostulationIndexByMember(Member member) {
 		for(int i = 0; i < postulationsList.size(); i++) {
 			if(postulationsList.get(i).getMember().equals(member)) {
@@ -176,7 +217,7 @@ public class Main {
 		}
 		return null;
 	}
-	
+
 	public static Player getPlayersByDiscordId(String id) {
 		for(int i = 0; i < playerList.size(); i++) {
 			if(playerList.get(i).getDiscordUser().getId().equals(id)) {
@@ -203,8 +244,8 @@ public class Main {
 		Main.jda = jda;
 	}
 
-	public static RiotApi getApi() {
-		return api;
+	public static RiotApi getRiotApi() {
+		return riotApi;
 	}
 
 	public static ArrayList<Team> getTeamList() {

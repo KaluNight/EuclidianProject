@@ -9,12 +9,14 @@ import java.util.concurrent.TimeUnit;
 import model.Team;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.PrivateChannel;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import net.dv8tion.jda.core.requests.restaction.RoleAction;
+import net.rithms.riot.api.RiotApiException;
 
 public class EventListener extends ListenerAdapter{
 
@@ -142,7 +144,26 @@ public class EventListener extends ListenerAdapter{
 				String result = CommandManagement.addCommand(message.substring(4), event.getAuthor());
 				event.getTextChannel().sendMessage(result).queue();
 
-			} else if (command.equalsIgnoreCase("delete")) {
+			} else if (command.equalsIgnoreCase("show")) {
+			
+				event.getTextChannel().sendTyping().queue();
+				
+				if(message.split(" ")[1].equalsIgnoreCase("postulations") || message.split(" ")[1].equalsIgnoreCase("postulation")) {
+					try {
+						ArrayList<MessageEmbed> listEmbended = CommandManagement.showPostulationsCommand(command);
+						
+						for(int i = 0; i < listEmbended.size(); i++) {
+							event.getTextChannel().sendMessage(listEmbended.get(i)).queue();
+						}
+					} catch (RiotApiException e) {
+						event.getTextChannel().sendMessage("L'api Riot est pas disponible").queue();
+					}
+				} else {
+					String result = CommandManagement.showCommand(command, event.getAuthor());
+					event.getTextChannel().sendMessage(result).queue();
+				}
+			
+			}else if (command.equalsIgnoreCase("delete")) {
 
 				event.getTextChannel().sendTyping().queue();
 				String result = CommandManagement.deleteCommand(message.substring(7));

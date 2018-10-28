@@ -9,24 +9,29 @@ import model.Team;
 import net.dv8tion.jda.core.entities.Category;
 import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.requests.restaction.RoleAction;
 import net.rithms.riot.api.RiotApiException;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 import net.rithms.riot.constant.Platform;
+import request.MessageBuilderRequest;
 
 public class CommandManagement {
 
-
 	//							Main Command Section
 	//-------------------------------------------------------------------------
+
+	public static String showCommand(String commande, User user) {
+		return "Erreur dans le choix de l'affichage";
+	}
 
 	public static String registerCommand(String commande, User user) {
 		if(commande.substring(0, 6).equalsIgnoreCase("player")) {
 			return registerPlayerCommand(commande, user);
 		}else {
-			return "Erreur dans l'enregistrement";
+			return "Erreur dans le choix de l'enregistrement. Note : Vous devez écrire \"register player VotrePseudo\" pour vous enregistrer";
 		}
 	}
 
@@ -46,6 +51,17 @@ public class CommandManagement {
 		}else {
 			return "Erreur dans le choix de la suppression";
 		}
+	}
+
+	//							 Show Command
+	//-----------------------------------------------------------------------
+
+	public static ArrayList<MessageEmbed> showPostulationsCommand(String commande) throws RiotApiException {
+		ArrayList<MessageEmbed> listesPostulation = new ArrayList<MessageEmbed>();
+		for(int i = 0; i < Main.getPostulationsList().size(); i++) {
+			listesPostulation.add(MessageBuilderRequest.createShowPostulation(Main.getPostulationsList().get(i), i + 1));
+		}
+		return listesPostulation;
 	}
 
 	//						    Register Command
@@ -69,7 +85,7 @@ public class CommandManagement {
 		Summoner summoner;
 
 		try {
-			summoner = Main.getApi().getSummonerByName(Platform.getPlatformByName(region), summonerName);
+			summoner = Main.getRiotApi().getSummonerByName(Platform.getPlatformByName(region), summonerName);
 		} catch (RiotApiException e) {
 			e.printStackTrace();
 			return "Erreur dans la région ou dans le nom d'invocateur ! Merci de réessayer";
@@ -108,6 +124,8 @@ public class CommandManagement {
 
 		category.createTextChannel("annonce-" + commande).queue();
 		category.createTextChannel("general-" + commande).queue();
+		category.createTextChannel("liste-de-pick").queue();
+		category.createTextChannel("annonce-absence").queue();
 		category.createVoiceChannel("Général " + commande).queue();
 
 		Main.getTeamList().add(new Team(commande, category, teamRole));
@@ -140,18 +158,29 @@ public class CommandManagement {
 	//-------------------------------------------------------------------------
 
 	public static String postulationCommand(String[] postulation, Member member) {
-		String lolPseudo = postulation[1].split(":")[1].replaceAll(" ", "");
-		
+		String lolPseudo = "";
+		try {
+			lolPseudo = postulation[1].split(":")[1].replaceAll(" ", "");
+		} catch (Exception e) {
+			return "Erreur dans le format du Pseudo. (Format : \"Mon pseudo : *Pseudo*\")";
+		}
+
 		Summoner summoner;
 		try {
-			summoner = Main.getApi().getSummonerByName(Platform.EUW, lolPseudo);
+			summoner = Main.getRiotApi().getSummonerByName(Platform.EUW, lolPseudo);
 		} catch (RiotApiException e) {
 			return "L'api de Riot n'est actuellement pas disponible. Nous ne pouvons pas valider votre pseudo, merci de réssayer plus tard.";
 		} catch (IllegalArgumentException e) {
 			return "Votre pseudo n'est pas valide. Merci de vérifier la typographie du pseudo (Note : Il doit obligatoirement être de la région EUW)";
 		}
-		
-		String[] position = postulation[2].split(":")[1].split(",");
+
+		String[] position;
+
+		try {
+			position = postulation[2].split(":")[1].split(",");
+		}catch (Exception e) {
+			return "Erreur dans le format des rôles. (Format : \"Les rôles que je peux jouer : *Role, Role, Role*\")";
+		}
 
 		ArrayList<Role> roles = new ArrayList<Role>();
 
@@ -167,17 +196,22 @@ public class CommandManagement {
 		}catch (NullPointerException e) {
 			return "Erreur dans la sélection des postes !";
 		}
-		
-		String horaire = postulation[3];
-		
+
+		String horaire = "";
+		try {
+			horaire = postulation[3].split(":")[1];
+		}catch (Exception e) {
+			return "Erreur dans le format de l'heure. (Format : \"Horaires : *VosHoraires*\")";
+		}
+
 		int index = Main.getPostulationIndexByMember(member);
-		
+
 		Postulation postulationObject = new Postulation(member, summoner, roles, horaire);
-		
+
 		ArrayList<Role> roleWithPostulant = new ArrayList<Role>();
 		roleWithPostulant.addAll(roles);
 		roleWithPostulant.add(Main.getPostulantRole());
-		
+
 		if(index > -1) {
 			Main.getPostulationsList().remove(index);
 			Main.getPostulationsList().add(postulationObject);
@@ -187,8 +221,8 @@ public class CommandManagement {
 			Main.getPostulationsList().add(postulationObject);
 			Main.getController().addRolesToMember(member, roleWithPostulant).queue();
 			return "Merci d'avoir postulé ! Vous recevrez des informations concernant votre potentiel recrutement très bientôt !\n"
-					+ "Votre postulations (Vous pouvez la modifier en renvoyant une postulation) : \n\n"
-					+ postulationObject.toString();
+			+ "Votre postulations (Vous pouvez la modifier en renvoyant une postulation) : \n \n"
+			+ postulationObject.toString();
 		}
 	}
 
