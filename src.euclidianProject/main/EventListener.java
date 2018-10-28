@@ -96,14 +96,14 @@ public class EventListener extends ListenerAdapter{
 	public void onMessageReceived(MessageReceivedEvent event) {
 		String message = event.getMessage().getContentRaw();
 
-		if (message.length() == 0 || message.charAt(0) != PREFIX) {
+		List<Role> list = null;
+		
+		try {
+		list = event.getMember().getRoles();
+		} catch (NullPointerException e) {
 			return;
 		}
 		
-		message = message.substring(1);
-
-		List<Role> list = event.getMember().getRoles();
-
 		boolean isAdmin = false;
 
 		for(int i = 0; i < list.size(); i++) {
@@ -111,6 +111,20 @@ public class EventListener extends ListenerAdapter{
 				isAdmin = true;
 			}
 		}
+		
+		if(event.getTextChannel().getId().equalsIgnoreCase("497763778268495882") && message.charAt(0) != PREFIX && !isAdmin) {
+			event.getMessage().delete().queue();
+			PrivateChannel privateChannel = event.getAuthor().openPrivateChannel().complete();
+			privateChannel.sendTyping().queue();
+			privateChannel.sendMessage("On envoie uniquement des demandes de Postulation sur ce channel ! "
+					+ "(Note : Une postulation commence par \">postulation\")").queue();
+		}
+		
+		if (message.length() == 0 || message.charAt(0) != PREFIX) {
+			return;
+		}
+
+		message = message.substring(1);
 
 		if(event.getTextChannel().getName().equals("postulation")) {
 			String[] postulation = message.split("\n");
@@ -118,11 +132,11 @@ public class EventListener extends ListenerAdapter{
 				event.getTextChannel().sendTyping().complete();
 				String result = CommandManagement.postulationCommand(postulation, event.getMember());
 				Message messageSend = event.getTextChannel().sendMessage(result).complete();
-				
+
 				PrivateChannel pc = event.getAuthor().openPrivateChannel().complete();
-				
+
 				pc.sendMessage("~Copie du Message~\n" + result).queue();
-				
+
 				messageSend.delete().queueAfter(10, TimeUnit.SECONDS);
 				event.getMessage().delete().queueAfter(10, TimeUnit.SECONDS);
 			}else {
@@ -136,7 +150,7 @@ public class EventListener extends ListenerAdapter{
 		}
 
 		String command = message.split(" ")[0];
-		
+
 		if(isAdmin) {
 
 			if (command.equalsIgnoreCase("Add")){
@@ -145,13 +159,13 @@ public class EventListener extends ListenerAdapter{
 				event.getTextChannel().sendMessage(result).queue();
 
 			} else if (command.equalsIgnoreCase("show")) {
-			
+
 				event.getTextChannel().sendTyping().queue();
-				
+
 				if(message.split(" ")[1].equalsIgnoreCase("postulations") || message.split(" ")[1].equalsIgnoreCase("postulation")) {
 					try {
 						ArrayList<MessageEmbed> listEmbended = CommandManagement.showPostulationsCommand(command);
-						
+
 						for(int i = 0; i < listEmbended.size(); i++) {
 							event.getTextChannel().sendMessage(listEmbended.get(i)).queue();
 						}
@@ -162,8 +176,14 @@ public class EventListener extends ListenerAdapter{
 					String result = CommandManagement.showCommand(command, event.getAuthor());
 					event.getTextChannel().sendMessage(result).queue();
 				}
-			
-			}else if (command.equalsIgnoreCase("delete")) {
+
+			}else if (command.equalsIgnoreCase("postulation")){
+
+				event.getTextChannel().sendTyping().queue();
+				String result = CommandManagement.postulationCommand(message.substring(12), event.getAuthor());
+				event.getTextChannel().sendMessage(result).queue();
+				
+			} else if (command.equalsIgnoreCase("delete")) {
 
 				event.getTextChannel().sendTyping().queue();
 				String result = CommandManagement.deleteCommand(message.substring(7));
@@ -181,7 +201,7 @@ public class EventListener extends ListenerAdapter{
 				Main.getJda().shutdown();
 			}
 		}
-		
+
 		if (command.equalsIgnoreCase("register")) {
 			event.getTextChannel().sendTyping().queue();
 			String result = CommandManagement.registerCommand(message.substring(9), event.getAuthor());

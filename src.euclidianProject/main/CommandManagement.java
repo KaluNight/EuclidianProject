@@ -10,6 +10,7 @@ import net.dv8tion.jda.core.entities.Category;
 import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.MessageEmbed;
+import net.dv8tion.jda.core.entities.PrivateChannel;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.requests.restaction.RoleAction;
@@ -25,6 +26,15 @@ public class CommandManagement {
 
 	public static String showCommand(String commande, User user) {
 		return "Erreur dans le choix de l'affichage";
+	}
+
+	public static String postulationCommand(String commande, User user) {
+		if(commande.substring(0, 6).equalsIgnoreCase("accept")) {
+			int index = Integer.parseInt(commande.split(" ")[1]) - 1;
+			return postulationAcceptCommand(index, user);
+		}else {
+			return "Erreur dans le choix de l'action a faire";
+		}
 	}
 
 	public static String registerCommand(String commande, User user) {
@@ -154,7 +164,7 @@ public class CommandManagement {
 		return "Equipe " + name + " supprimé !";
 	}
 
-	//							Postulation
+	//							Postulation Command
 	//-------------------------------------------------------------------------
 
 	public static String postulationCommand(String[] postulation, Member member) {
@@ -224,6 +234,26 @@ public class CommandManagement {
 			+ "Votre postulations (Vous pouvez la modifier en renvoyant une postulation) : \n \n"
 			+ postulationObject.toString();
 		}
+	}
+
+	private static String postulationAcceptCommand(int accepted, User user) {
+		Postulation postulation;
+		try {
+			postulation = Main.getPostulationsList().get(accepted);
+		}catch (IndexOutOfBoundsException e) {
+			return "Erreur dans la sélection de la postulation (index)";
+		}
+		
+		PrivateChannel privateChannel = postulation.getMember().getUser().openPrivateChannel().complete();
+		privateChannel.sendTyping().queue();
+		privateChannel.sendMessage("Votre postulation à été accepté, vous recevrez très bientôt des informations concernant votre futur affiliation, "
+				+ "C'est " + user.getName() + " qui s'occupera de vous contacter.").queue();
+
+		String result = "Vous avez accepter la postulation de " + postulation.getMember().getUser().getName() + ".";
+
+		Main.getPostulationsList().remove(accepted);
+
+		return result;
 	}
 
 
