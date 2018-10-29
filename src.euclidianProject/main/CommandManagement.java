@@ -71,6 +71,8 @@ public class CommandManagement {
 		for(int i = 0; i < Main.getPostulationsList().size(); i++) {
 			listesPostulation.add(MessageBuilderRequest.createShowPostulation(Main.getPostulationsList().get(i), i + 1));
 		}
+		logSender("Postulations affichées");
+		
 		return listesPostulation;
 	}
 
@@ -107,6 +109,8 @@ public class CommandManagement {
 
 		Main.getController().addRolesToMember(member, Main.getRegisteredRole()).queue();
 
+		logSender(user.getName() + " c'est enregistré en tant que joueur");
+		
 		return "Vous avez bien été enregisté !";
 	}
 
@@ -139,8 +143,10 @@ public class CommandManagement {
 		category.createVoiceChannel("Général " + commande).queue();
 
 		Main.getTeamList().add(new Team(commande, category, teamRole));
+		
+		logSender("Equipe " + commande + " créé");
 
-		return "Equipe : " + commande + " créé !";
+		return "Equipe " + commande + " créé !";
 	}
 
 
@@ -160,6 +166,8 @@ public class CommandManagement {
 		String name = team.getName();
 
 		Main.getTeamList().remove(team);
+		
+		logSender("Equipe " + name + " supprimé");
 
 		return "Equipe " + name + " supprimé !";
 	}
@@ -226,10 +234,16 @@ public class CommandManagement {
 			Main.getPostulationsList().remove(index);
 			Main.getPostulationsList().add(postulationObject);
 			Main.getController().modifyMemberRoles(member, roleWithPostulant).queue();
+			
+			logSender("Postulation de " + member.getUser().getName() + " modifié");
+			
 			return "Votre postulation a bien été modifié";
 		}else {
 			Main.getPostulationsList().add(postulationObject);
 			Main.getController().addRolesToMember(member, roleWithPostulant).queue();
+			
+			logSender("Nouvelle postulation créé par " + member.getUser().getName());
+			
 			return "Merci d'avoir postulé ! Vous recevrez des informations concernant votre potentiel recrutement très bientôt !\n"
 			+ "Votre postulations (Vous pouvez la modifier en renvoyant une postulation) : \n \n"
 			+ postulationObject.toString();
@@ -249,12 +263,26 @@ public class CommandManagement {
 		privateChannel.sendMessage("Votre postulation à été accepté, vous recevrez très bientôt des informations concernant votre futur affiliation, "
 				+ "C'est " + user.getName() + " qui s'occupera de vous contacter.").queue();
 
-		String result = "Vous avez accepter la postulation de " + postulation.getMember().getUser().getName() + ".";
+		String result = "Vous avez accepter la postulation de " + postulation.getMember().getUser().getName() + ". "
+				+ "Il a été automatiquement enregistré en tant que joueur.";
 
+		Player player = new Player(postulation.getMember().getUser().getName(), postulation.getMember().getUser(), postulation.getSummoner());
+		Main.getController().addRolesToMember(postulation.getMember(), Main.getRegisteredRole()).queue();
+		
+		Main.getPlayerList().add(player);
+		
 		Main.getPostulationsList().remove(accepted);
+		
+		logSender("Postulation de " + postulation.getMember().getUser().getName() + " accepté par " + user.getName());
 
 		return result;
 	}
-
+	
+	//								Log
+	//----------------------------------------------------------------------
+	
+	private static void logSender(String str) {
+		Main.getLogBot().sendMessage(str).queue();
+	}
 
 }

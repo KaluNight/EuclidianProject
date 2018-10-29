@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-
 import model.Player;
 import model.Postulation;
 import model.Team;
@@ -18,6 +17,7 @@ import net.dv8tion.jda.core.entities.Category;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.managers.GuildController;
 import net.rithms.riot.api.ApiConfig;
@@ -53,7 +53,11 @@ public class Main {
 	private static Guild guild;
 
 	private static GuildController controller;
-
+	
+	//-------------------------------
+	
+	private static TextChannel logBot;
+	
 
 	public static void main(String[] args) {
 		try {
@@ -68,7 +72,8 @@ public class Main {
 
 		jda.addEventListener(new EventListener());
 
-		ApiConfig config = new ApiConfig().setKey(args[1]);
+		ApiConfig config = new ApiConfig();
+		config.setKey(args[1]);
 		riotApi = new RiotApi(config);
 	}
 
@@ -310,5 +315,13 @@ public class Main {
 
 	public static void setPostulantRole(Role postulantRole) {
 		Main.postulantRole = postulantRole;
+	}
+
+	public static TextChannel getLogBot() {
+		return logBot;
+	}
+
+	public static void setLogBot(TextChannel logBot) {
+		Main.logBot = logBot;
 	}
 }

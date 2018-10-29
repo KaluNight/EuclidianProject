@@ -26,10 +26,15 @@ public class EventListener extends ListenerAdapter{
 
 	private static final String ENREGISTRED_PLAYER_ROLE_NAME = "Enregistré";
 
+	private static final String ID_LOG_BOT_CHANNEL = "506541176200101909";
+
+	private static final String ID_POSTULATION_CHANNEL = "497763778268495882";
+
 	@Override
 	public void onReady(ReadyEvent event) {
-		Main.getJda().getTextChannelsByName("log-bot", true).get(0).sendMessage("Je suis Up !").complete();
-		Main.setGuild(Main.getJda().getTextChannelsByName("log-bot", true).get(0).getGuild());
+		Main.setLogBot(Main.getJda().getTextChannelById(ID_LOG_BOT_CHANNEL));
+
+		Main.setGuild(Main.getLogBot().getGuild());
 		Main.setController(Main.getGuild().getController());
 
 		ArrayList<Permission> teamMemberPermissionList = new ArrayList<Permission>();
@@ -90,6 +95,7 @@ public class EventListener extends ListenerAdapter{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		Main.getLogBot().sendMessage("Je suis Up !").complete();
 	}
 
 	@Override
@@ -97,13 +103,13 @@ public class EventListener extends ListenerAdapter{
 		String message = event.getMessage().getContentRaw();
 
 		List<Role> list = null;
-		
+
 		try {
-		list = event.getMember().getRoles();
+			list = event.getMember().getRoles();
 		} catch (NullPointerException e) {
 			return;
 		}
-		
+
 		boolean isAdmin = false;
 
 		for(int i = 0; i < list.size(); i++) {
@@ -111,15 +117,18 @@ public class EventListener extends ListenerAdapter{
 				isAdmin = true;
 			}
 		}
-		
-		if(event.getTextChannel().getId().equalsIgnoreCase("497763778268495882") && message.charAt(0) != PREFIX && !isAdmin) {
+
+		if(event.getTextChannel().getId().equals(ID_POSTULATION_CHANNEL) && message.charAt(0) != PREFIX && !isAdmin
+				&& !Main.getJda().getSelfUser().equals(event.getAuthor())){
 			event.getMessage().delete().queue();
+			
 			PrivateChannel privateChannel = event.getAuthor().openPrivateChannel().complete();
 			privateChannel.sendTyping().queue();
 			privateChannel.sendMessage("On envoie uniquement des demandes de Postulation sur ce channel ! "
 					+ "(Note : Une postulation commence par \">postulation\")").queue();
+
 		}
-		
+
 		if (message.length() == 0 || message.charAt(0) != PREFIX) {
 			return;
 		}
@@ -137,8 +146,8 @@ public class EventListener extends ListenerAdapter{
 
 				pc.sendMessage("~Copie du Message~\n" + result).queue();
 
-				messageSend.delete().queueAfter(10, TimeUnit.SECONDS);
 				event.getMessage().delete().queueAfter(10, TimeUnit.SECONDS);
+				messageSend.delete().queueAfter(10, TimeUnit.SECONDS);
 			}else {
 				if(!isAdmin) {
 					event.getTextChannel().sendTyping().queue();
@@ -169,8 +178,13 @@ public class EventListener extends ListenerAdapter{
 						for(int i = 0; i < listEmbended.size(); i++) {
 							event.getTextChannel().sendMessage(listEmbended.get(i)).queue();
 						}
+
+						if(listEmbended.isEmpty()) {
+							event.getTextChannel().sendMessage("Aucune Postulation dans la liste").queue();
+						}
+
 					} catch (RiotApiException e) {
-						event.getTextChannel().sendMessage("L'api Riot est pas disponible").queue();
+						event.getTextChannel().sendMessage("L'api de Riot est pas disponible, merci de réessayer dans 2 minutes").queue();
 					}
 				} else {
 					String result = CommandManagement.showCommand(command, event.getAuthor());
@@ -182,7 +196,7 @@ public class EventListener extends ListenerAdapter{
 				event.getTextChannel().sendTyping().queue();
 				String result = CommandManagement.postulationCommand(message.substring(12), event.getAuthor());
 				event.getTextChannel().sendMessage(result).queue();
-				
+
 			} else if (command.equalsIgnoreCase("delete")) {
 
 				event.getTextChannel().sendTyping().queue();
@@ -190,8 +204,8 @@ public class EventListener extends ListenerAdapter{
 				event.getTextChannel().sendMessage(result).queue();
 
 			} else if (command.equals("stop")) {
-				event.getTextChannel().sendTyping().queue();
-				Main.getJda().getTextChannelsByName("log-bot", true).get(0).sendMessage("Je suis down !").complete();
+				event.getTextChannel().sendTyping().complete();
+				event.getTextChannel().sendMessage("Je suis down !").complete();
 				try {
 					Main.saveData();
 				} catch (IOException e) {
