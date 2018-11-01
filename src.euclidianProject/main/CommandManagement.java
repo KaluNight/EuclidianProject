@@ -41,7 +41,7 @@ public class CommandManagement {
 		if(commande.substring(0, 6).equalsIgnoreCase("player")) {
 			return registerPlayerCommand(commande, user);
 		}else {
-			return "Erreur dans le choix de l'enregistrement. Note : Vous devez écrire \"register player VotrePseudo\" pour vous enregistrer";
+			return "Erreur dans le choix de l'enregistrement. Note : Vous devez écrire \"register player VotreServeur VotrePseudo\" pour vous enregistrer";
 		}
 	}
 
@@ -88,11 +88,19 @@ public class CommandManagement {
 				return "Vous êtes déjà enregistée !";
 			}
 		}
-
+		
+		String region;
+		String summonerName;
+		
+		try {
 		String[] info = commande.split(" ");
 
-		String region = info[1];
-		String summonerName = info[2];
+		region = info[1];
+		summonerName = info[2];
+		
+		}catch(ArrayIndexOutOfBoundsException e) {
+			return "Erreur dans l'enregistrement. Note : Vous devez écrire \"register player VotreServeur VotrePseudo\" pour vous enregistrer";
+		}
 
 		Summoner summoner;
 
@@ -111,7 +119,7 @@ public class CommandManagement {
 
 		logSender(user.getName() + " c'est enregistré en tant que joueur");
 		
-		return "Vous avez bien été enregisté !";
+		return "Vous avez bien été enregistré !";
 	}
 
 	//							Add Command

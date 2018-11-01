@@ -216,7 +216,7 @@ public class EventListener extends ListenerAdapter{
 			}
 		}
 
-		if (command.equalsIgnoreCase("register")) {
+ 		if (command.equalsIgnoreCase("register")) {
 			event.getTextChannel().sendTyping().queue();
 			String result = CommandManagement.registerCommand(message.substring(9), event.getAuthor());
 			event.getTextChannel().sendMessage(result).queue();
