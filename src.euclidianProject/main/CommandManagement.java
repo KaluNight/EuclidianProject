@@ -48,6 +48,13 @@ public class CommandManagement {
 	public static String addCommand(String commande, User user) {
 		if(commande.substring(0, 4).equalsIgnoreCase("team")) {
 			return addTeamCommand(commande.substring(5));
+		}else if (commande.substring(0, 12).equalsIgnoreCase("playerToTeam")) {
+			try {
+			return addPlayerToTeam(commande.split(" ")[1], commande.split(" ")[2]);
+			} catch (Exception e) {
+				e.printStackTrace();
+				return "Erreur dans les arguments de la commande (Note : >add playerToTeam DiscordPlayerName Team)";
+			}
 		}else {
 			return "Erreur dans le choix de l'ajout";
 		}
@@ -126,6 +133,33 @@ public class CommandManagement {
 	//-------------------------------------------------------------------------
 
 
+	private static String addPlayerToTeam(String discordName, String team) {
+		User user = Main.getJda().getUsersByName(discordName, true).get(0);
+		Player player = Main.getPlayersByDiscordId(user.getId());
+		
+		if(player == null) {
+			return discordName + " n'est pas enregistrée en tant que joueur";
+		}
+		
+		Team teamToUse = Main.getTeamByName(team);
+		Team teamBase = teamToUse;
+		
+		teamToUse.getPlayers().add(player);
+		
+		Main.getPlayerList().add(player);
+		
+		Member member = Main.getGuild().getMember(user);
+		
+		Main.getController().addRolesToMember(member, teamToUse.getRole()).queue();
+		
+		Main.getTeamList().remove(teamBase);
+		Main.getTeamList().add(teamToUse);
+		
+		logSender(player.getName() + " à été ajouté à l'équipe " + team);
+		
+		return "Le joueur a bien été ajouté à l'équipe";
+	}
+	
 	private static String addTeamCommand(String commande) {
 		RoleAction role = Main.getController().createRole();
 		role.setName("Division " + commande);
@@ -149,8 +183,12 @@ public class CommandManagement {
 		category.createTextChannel("liste-de-pick").queue();
 		category.createTextChannel("annonce-absence").queue();
 		category.createVoiceChannel("Général " + commande).queue();
-
-		Main.getTeamList().add(new Team(commande, category, teamRole));
+		
+		ArrayList<Team> teamList = new ArrayList<Team>();
+		teamList.addAll(Main.getTeamList());
+		teamList.add(new Team(commande, category, teamRole));
+		
+		Main.setTeamList(teamList);
 		
 		logSender("Equipe " + commande + " créé");
 
