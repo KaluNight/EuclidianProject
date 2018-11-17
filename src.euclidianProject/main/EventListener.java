@@ -12,6 +12,7 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.PrivateChannel;
 import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
@@ -29,6 +30,8 @@ public class EventListener extends ListenerAdapter{
 	private static final String ID_LOG_BOT_CHANNEL = "506541176200101909";
 
 	private static final String ID_POSTULATION_CHANNEL = "497763778268495882";
+	
+	private static final String ID_REPORT_CHANNEL = "513422522637877266";
 
 	@Override
 	public void onReady(ReadyEvent event) {
@@ -87,7 +90,10 @@ public class EventListener extends ListenerAdapter{
 		posteRole.add(Main.getGuild().getRolesByName("support", true).get(0));
 
 		Main.setRolePosition(posteRole);
-
+		
+		TextChannel textChannel = Main.getGuild().getTextChannelById(ID_REPORT_CHANNEL);
+		//TODO: PERMISSION ET GET REPORT
+		
 		try {
 			Main.loadData();
 		} catch (ClassNotFoundException e) {
@@ -127,6 +133,17 @@ public class EventListener extends ListenerAdapter{
 			privateChannel.sendMessage("On envoie uniquement des demandes de Postulation sur ce channel ! "
 					+ "(Note : Une postulation commence par \">postulation\")").queue();
 
+		}
+		
+		if(event.getTextChannel().getId().equals(ID_REPORT_CHANNEL) && !Main.getJda().getSelfUser().equals(event.getAuthor())) {
+			
+			event.getMessage().delete().complete();
+			
+			message = "Message de " + event.getAuthor().getName() + " :\n" + message;
+			Main.addReport(message);
+			
+			PrivateChannel privateChannel = event.getAuthor().openPrivateChannel().complete();
+			privateChannel.sendMessage("Ton message a été envoyé, nous te répondrons dans les plus brefs délais !").queue();
 		}
 
 		if (message.length() == 0 || message.charAt(0) != PREFIX) {

@@ -41,6 +41,8 @@ public class Main {
 	private static ArrayList<Player> playerList = new ArrayList<Player>();
 
 	private static ArrayList<Postulation> postulationsList = new ArrayList<Postulation>();
+	
+	private static ArrayList<String> reportList = new ArrayList<String>();
 
 	private static Role registeredRole;
 
@@ -240,6 +242,10 @@ public class Main {
 		}
 		return null;
 	}
+	
+	public static void addReport(String report) {
+		reportList.add(report);
+	}
 
 	public static JDA getJda() {
 		return jda;
@@ -323,5 +329,13 @@ public class Main {
 
 	public static void setLogBot(TextChannel logBot) {
 		Main.logBot = logBot;
+	}
+
+	public static ArrayList<String> getReportList() {
+		return reportList;
+	}
+
+	public static void setReportList(ArrayList<String> reportList) {
+		Main.reportList = reportList;
 	}
 }
