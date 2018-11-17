@@ -2,14 +2,11 @@ package main;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.Scanner;
-
 import model.Player;
 import model.Postulation;
 import model.Team;
@@ -32,9 +29,7 @@ public class Main {
 	private static final File SAVE_FILE = new File("ressources/save");
 
 	//------------------------------
-
-	private static File keyFile = new File("Key.txt");
-
+	
 	private static JDA jda;
 
 	private static RiotApi riotApi;
@@ -58,41 +53,28 @@ public class Main {
 	private static Guild guild;
 
 	private static GuildController controller;
-
+	
 	//-------------------------------
-
+	
 	private static TextChannel logBot;
-
+	
 
 	public static void main(String[] args) {
-		Scanner scanner = null;
 		try {
-			scanner = new Scanner(keyFile);
-		} catch (FileNotFoundException e2) {
-			System.out.println("Fichier avec keys pas trouvé");
+			jda = new JDABuilder(AccountType.BOT).setToken(args[0]).build();
+		} catch (IndexOutOfBoundsException e) {
+			System.err.println("You must provide a token.");
+			return;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return;
 		}
 
-		try {
+		jda.addEventListener(new EventListener());
 
-			try {
-				jda = new JDABuilder(AccountType.BOT).setToken(scanner.nextLine()).build();
-			} catch (IndexOutOfBoundsException e) {
-				System.err.println("You must provide a token.");
-				return;
-			} catch (Exception e) {
-				e.printStackTrace();
-				return;
-			}
-
-			jda.addEventListener(new EventListener());
-
-			ApiConfig config = new ApiConfig();
-			config.setKey(scanner.nextLine());
-			riotApi = new RiotApi(config);
-
-		}finally{
-			scanner.close();
-		}
+		ApiConfig config = new ApiConfig();
+		config.setKey(args[1]);
+		riotApi = new RiotApi(config);
 	}
 
 	public static void saveData() throws IOException {

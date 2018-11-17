@@ -5,9 +5,7 @@
 	<groupId>EuclidianProject</groupId>
 	<artifactId>EuclidianProject</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-
-
-
+	
 	<dependencies>
 		<dependency>
 			<groupId>org.slf4j</groupId>
