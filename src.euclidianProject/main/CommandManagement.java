@@ -63,8 +63,8 @@ public class CommandManagement {
 	public static String deleteCommand(String commande) {
 		if(commande.substring(0, 4).equalsIgnoreCase("team")) {
 			return deleteTeamCommand(commande);
-		}else if (commande.substring(0, 6).equalsIgnoreCase("player")){
-			return "Erreur";
+		}else if (commande.substring(0, 7).equalsIgnoreCase("reports")){
+			return deleteReportsCommand();
 		}else {
 			return "Erreur dans le choix de la suppression";
 		}
@@ -81,6 +81,17 @@ public class CommandManagement {
 		logSender("Postulations affichées");
 		
 		return listesPostulation;
+	}
+	
+	public static ArrayList<String> showReportsCommand(){
+		ArrayList<String> listReport = new ArrayList<String>();
+		
+		for(int i = 0; i < Main.getReportList().size(); i++) {
+			listReport.add(Main.getReportList().get(i));
+		}
+		logSender("Reports envoyés");
+		
+		return listReport;
 	}
 
 	//						    Register Command
@@ -216,6 +227,14 @@ public class CommandManagement {
 		logSender("Equipe " + name + " supprimé");
 
 		return "Equipe " + name + " supprimé !";
+	}
+	
+	public static String deleteReportsCommand() {
+		Main.setReportList(new ArrayList<String>());
+		
+		logSender("Reports Supprimé");
+		
+		return "Les reports ont bien été supprimé";
 	}
 
 	//							Postulation Command

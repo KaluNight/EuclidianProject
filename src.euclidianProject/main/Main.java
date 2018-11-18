@@ -126,7 +126,13 @@ public class Main {
 
 				oos.writeUTF(postulation.getHoraires());
 			}
+			
+			oos.writeInt(reportList.size()); //Number of report
 
+			for(int i = 0; i < reportList.size(); i++) {
+				oos.writeUTF(reportList.get(i));
+			}
+			
 		} finally {
 			oos.close();
 		}
@@ -201,7 +207,18 @@ public class Main {
 
 				postulationsList.add(new Postulation(member, summoner, roles, horaires));
 			}
+			
+			int reportNbr;
+			try {
+				reportNbr = ois.readInt();
+			} catch (Exception e) {
+				reportNbr = 0;
+			}
 
+			for(int i = 0; i < reportNbr; i++) {
+				reportList.add(ois.readUTF());
+			}
+			
 		} finally {
 			ois.close();
 		}

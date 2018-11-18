@@ -32,6 +32,8 @@ public class EventListener extends ListenerAdapter{
 	private static final String ID_POSTULATION_CHANNEL = "497763778268495882";
 	
 	private static final String ID_REPORT_CHANNEL = "513422522637877266";
+	
+	private static Message statusReportMessage;
 
 	@Override
 	public void onReady(ReadyEvent event) {
@@ -92,7 +94,22 @@ public class EventListener extends ListenerAdapter{
 		Main.setRolePosition(posteRole);
 		
 		TextChannel textChannel = Main.getGuild().getTextChannelById(ID_REPORT_CHANNEL);
-		//TODO: PERMISSION ET GET REPORT
+		List<Message> list = textChannel.getHistory().getRetrievedHistory();
+		Message message = null;
+		
+		for(int i = 0; i < list.size(); i++) {
+			if(list.get(i).getAuthor().equals(Main.getJda().getSelfUser())) {
+				message = list.get(i);
+			}
+		}
+		
+		if(message == null) {
+			message = textChannel.sendMessage("Status : En Ligne").complete();
+		} else {
+			message.editMessage("Status : En Ligne").complete();
+		}
+		
+		statusReportMessage = message;
 		
 		try {
 			Main.loadData();
@@ -187,6 +204,18 @@ public class EventListener extends ListenerAdapter{
 			} else if (command.equalsIgnoreCase("show")) {
 
 				event.getTextChannel().sendTyping().queue();
+				
+				if(message.split(" ")[1].equalsIgnoreCase("reports") || message.split(" ")[1].equalsIgnoreCase("report")) {
+					event.getChannel().sendTyping().complete();
+					ArrayList<String> listReport = CommandManagement.showReportsCommand();
+					for(int i = 0; i < listReport.size(); i++) {
+						event.getChannel().sendMessage(listReport.get(i)).queue();
+					}
+					
+					if(listReport.isEmpty()) {
+						event.getChannel().sendMessage("Aucun message a afficher").queue();
+					}
+				}
 
 				if(message.split(" ")[1].equalsIgnoreCase("postulations") || message.split(" ")[1].equalsIgnoreCase("postulation")) {
 					try {
@@ -221,6 +250,7 @@ public class EventListener extends ListenerAdapter{
 				event.getTextChannel().sendMessage(result).queue();
 
 			} else if (command.equals("stop")) {
+				statusReportMessage.editMessage("Status : Hors Ligne").complete();
 				event.getTextChannel().sendTyping().complete();
 				event.getTextChannel().sendMessage("Je suis down !").complete();
 				try {
