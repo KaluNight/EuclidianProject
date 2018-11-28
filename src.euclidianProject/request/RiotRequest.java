@@ -6,6 +6,8 @@ import java.util.Set;
 import main.Main;
 import net.rithms.riot.api.RiotApiException;
 import net.rithms.riot.api.endpoints.league.dto.LeaguePosition;
+import net.rithms.riot.api.endpoints.spectator.dto.CurrentGameInfo;
+import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 import net.rithms.riot.constant.Platform;
 
 public class RiotRequest {
@@ -28,6 +30,25 @@ public class RiotRequest {
 		}
 		
 		return ligue + " " + rank;
+	}
+	
+	public static String getActualGameStatus(Summoner summoner) throws RiotApiException {
+		
+		CurrentGameInfo currentGameInfo = Main.getRiotApi().getActiveGameBySummoner(Platform.EUW, summoner.getAccountId());
+		
+		String gameStatus = currentGameInfo.getGameMode();
+		
+		gameStatus += " (" + currentGameInfo.getGameType() + ") ";
+		
+		
+		double minutesOfGames = currentGameInfo.getGameLength() / 60.0;
+		String[] stringMinutesSecondes = Double.toString(minutesOfGames).split(".");
+		int minutesGameLength = Integer.parseInt(stringMinutesSecondes[0]);
+		int secondesGameLength = Integer.parseInt("0." + stringMinutesSecondes[1]) * 60;
+
+		gameStatus += "(" + minutesGameLength + "m " + secondesGameLength + "s)";
+		
+		return gameStatus;
 	}
 	
 }

@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import model.Team;
@@ -30,9 +32,9 @@ public class EventListener extends ListenerAdapter{
 	private static final String ID_LOG_BOT_CHANNEL = "506541176200101909";
 
 	private static final String ID_POSTULATION_CHANNEL = "497763778268495882";
-	
+
 	private static final String ID_REPORT_CHANNEL = "513422522637877266";
-	
+
 	private static Message statusReportMessage;
 
 	@Override
@@ -92,25 +94,25 @@ public class EventListener extends ListenerAdapter{
 		posteRole.add(Main.getGuild().getRolesByName("support", true).get(0));
 
 		Main.setRolePosition(posteRole);
-		
+
 		TextChannel textChannel = Main.getGuild().getTextChannelById(ID_REPORT_CHANNEL);
-		List<Message> list = textChannel.getHistory().getRetrievedHistory();
+		List<Message> list = textChannel.getIterableHistory().complete();
 		Message message = null;
-		
+
 		for(int i = 0; i < list.size(); i++) {
 			if(list.get(i).getAuthor().equals(Main.getJda().getSelfUser())) {
 				message = list.get(i);
 			}
 		}
-		
+
 		if(message == null) {
 			message = textChannel.sendMessage("Status : En Ligne").complete();
 		} else {
 			message.editMessage("Status : En Ligne").complete();
 		}
-		
+
 		statusReportMessage = message;
-		
+
 		try {
 			Main.loadData();
 		} catch (ClassNotFoundException e) {
@@ -118,6 +120,11 @@ public class EventListener extends ListenerAdapter{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		Timer timer = new Timer();
+		TimerTask task = new ContinuousDataChecking();
+		timer.schedule(task, 0, 180000);
+		
 		Main.getLogBot().sendMessage("Je suis Up !").complete();
 	}
 
@@ -144,21 +151,21 @@ public class EventListener extends ListenerAdapter{
 		if(event.getTextChannel().getId().equals(ID_POSTULATION_CHANNEL) && message.charAt(0) != PREFIX && !isAdmin
 				&& !Main.getJda().getSelfUser().equals(event.getAuthor())){
 			event.getMessage().delete().queue();
-			
+
 			PrivateChannel privateChannel = event.getAuthor().openPrivateChannel().complete();
 			privateChannel.sendTyping().queue();
 			privateChannel.sendMessage("On envoie uniquement des demandes de Postulation sur ce channel ! "
 					+ "(Note : Une postulation commence par \">postulation\")").queue();
 
 		}
-		
+
 		if(event.getTextChannel().getId().equals(ID_REPORT_CHANNEL) && !Main.getJda().getSelfUser().equals(event.getAuthor())) {
-			
+
 			event.getMessage().delete().complete();
-			
+
 			message = "Message de " + event.getAuthor().getName() + " :\n" + message;
 			Main.addReport(message);
-			
+
 			PrivateChannel privateChannel = event.getAuthor().openPrivateChannel().complete();
 			privateChannel.sendMessage("Ton message a été envoyé, nous te répondrons dans les plus brefs délais !").queue();
 		}
@@ -204,18 +211,6 @@ public class EventListener extends ListenerAdapter{
 			} else if (command.equalsIgnoreCase("show")) {
 
 				event.getTextChannel().sendTyping().queue();
-				
-				if(message.split(" ")[1].equalsIgnoreCase("reports") || message.split(" ")[1].equalsIgnoreCase("report")) {
-					event.getChannel().sendTyping().complete();
-					ArrayList<String> listReport = CommandManagement.showReportsCommand();
-					for(int i = 0; i < listReport.size(); i++) {
-						event.getChannel().sendMessage(listReport.get(i)).queue();
-					}
-					
-					if(listReport.isEmpty()) {
-						event.getChannel().sendMessage("Aucun message a afficher").queue();
-					}
-				}
 
 				if(message.split(" ")[1].equalsIgnoreCase("postulations") || message.split(" ")[1].equalsIgnoreCase("postulation")) {
 					try {
@@ -232,6 +227,18 @@ public class EventListener extends ListenerAdapter{
 					} catch (RiotApiException e) {
 						event.getTextChannel().sendMessage("L'api de Riot est pas disponible, merci de réessayer dans 2 minutes").queue();
 					}
+
+				} else if(message.split(" ")[1].equalsIgnoreCase("reports") || message.split(" ")[1].equalsIgnoreCase("report")) {
+					event.getChannel().sendTyping().complete();
+					ArrayList<String> listReport = CommandManagement.showReportsCommand();
+					for(int i = 0; i < listReport.size(); i++) {
+						event.getChannel().sendMessage(listReport.get(i)).queue();
+					}
+
+					if(listReport.isEmpty()) {
+						event.getChannel().sendMessage("Aucun message a afficher").queue();
+					}
+
 				} else {
 					String result = CommandManagement.showCommand(command, event.getAuthor());
 					event.getTextChannel().sendMessage(result).queue();
@@ -263,7 +270,7 @@ public class EventListener extends ListenerAdapter{
 			}
 		}
 
- 		if (command.equalsIgnoreCase("register")) {
+		if (command.equalsIgnoreCase("register")) {
 			event.getTextChannel().sendTyping().queue();
 			String result = CommandManagement.registerCommand(message.substring(9), event.getAuthor());
 			event.getTextChannel().sendMessage(result).queue();
