@@ -34,18 +34,21 @@ public class RiotRequest {
 	
 	public static String getActualGameStatus(Summoner summoner) throws RiotApiException {
 		
-		CurrentGameInfo currentGameInfo = Main.getRiotApi().getActiveGameBySummoner(Platform.EUW, summoner.getAccountId());
+		CurrentGameInfo currentGameInfo = Main.getRiotApi().getActiveGameBySummoner(Platform.EUW, summoner.getId());
+		
+		if (currentGameInfo == null) {
+			return "Pas en game";
+		}
 		
 		String gameStatus = currentGameInfo.getGameMode();
 		
 		gameStatus += " (" + currentGameInfo.getGameType() + ") ";
 		
-		
 		double minutesOfGames = currentGameInfo.getGameLength() / 60.0;
-		String[] stringMinutesSecondes = Double.toString(minutesOfGames).split(".");
+		String[] stringMinutesSecondes = Double.toString(minutesOfGames).split("\\.");
 		int minutesGameLength = Integer.parseInt(stringMinutesSecondes[0]);
-		int secondesGameLength = Integer.parseInt("0." + stringMinutesSecondes[1]) * 60;
-
+		int secondesGameLength = (int) (Double.parseDouble("0." + stringMinutesSecondes[1]) * 60.0);
+		
 		gameStatus += "(" + minutesGameLength + "m " + secondesGameLength + "s)";
 		
 		return gameStatus;

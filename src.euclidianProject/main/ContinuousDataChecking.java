@@ -34,7 +34,7 @@ public class ContinuousDataChecking extends TimerTask{
 		if(LocalDateTime.now().isAfter(nextRefreshPanel)) {
 			
 			try {
-				refreshPannel();
+				messagePanel.editMessage(refreshPannel()).queue();
 			} catch (RiotApiException e) {
 				System.out.println("Api Max Calls");
 				e.printStackTrace();
@@ -45,7 +45,7 @@ public class ContinuousDataChecking extends TimerTask{
 		
 	}
 	
-	private void refreshPannel() throws RiotApiException {
+	private String refreshPannel() throws RiotApiException {
 		
 		ArrayList<Team> teamList = Main.getTeamList();
 		
@@ -59,7 +59,7 @@ public class ContinuousDataChecking extends TimerTask{
 			
 			ArrayList<Player> playersList = teamList.get(i).getPlayers();
 			
-			for(int j = 0; j < teamList.size(); j++) {
+			for(int j = 0; j < playersList.size(); j++) {
 				stringMessage.append(playersList.get(j).getSummoner().getName() + "(" + playersList.get(j).getDiscordUser().getName() + ") : ");
 				
 				stringMessage.append(RiotRequest.getActualGameStatus(playersList.get(j).getSummoner()) + "\n");
@@ -68,6 +68,7 @@ public class ContinuousDataChecking extends TimerTask{
 			stringMessage.append(" \n");
 		}
 		
+		return stringMessage.toString();
 	}
 
 	public static LocalDateTime getNextRefreshPanel() {

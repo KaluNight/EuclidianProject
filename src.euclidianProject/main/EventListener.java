@@ -266,7 +266,8 @@ public class EventListener extends ListenerAdapter{
 					e.printStackTrace();
 					System.out.println("Erreur Save");
 				}
-				Main.getJda().shutdown();
+				Main.getJda().shutdownNow();
+				
 			}
 		}
 

@@ -79,6 +79,28 @@ public class Main {
 		riotApi = new RiotApi(config);
 	}
 
+	public static void saveDataTxt() {
+		
+		StringBuilder saveString = new StringBuilder();
+		
+		saveString.append("//Liste Of Player\n");
+		
+		for(int i = 0; i < playerList.size(); i++) {
+			Player player = playerList.get(i);
+			
+			saveString.append("//Discord name");
+			saveString.append(player.getName() + "\n");
+			
+			saveString.append("//Discord ID");
+			saveString.append(player.getDiscordUser().getId() + "\n");
+			
+			saveString.append("//LoL AccountId");
+			saveString.append(player.getSummoner().getAccountId() + "\n");
+		}
+		
+		
+	}
+	
 	public static void saveData() throws IOException {
 		FileOutputStream fos = new FileOutputStream(SAVE_FILE); //Make id System
 		ObjectOutputStream oos = new ObjectOutputStream(fos);
