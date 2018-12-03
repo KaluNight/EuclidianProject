@@ -20,6 +20,8 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import net.dv8tion.jda.core.requests.restaction.RoleAction;
 import net.rithms.riot.api.RiotApiException;
+import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
+import net.rithms.riot.constant.Platform;
 
 public class EventListener extends ListenerAdapter{
 
@@ -114,17 +116,17 @@ public class EventListener extends ListenerAdapter{
 		statusReportMessage = message;
 
 		try {
-			Main.loadData();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			Main.loadDataTxt();
 		} catch (IOException e) {
 			e.printStackTrace();
+		} catch (RiotApiException e) {
+			e.printStackTrace();
 		}
-		
+
 		Timer timer = new Timer();
 		TimerTask task = new ContinuousDataChecking();
 		timer.schedule(task, 0, 180000);
-		
+
 		Main.getLogBot().sendMessage("Je suis Up !").complete();
 	}
 
@@ -185,13 +187,13 @@ public class EventListener extends ListenerAdapter{
 
 				PrivateChannel pc = event.getAuthor().openPrivateChannel().complete();
 
-				pc.sendMessage("~Copie du Message~\n" + result).queue();
+				pc.sendMessage("~Copie du Message~\n" + result).complete();
 
 				event.getMessage().delete().queueAfter(10, TimeUnit.SECONDS);
 				messageSend.delete().queueAfter(10, TimeUnit.SECONDS);
 			}else {
 				if(!isAdmin) {
-					event.getTextChannel().sendTyping().queue();
+					event.getTextChannel().sendTyping().complete();
 					Message messageResponse = event.getTextChannel().sendMessage("Les demandes de Postulation doivent commencer par \"Postulation\".").complete();
 					event.getMessage().delete().queueAfter(5, TimeUnit.SECONDS);
 					messageResponse.delete().queueAfter(5, TimeUnit.SECONDS);
@@ -204,13 +206,13 @@ public class EventListener extends ListenerAdapter{
 		if(isAdmin) {
 
 			if (command.equalsIgnoreCase("Add")){
-				event.getTextChannel().sendTyping().queue();
+				event.getTextChannel().sendTyping().complete();
 				String result = CommandManagement.addCommand(message.substring(4), event.getAuthor());
 				event.getTextChannel().sendMessage(result).queue();
 
 			} else if (command.equalsIgnoreCase("show")) {
 
-				event.getTextChannel().sendTyping().queue();
+				event.getTextChannel().sendTyping().complete();
 
 				if(message.split(" ")[1].equalsIgnoreCase("postulations") || message.split(" ")[1].equalsIgnoreCase("postulation")) {
 					try {
@@ -246,28 +248,39 @@ public class EventListener extends ListenerAdapter{
 
 			}else if (command.equalsIgnoreCase("postulation")){
 
-				event.getTextChannel().sendTyping().queue();
+				event.getTextChannel().sendTyping().complete();
 				String result = CommandManagement.postulationCommand(message.substring(12), event.getAuthor());
 				event.getTextChannel().sendMessage(result).queue();
 
 			} else if (command.equalsIgnoreCase("delete")) {
 
-				event.getTextChannel().sendTyping().queue();
+				event.getTextChannel().sendTyping().complete();
 				String result = CommandManagement.deleteCommand(message.substring(7));
 				event.getTextChannel().sendMessage(result).queue();
 
+			} else if(command.equalsIgnoreCase("getAccountId")) {
+
+				event.getTextChannel().sendTyping().complete();
+				Summoner result;
+				try {
+					result = Main.getRiotApi().getSummonerByName(Platform.EUW, message.substring(13));
+					event.getTextChannel().sendMessage("Account Id de " + result.getName() + " : " + result.getAccountId()).queue();
+				} catch (RiotApiException e) {
+					event.getTextChannel().sendMessage("Summoner invalide").queue();
+				}
+				
 			} else if (command.equals("stop")) {
 				statusReportMessage.editMessage("Status : Hors Ligne").complete();
 				event.getTextChannel().sendTyping().complete();
 				event.getTextChannel().sendMessage("Je suis down !").complete();
 				try {
-					Main.saveData();
+					Main.saveDataTxt();
 				} catch (IOException e) {
-					e.printStackTrace();
 					System.out.println("Erreur Save");
 				}
 				Main.getJda().shutdownNow();
-				
+
+				System.exit(0);
 			}
 		}
 

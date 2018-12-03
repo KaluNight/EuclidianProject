@@ -50,9 +50,8 @@ public class CommandManagement {
 			return addTeamCommand(commande.substring(5));
 		}else if (commande.substring(0, 12).equalsIgnoreCase("playerToTeam")) {
 			try {
-			return addPlayerToTeam(commande.split(" ")[1], commande.split(" ")[2]);
+				return addPlayerToTeam(commande.split(" ")[1], commande.split(" ")[2]);
 			} catch (Exception e) {
-				e.printStackTrace();
 				return "Erreur dans les arguments de la commande (Note : >add playerToTeam DiscordPlayerName Team)";
 			}
 		}else {
@@ -79,18 +78,18 @@ public class CommandManagement {
 			listesPostulation.add(MessageBuilderRequest.createShowPostulation(Main.getPostulationsList().get(i), i + 1));
 		}
 		logSender("Postulations affichées");
-		
+
 		return listesPostulation;
 	}
-	
+
 	public static ArrayList<String> showReportsCommand(){
 		ArrayList<String> listReport = new ArrayList<String>();
-		
+
 		for(int i = 0; i < Main.getReportList().size(); i++) {
 			listReport.add(Main.getReportList().get(i));
 		}
 		logSender("Reports envoyés");
-		
+
 		return listReport;
 	}
 
@@ -99,6 +98,24 @@ public class CommandManagement {
 
 	private static String registerPlayerCommand(String commande, User user) {
 
+		String summonerName;
+		
+		try {
+			String[] info = commande.split(" ");
+
+			summonerName = info[1];
+
+			for(int i = 0; i < Main.getPlayerList().size(); i++) {
+				if(Main.getPlayerList().get(i).getSummoner().getName().equals(summonerName)) {
+					return "Ce compte est déjà enregistré";
+				}
+			}
+
+		}catch(ArrayIndexOutOfBoundsException e) {
+			return "Erreur dans l'enregistrement. Note : Vous devez écrire \"register player VotrePseudo\" pour vous enregistrer";
+		}
+
+
 		Member member = Main.getGuild().getMemberById(user.getId());
 
 		for(int i = 0; i < member.getRoles().size(); i++) {
@@ -106,27 +123,14 @@ public class CommandManagement {
 				return "Vous êtes déjà enregistée !";
 			}
 		}
-		
-		String region;
-		String summonerName;
-		
-		try {
-		String[] info = commande.split(" ");
-
-		region = info[1];
-		summonerName = info[2];
-		
-		}catch(ArrayIndexOutOfBoundsException e) {
-			return "Erreur dans l'enregistrement. Note : Vous devez écrire \"register player VotreServeur VotrePseudo\" pour vous enregistrer";
-		}
 
 		Summoner summoner;
 
 		try {
-			summoner = Main.getRiotApi().getSummonerByName(Platform.getPlatformByName(region), summonerName);
+			summoner = Main.getRiotApi().getSummonerByName(Platform.EUW, summonerName);
 		} catch (RiotApiException e) {
 			e.printStackTrace();
-			return "Erreur dans la région ou dans le nom d'invocateur ! Merci de réessayer";
+			return "L'api de riot n'est pas disponible pour le moment, merci de réessayer dans 2 minutes";
 		}
 
 		Player player = new Player(user.getName(), user, summoner);
@@ -136,7 +140,7 @@ public class CommandManagement {
 		Main.getController().addRolesToMember(member, Main.getRegisteredRole()).queue();
 
 		logSender(user.getName() + " c'est enregistré en tant que joueur");
-		
+
 		return "Vous avez bien été enregistré !";
 	}
 
@@ -147,30 +151,30 @@ public class CommandManagement {
 	private static String addPlayerToTeam(String discordName, String team) {
 		User user = Main.getJda().getUsersByName(discordName, true).get(0);
 		Player player = Main.getPlayersByDiscordId(user.getId());
-		
+
 		if(player == null) {
 			return discordName + " n'est pas enregistrée en tant que joueur";
 		}
-		
+
 		Team teamToUse = Main.getTeamByName(team);
 		Team teamBase = teamToUse;
-		
+
 		teamToUse.getPlayers().add(player);
-		
+
 		Main.getPlayerList().add(player);
-		
+
 		Member member = Main.getGuild().getMember(user);
-		
+
 		Main.getController().addRolesToMember(member, teamToUse.getRole()).queue();
-		
+
 		Main.getTeamList().remove(teamBase);
 		Main.getTeamList().add(teamToUse);
-		
+
 		logSender(player.getName() + " à été ajouté à l'équipe " + team);
-		
+
 		return "Le joueur a bien été ajouté à l'équipe";
 	}
-	
+
 	private static String addTeamCommand(String commande) {
 		RoleAction role = Main.getController().createRole();
 		role.setName("Division " + commande);
@@ -194,13 +198,13 @@ public class CommandManagement {
 		category.createTextChannel("liste-de-pick").queue();
 		category.createTextChannel("annonce-absence").queue();
 		category.createVoiceChannel("Général " + commande).queue();
-		
+
 		ArrayList<Team> teamList = new ArrayList<Team>();
 		teamList.addAll(Main.getTeamList());
 		teamList.add(new Team(commande, category, teamRole));
-		
+
 		Main.setTeamList(teamList);
-		
+
 		logSender("Equipe " + commande + " créé");
 
 		return "Equipe " + commande + " créé !";
@@ -223,17 +227,17 @@ public class CommandManagement {
 		String name = team.getName();
 
 		Main.getTeamList().remove(team);
-		
+
 		logSender("Equipe " + name + " supprimé");
 
 		return "Equipe " + name + " supprimé !";
 	}
-	
+
 	public static String deleteReportsCommand() {
 		Main.setReportList(new ArrayList<String>());
-		
+
 		logSender("Reports Supprimé");
-		
+
 		return "Les reports ont bien été supprimé";
 	}
 
@@ -299,16 +303,16 @@ public class CommandManagement {
 			Main.getPostulationsList().remove(index);
 			Main.getPostulationsList().add(postulationObject);
 			Main.getController().modifyMemberRoles(member, roleWithPostulant).queue();
-			
+
 			logSender("Postulation de " + member.getUser().getName() + " modifié");
-			
+
 			return "Votre postulation a bien été modifié";
 		}else {
 			Main.getPostulationsList().add(postulationObject);
 			Main.getController().addRolesToMember(member, roleWithPostulant).queue();
-			
+
 			logSender("Nouvelle postulation créé par " + member.getUser().getName());
-			
+
 			return "Merci d'avoir postulé ! Vous recevrez des informations concernant votre potentiel recrutement très bientôt !\n"
 			+ "Votre postulations (Vous pouvez la modifier en renvoyant une postulation) : \n \n"
 			+ postulationObject.toString();
@@ -322,7 +326,7 @@ public class CommandManagement {
 		}catch (IndexOutOfBoundsException e) {
 			return "Erreur dans la sélection de la postulation (index)";
 		}
-		
+
 		PrivateChannel privateChannel = postulation.getMember().getUser().openPrivateChannel().complete();
 		privateChannel.sendTyping().queue();
 		privateChannel.sendMessage("Votre postulation à été accepté, vous recevrez très bientôt des informations concernant votre futur affiliation, "
@@ -333,19 +337,25 @@ public class CommandManagement {
 
 		Player player = new Player(postulation.getMember().getUser().getName(), postulation.getMember().getUser(), postulation.getSummoner());
 		Main.getController().addRolesToMember(postulation.getMember(), Main.getRegisteredRole()).queue();
+
+		for(int i = 0; i < Main.getPlayerList().size(); i++) {
+			if(Main.getPlayerList().get(i).getDiscordUser().getName().equals(postulation.getMember().getUser().getName())) {
+				Main.getPlayerList().remove(i);
+			}
+		}
 		
 		Main.getPlayerList().add(player);
-		
+
 		Main.getPostulationsList().remove(accepted);
-		
+
 		logSender("Postulation de " + postulation.getMember().getUser().getName() + " accepté par " + user.getName());
 
 		return result;
 	}
-	
+
 	//								Log
 	//----------------------------------------------------------------------
-	
+
 	private static void logSender(String str) {
 		Main.getLogBot().sendMessage(str).queue();
 	}

@@ -1,11 +1,12 @@
 package main;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import model.Player;
 import model.Postulation;
@@ -22,14 +23,16 @@ import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.managers.GuildController;
 import net.rithms.riot.api.ApiConfig;
 import net.rithms.riot.api.RiotApi;
+import net.rithms.riot.api.RiotApiException;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
+import net.rithms.riot.constant.Platform;
 
 public class Main {
 
-	private static final File SAVE_FILE = new File("ressources/save");
+	private static final File SAVE_TXT_FILE = new File("ressources/save.txt");
 
 	//------------------------------
-	
+
 	private static JDA jda;
 
 	private static RiotApi riotApi;
@@ -41,7 +44,7 @@ public class Main {
 	private static ArrayList<Player> playerList = new ArrayList<Player>();
 
 	private static ArrayList<Postulation> postulationsList = new ArrayList<Postulation>();
-	
+
 	private static ArrayList<String> reportList = new ArrayList<String>();
 
 	private static Role registeredRole;
@@ -55,11 +58,11 @@ public class Main {
 	private static Guild guild;
 
 	private static GuildController controller;
-	
+
 	//-------------------------------
-	
+
 	private static TextChannel logBot;
-	
+
 
 	public static void main(String[] args) {
 		try {
@@ -79,171 +82,177 @@ public class Main {
 		riotApi = new RiotApi(config);
 	}
 
-	public static void saveDataTxt() {
-		
+	public static void saveDataTxt() throws FileNotFoundException, UnsupportedEncodingException {
+
 		StringBuilder saveString = new StringBuilder();
-		
-		saveString.append("//Liste Of Player\n");
-		
+
+		saveString.append("//Liste Of Player\n\n");
+
 		for(int i = 0; i < playerList.size(); i++) {
 			Player player = playerList.get(i);
-			
-			saveString.append("//Discord name");
+
+			saveString.append("--p\n");
+
 			saveString.append(player.getName() + "\n");
-			
-			saveString.append("//Discord ID");
 			saveString.append(player.getDiscordUser().getId() + "\n");
-			
-			saveString.append("//LoL AccountId");
-			saveString.append(player.getSummoner().getAccountId() + "\n");
+			saveString.append(player.getSummoner().getAccountId() + "\n\n");
 		}
-		
-		
-	}
-	
-	public static void saveData() throws IOException {
-		FileOutputStream fos = new FileOutputStream(SAVE_FILE); //Make id System
-		ObjectOutputStream oos = new ObjectOutputStream(fos);
+
+		saveString.append("\n//Liste of teams\n");
+
+		for(int i = 0; i < teamList.size(); i++) {
+			Team team = teamList.get(i);
+
+			saveString.append("--t\n");
+
+			saveString.append(team.getName() + "\n");
+			saveString.append(team.getRole().getId() + "\n");
+			saveString.append(team.getCategory().getId() + "\n");
+			saveString.append(team.getPlayers().size() + "\n");
+
+			for(int j = 0; j < team.getPlayers().size(); j++) {
+				saveString.append(team.getPlayers().get(j).getDiscordUser().getId() + "\n");
+			}
+			saveString.append("\n");
+		}
+
+		saveString.append("\n\n//Postulations\n");
+
+		for(int i = 0; i < postulationsList.size(); i++) {
+			Postulation postulation = postulationsList.get(i);
+
+			saveString.append("--post\n");
+
+			saveString.append(postulation.getMember().getUser().getId() + "\n");
+			saveString.append(postulation.getSummoner().getAccountId() + "\n");
+			saveString.append(postulation.getRoles().size() + "\n");
+
+			for(int j = 0; j < postulation.getRoles().size(); j++) {
+				saveString.append(postulation.getRoles().get(j).getId() + "\n");
+			}
+			
+			saveString.append(postulation.getHoraires());
+			
+			saveString.append("\n");
+		}
+
+		saveString.append("\n\n//Report\n");
+
+		for(int i = 0; i < reportList.size(); i++) {
+			saveString.append("--r\n");
+
+			saveString.append(reportList.get(i));
+			saveString.append("--end");
+		}
+
+		PrintWriter writer = null;
+
 		try {
-
-			oos.writeInt(playerList.size()); //Number of Player
-
-			for(int i = 0; i < playerList.size(); i++) {
-				Player player = playerList.get(i);
-
-				oos.writeUTF(player.getName()); //Name
-				oos.writeUTF(player.getDiscordUser().getId()); //Discord ID
-
-				oos.writeObject(player.getSummoner()); //Summoner Object
-			}
-
-			oos.writeInt(teamList.size()); //Number of Teams
-
-			for(int i = 0; i < teamList.size(); i++) {
-				Team team = teamList.get(i);
-
-				oos.writeUTF(team.getName()); //Name
-				oos.writeUTF(team.getRole().getId()); //ID of role
-				oos.writeUTF(team.getCategory().getId()); //ID of category
-
-				oos.writeInt(team.getPlayers().size()); //Team size
-
-				for(int j = i; j < team.getPlayers().size(); j++) {
-					oos.writeUTF(team.getPlayers().get(i).getDiscordUser().getId()); //Write Discord ID of players
-				}
-			}
-
-			oos.writeInt(postulationsList.size()); //Number of Postulation
-
-			for(int i = 0; i < postulationsList.size(); i++) {
-				Postulation postulation = postulationsList.get(i);
-
-				oos.writeUTF(postulation.getMember().getUser().getId());
-				oos.writeObject(postulation.getSummoner());
-
-				oos.writeInt(postulation.getRoles().size()); //Number of roles
-				for(int j = 0; j < postulation.getRoles().size(); j++) {
-					oos.writeUTF(postulation.getRoles().get(j).getId());
-				}
-
-				oos.writeUTF(postulation.getHoraires());
-			}
-			
-			oos.writeInt(reportList.size()); //Number of report
-
-			for(int i = 0; i < reportList.size(); i++) {
-				oos.writeUTF(reportList.get(i));
-			}
-			
+			writer = new PrintWriter(SAVE_TXT_FILE ,"UTF-8");
+			writer.write(saveString.toString());
 		} finally {
-			oos.close();
+			if(writer != null) {
+				writer.close();
+			}
 		}
 	}
 
-	public static void loadData() throws IOException, ClassNotFoundException {
-		FileInputStream fis = new FileInputStream(SAVE_FILE);
-		ObjectInputStream ois = new ObjectInputStream(fis);
+	public static void loadDataTxt() throws IOException, RiotApiException {
+		BufferedReader reader = null;
+
 		try {
+			reader = new BufferedReader(new FileReader(SAVE_TXT_FILE));
+			String line;
 
-			int playerNbr = ois.readInt();
+			while((line = reader.readLine()) != null) {
 
-			for(int i = 0; i < playerNbr; i++) {
+				if(line.equals("--p")) {
+					String discordName = reader.readLine();
+					String discordID = reader.readLine();
+					long accountId = Long.parseLong(reader.readLine());
 
-				String name = ois.readUTF();
+					if(!isPlayersAlreadyCopied(discordID)) {
+						User user = jda.getUserById(discordID);
+						Summoner summoner = riotApi.getSummonerByAccount(Platform.EUW, accountId);
 
-				String discordID = ois.readUTF();
-				User user = jda.getUserById(discordID);
+						playerList.add(new Player(discordName, user, summoner));
+					}
 
-				Summoner summoner = (Summoner) ois.readObject();
+				} else if (line.equals("--t")) {
 
-				playerList.add(new Player(name, user, summoner));
-			}
+					String teamName = reader.readLine();
+
+					String roleId = reader.readLine();
+					Role role = guild.getRoleById(roleId);
 
 
-			int teamNbr = ois.readInt();
+					String categoryId = reader.readLine();
+					Category category = guild.getCategoryById(categoryId);
 
-			for(int i = 0; i < teamNbr; i++) {
-				String name = ois.readUTF();
-				String roleID = ois.readUTF();
-				Role role = guild.getRoleById(roleID);
+					Team team = new Team(teamName, category, role);
 
-				String categoryID = ois.readUTF();
-				Category category = guild.getCategoryById(categoryID);
+					int numberOfPlayer = Integer.parseInt(reader.readLine());
 
-				Team team = new Team(name, category, role);
+					ArrayList<Player> players = new ArrayList<Player>();
+					for(int i = 0; i < numberOfPlayer; i++) {
+						players.add(getPlayersByDiscordId(reader.readLine()));
+					}
 
-				int playerListSize = ois.readInt();
+					team.setPlayers(players);
+					teamList.add(team);
 
-				ArrayList<Player> players = new ArrayList<Player>();
-				for(int j = 0; j < playerListSize; j++) {
-					String discordID = ois.readUTF();
-					players.add(getPlayersByDiscordId(discordID));
+				} else if (line.equals("--post")){
+
+					String userId = reader.readLine();
+					Member member = guild.getMemberById(userId);
+
+					Summoner summoner = riotApi.getSummonerByAccount(Platform.EUW, Long.parseLong(reader.readLine()));
+
+
+					ArrayList<Role> roles = new ArrayList<Role>();
+
+					int roleNmbr = Integer.parseInt(reader.readLine());
+					for(int j = 0; j < roleNmbr; j++) {
+						String roleId = reader.readLine();
+						roles.add(guild.getRoleById(roleId));
+					}
+
+					String horaires = reader.readLine();
+
+					Postulation postulation = new Postulation(member, summoner, roles, horaires);
+					postulationsList.add(postulation);
+
+				} else if (line.equals("--r")) {
+
+					StringBuilder stringBuilder = new StringBuilder();
+
+					while(true) {
+						line = reader.readLine();
+
+						if(line.equals("--stop")) {
+							break;
+						} else {
+							stringBuilder.append(line);
+						}
+					}
+
+					reportList.add(stringBuilder.toString());
 				}
-				team.setPlayers(players);
-
-				teamList.add(team);
 			}
 
-			int postulationNbr;
-			try {
-				postulationNbr = ois.readInt();
-			} catch (Exception e) {
-				postulationNbr = 0;
-			}
-
-			for(int i = 0; i < postulationNbr; i++) {
-				String userId = ois.readUTF();
-				Member member = guild.getMemberById(userId);
-
-				Summoner summoner = (Summoner) ois.readObject();
-
-				ArrayList<Role> roles = new ArrayList<Role>();
-
-				int roleNmbr = ois.readInt();
-				for(int j = 0; j < roleNmbr; j++) {
-					String roleId = ois.readUTF();
-					roles.add(guild.getRoleById(roleId));
-				}
-
-				String horaires = ois.readUTF();
-
-				postulationsList.add(new Postulation(member, summoner, roles, horaires));
-			}
-			
-			int reportNbr;
-			try {
-				reportNbr = ois.readInt();
-			} catch (Exception e) {
-				reportNbr = 0;
-			}
-
-			for(int i = 0; i < reportNbr; i++) {
-				reportList.add(ois.readUTF());
-			}
-			
 		} finally {
-			ois.close();
+			reader.close();
 		}
+	}
+
+	private static boolean isPlayersAlreadyCopied(String discordUserId) {
+		for(int i = 0; i < playerList.size(); i++) {
+			if(playerList.get(i).getDiscordUser().getId().equals(discordUserId)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	public static int getPostulationIndexByMember(Member member) {
@@ -281,7 +290,7 @@ public class Main {
 		}
 		return null;
 	}
-	
+
 	public static void addReport(String report) {
 		reportList.add(report);
 	}

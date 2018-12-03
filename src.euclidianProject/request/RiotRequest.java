@@ -32,11 +32,12 @@ public class RiotRequest {
 		return ligue + " " + rank;
 	}
 	
-	public static String getActualGameStatus(Summoner summoner) throws RiotApiException {
+	public static String getActualGameStatus(Summoner summoner) {
 		
-		CurrentGameInfo currentGameInfo = Main.getRiotApi().getActiveGameBySummoner(Platform.EUW, summoner.getId());
-		
-		if (currentGameInfo == null) {
+		CurrentGameInfo currentGameInfo = null;
+		try {
+			currentGameInfo = Main.getRiotApi().getActiveGameBySummoner(Platform.EUW, summoner.getId());
+		}catch (RiotApiException e) {
 			return "Pas en game";
 		}
 		
