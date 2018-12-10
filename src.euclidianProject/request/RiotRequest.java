@@ -1,32 +1,21 @@
 package request;
 
-import java.util.Iterator;
-import java.util.Set;
-
-import main.Main;
-import net.rithms.riot.api.RiotApiException;
-import net.rithms.riot.api.endpoints.league.dto.LeaguePosition;
-import net.rithms.riot.api.endpoints.spectator.dto.CurrentGameInfo;
-import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
-import net.rithms.riot.constant.Platform;
+import com.merakianalytics.orianna.types.core.league.LeaguePositions;
+import com.merakianalytics.orianna.types.core.spectator.CurrentMatch;
+import com.merakianalytics.orianna.types.core.summoner.Summoner;
 
 public class RiotRequest {
 
-	public static String getSoloqRank(Platform platform, long summonerID) throws RiotApiException {
-		Set<LeaguePosition> list = Main.getRiotApi().getLeaguePositionsBySummonerId(platform, summonerID);
-		
-		Iterator<LeaguePosition> it = list.iterator();
+	public static String getSoloqRank(long summonerID) {
+		LeaguePositions list = LeaguePositions.forSummoner(Summoner.withId(summonerID).get()).get();
 		
 		String ligue = "Unranked";
 		String rank = "";
 		
 		for(int i = 0; i < list.size(); i++) {
-			LeaguePosition leaguePosition = it.next();
 			
-			if(leaguePosition.getQueueType().equals("RANKED_SOLO_5x5")) {
-				ligue = leaguePosition.getTier();
-				rank = leaguePosition.getRank();
-			}
+			System.out.println(list.get(i));
+			
 		}
 		
 		return ligue + " " + rank;
@@ -34,18 +23,16 @@ public class RiotRequest {
 	
 	public static String getActualGameStatus(Summoner summoner) {
 		
-		CurrentGameInfo currentGameInfo = null;
-		try {
-			currentGameInfo = Main.getRiotApi().getActiveGameBySummoner(Platform.EUW, summoner.getId());
-		}catch (RiotApiException e) {
+		CurrentMatch currentGameInfo = CurrentMatch.forSummoner(summoner).get();
+		if(!currentGameInfo.exists()) {
 			return "Pas en game";
 		}
 		
-		String gameStatus = currentGameInfo.getGameMode();
+		String gameStatus = currentGameInfo.getMode().name();
 		
-		gameStatus += " (" + currentGameInfo.getGameType() + ") ";
+		gameStatus += " (" + currentGameInfo.getType().name() + ") ";
 		
-		double minutesOfGames = currentGameInfo.getGameLength() / 60.0;
+		double minutesOfGames = currentGameInfo.getDuration().getStandardSeconds() / 60.0;
 		String[] stringMinutesSecondes = Double.toString(minutesOfGames).split("\\.");
 		int minutesGameLength = Integer.parseInt(stringMinutesSecondes[0]);
 		int secondesGameLength = (int) (Double.parseDouble("0." + stringMinutesSecondes[1]) * 60.0);
@@ -53,6 +40,5 @@ public class RiotRequest {
 		gameStatus += "(" + minutesGameLength + "m " + secondesGameLength + "s)";
 		
 		return gameStatus;
-	}
-	
+	}	
 }

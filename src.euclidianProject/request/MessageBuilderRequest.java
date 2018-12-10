@@ -6,12 +6,10 @@ import model.Postulation;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.MessageEmbed.Field;
-import net.rithms.riot.api.RiotApiException;
-import net.rithms.riot.constant.Platform;
 
 public class MessageBuilderRequest {
 
-	public static MessageEmbed createShowPostulation(Postulation postulation, int postulationNbr) throws RiotApiException {
+	public static MessageEmbed createShowPostulation(Postulation postulation, int postulationNbr) {
 
 		EmbedBuilder message = new EmbedBuilder();
 
@@ -19,7 +17,7 @@ public class MessageBuilderRequest {
 
 		message.setTitle("Postulation numéro " + postulationNbr + " de " + postulation.getMember().getUser().getName());
 
-		String rank = RiotRequest.getSoloqRank(Platform.EUW, postulation.getSummoner().getId());
+		String rank = RiotRequest.getSoloqRank(postulation.getSummoner().getId());
 		Field field = new Field("**Pseudo & Rang Soloq**", postulation.getSummoner().getName() + " - " + rank, true);
 		message.addField(field);
 		

@@ -8,6 +8,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
+import com.merakianalytics.orianna.types.core.summoner.Summoner;
+
+import continuousDataCheck.ContinuousPanelRefresh;
+import continuousDataCheck.ContinuousSaveData;
 import model.Team;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Message;
@@ -19,9 +23,6 @@ import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import net.dv8tion.jda.core.requests.restaction.RoleAction;
-import net.rithms.riot.api.RiotApiException;
-import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
-import net.rithms.riot.constant.Platform;
 
 public class EventListener extends ListenerAdapter{
 
@@ -38,6 +39,8 @@ public class EventListener extends ListenerAdapter{
 	private static final String ID_REPORT_CHANNEL = "513422522637877266";
 
 	private static Message statusReportMessage;
+
+	private static Timer timerTask;
 
 	@Override
 	public void onReady(ReadyEvent event) {
@@ -119,13 +122,15 @@ public class EventListener extends ListenerAdapter{
 			Main.loadDataTxt();
 		} catch (IOException e) {
 			e.printStackTrace();
-		} catch (RiotApiException e) {
-			e.printStackTrace();
 		}
 
-		Timer timer = new Timer();
-		TimerTask task = new ContinuousDataChecking();
-		timer.schedule(task, 0, 180000);
+		setTimerTask(new Timer());
+
+		TimerTask panelRefresh = new ContinuousPanelRefresh();
+		timerTask.schedule(panelRefresh, 0, 180000);
+
+		TimerTask saveDataRefresh = new ContinuousSaveData();
+		timerTask.schedule(saveDataRefresh, 180000, 600000);
 
 		Main.getLogBot().sendMessage("Je suis Up !").complete();
 	}
@@ -215,19 +220,15 @@ public class EventListener extends ListenerAdapter{
 				event.getTextChannel().sendTyping().complete();
 
 				if(message.split(" ")[1].equalsIgnoreCase("postulations") || message.split(" ")[1].equalsIgnoreCase("postulation")) {
-					try {
-						ArrayList<MessageEmbed> listEmbended = CommandManagement.showPostulationsCommand(command);
 
-						for(int i = 0; i < listEmbended.size(); i++) {
-							event.getTextChannel().sendMessage(listEmbended.get(i)).queue();
-						}
+					ArrayList<MessageEmbed> listEmbended = CommandManagement.showPostulationsCommand(command);
 
-						if(listEmbended.isEmpty()) {
-							event.getTextChannel().sendMessage("Aucune Postulation dans la liste").queue();
-						}
+					for(int i = 0; i < listEmbended.size(); i++) {
+						event.getTextChannel().sendMessage(listEmbended.get(i)).queue();
+					}
 
-					} catch (RiotApiException e) {
-						event.getTextChannel().sendMessage("L'api de Riot est pas disponible, merci de réessayer dans 2 minutes").queue();
+					if(listEmbended.isEmpty()) {
+						event.getTextChannel().sendMessage("Aucune Postulation dans la liste").queue();
 					}
 
 				} else if(message.split(" ")[1].equalsIgnoreCase("reports") || message.split(" ")[1].equalsIgnoreCase("report")) {
@@ -261,14 +262,9 @@ public class EventListener extends ListenerAdapter{
 			} else if(command.equalsIgnoreCase("getAccountId")) {
 
 				event.getTextChannel().sendTyping().complete();
-				Summoner result;
-				try {
-					result = Main.getRiotApi().getSummonerByName(Platform.EUW, message.substring(13));
-					event.getTextChannel().sendMessage("Account Id de " + result.getName() + " : " + result.getAccountId()).queue();
-				} catch (RiotApiException e) {
-					event.getTextChannel().sendMessage("Summoner invalide").queue();
-				}
-				
+				Summoner result = Summoner.named(message.substring(13)).get();
+				event.getTextChannel().sendMessage("Account Id de " + result.getName() + " : " + result.getAccountId()).queue();
+
 			} else if (command.equals("stop")) {
 				statusReportMessage.editMessage("Status : Hors Ligne").complete();
 				event.getTextChannel().sendTyping().complete();
@@ -279,6 +275,8 @@ public class EventListener extends ListenerAdapter{
 					System.out.println("Erreur Save");
 				}
 				Main.getJda().shutdownNow();
+
+				timerTask.cancel();
 
 				System.exit(0);
 			}
@@ -293,5 +291,13 @@ public class EventListener extends ListenerAdapter{
 
 	public static String getEnregistredPlayerRoleName() {
 		return ENREGISTRED_PLAYER_ROLE_NAME;
+	}
+
+	public static Timer getTimerTask() {
+		return timerTask;
+	}
+
+	public static void setTimerTask(Timer timerTask) {
+		EventListener.timerTask = timerTask;
 	}
 }

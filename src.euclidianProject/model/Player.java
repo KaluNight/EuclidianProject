@@ -1,7 +1,8 @@
 package model;
 
+import com.merakianalytics.orianna.types.core.summoner.Summoner;
+
 import net.dv8tion.jda.core.entities.User;
-import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 
 public class Player {
 	private String name;

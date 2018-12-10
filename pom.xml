@@ -5,7 +5,7 @@
 	<groupId>EuclidianProject</groupId>
 	<artifactId>EuclidianProject</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -18,11 +18,13 @@
 			<artifactId>JDA</artifactId>
 			<version>3.8.1_443</version>
 		</dependency>
+
 		<dependency>
-			<groupId>com.github.taycaldwell</groupId>
-			<artifactId>riot-api-java</artifactId>
-			<version>4.1.0</version>
+			<groupId>com.merakianalytics.orianna</groupId>
+			<artifactId>orianna</artifactId>
+			<version>3.0.4</version>
 		</dependency>
+
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
@@ -42,5 +44,9 @@
 			<url>https://jitpack.io</url>
 		</repository>
 	</repositories>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
 
 </project>

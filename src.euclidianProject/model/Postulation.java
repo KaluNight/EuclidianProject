@@ -2,9 +2,10 @@ package model;
 
 import java.util.ArrayList;
 
+import com.merakianalytics.orianna.types.core.summoner.Summoner;
+
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
-import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 
 public class Postulation {
 	

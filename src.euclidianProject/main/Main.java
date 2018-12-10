@@ -8,6 +8,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+
+import com.merakianalytics.orianna.Orianna;
+import com.merakianalytics.orianna.types.common.Platform;
+import com.merakianalytics.orianna.types.core.staticdata.Languages;
+import com.merakianalytics.orianna.types.core.summoner.Summoner;
+
 import model.Player;
 import model.Postulation;
 import model.Team;
@@ -21,21 +27,16 @@ import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.managers.GuildController;
-import net.rithms.riot.api.ApiConfig;
-import net.rithms.riot.api.RiotApi;
-import net.rithms.riot.api.RiotApiException;
-import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
-import net.rithms.riot.constant.Platform;
 
 public class Main {
 
 	private static final File SAVE_TXT_FILE = new File("ressources/save.txt");
+	
+	private static final File ORIANNA_CONFIG_FILE = new File("ressources/orianna-config.json");
 
 	//------------------------------
 
 	private static JDA jda;
-
-	private static RiotApi riotApi;
 
 	//-------------------------------
 
@@ -77,12 +78,14 @@ public class Main {
 
 		jda.addEventListener(new EventListener());
 
-		ApiConfig config = new ApiConfig();
-		config.setKey(args[1]);
-		riotApi = new RiotApi(config);
+		Orianna.loadConfiguration(ORIANNA_CONFIG_FILE);
+		Orianna.setDefaultLocale("fr_FR");
+		Orianna.setDefaultPlatform(Platform.EUROPE_WEST);
+		Orianna.setRiotAPIKey(args[1]);
+		System.out.println(Languages.withPlatform(Platform.EUROPE_WEST).get());
 	}
 
-	public static void saveDataTxt() throws FileNotFoundException, UnsupportedEncodingException {
+	public static synchronized void saveDataTxt() throws FileNotFoundException, UnsupportedEncodingException {
 
 		StringBuilder saveString = new StringBuilder();
 
@@ -157,7 +160,7 @@ public class Main {
 		}
 	}
 
-	public static void loadDataTxt() throws IOException, RiotApiException {
+	public static void loadDataTxt() throws IOException {
 		BufferedReader reader = null;
 
 		try {
@@ -173,7 +176,7 @@ public class Main {
 
 					if(!isPlayersAlreadyCopied(discordID)) {
 						User user = jda.getUserById(discordID);
-						Summoner summoner = riotApi.getSummonerByAccount(Platform.EUW, accountId);
+						Summoner summoner = Summoner.withAccountId(accountId).get();
 
 						playerList.add(new Player(discordName, user, summoner));
 					}
@@ -206,8 +209,7 @@ public class Main {
 					String userId = reader.readLine();
 					Member member = guild.getMemberById(userId);
 
-					Summoner summoner = riotApi.getSummonerByAccount(Platform.EUW, Long.parseLong(reader.readLine()));
-
+					Summoner summoner = Summoner.withAccountId(Long.parseLong(reader.readLine())).get();
 
 					ArrayList<Role> roles = new ArrayList<Role>();
 
@@ -301,10 +303,6 @@ public class Main {
 
 	public static void setJda(JDA jda) {
 		Main.jda = jda;
-	}
-
-	public static RiotApi getRiotApi() {
-		return riotApi;
 	}
 
 	public static ArrayList<Team> getTeamList() {

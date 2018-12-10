@@ -1,16 +1,17 @@
-package main;
+package continuousDataCheck;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimerTask;
 
+import main.Main;
 import model.Player;
 import model.Team;
 import net.dv8tion.jda.core.entities.Message;
 import request.RiotRequest;
 
-public class ContinuousDataChecking extends TimerTask{
+public class ContinuousPanelRefresh extends TimerTask{
 
 	private static final long MINUTES_BETWEN_EACH_REFRESH = 2;
 
@@ -81,7 +82,7 @@ public class ContinuousDataChecking extends TimerTask{
 	}
 
 	public static void setNextRefreshPanel(LocalDateTime lastRefreshPanel) {
-		ContinuousDataChecking.nextRefreshPanel = lastRefreshPanel;
+		ContinuousPanelRefresh.nextRefreshPanel = lastRefreshPanel;
 	}
 
 	public static Message getMessagePanel() {
@@ -89,7 +90,7 @@ public class ContinuousDataChecking extends TimerTask{
 	}
 
 	public static void setMessagePanel(Message message) {
-		ContinuousDataChecking.messagePanel = message;
+		ContinuousPanelRefresh.messagePanel = message;
 	}
 
 }
