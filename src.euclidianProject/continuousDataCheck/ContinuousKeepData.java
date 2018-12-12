@@ -5,6 +5,9 @@ import java.util.TimerTask;
 
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
+import org.knowm.xchart.QuickChart;
+import org.knowm.xchart.XYChart;
+import org.knowm.xchart.XYChartBuilder;
 
 import com.merakianalytics.orianna.types.core.match.Match;
 import com.merakianalytics.orianna.types.core.match.MatchHistory;
@@ -50,8 +53,23 @@ public class ContinuousKeepData extends TimerTask{
 			
 			PlayerDataOfTheWeek playerDataOfTheWeek = treatmentData(matchHistory, player.getSummoner());
 			
+			player.getListDataOfWeek().add(playerDataOfTheWeek);
+			Main.getPlayerList().remove(indexPlayerSelected);
+			Main.getPlayerList().add(player); //Check if copy
 			
+			generatingStats(player.getListDataOfWeek());
 		}
+	}
+	
+	private void generatingStats(ArrayList<PlayerDataOfTheWeek> listPlayesData) {
+		XYChart chart = new XYChartBuilder()
+				.width(600)
+				.height(500)
+				.title("Graphique Winrate")
+				.xAxisTitle("Semaine")
+				.yAxisTitle("Winrate Moyen")
+				.build();
+		//TODO: Suite
 	}
 	
 	private PlayerDataOfTheWeek treatmentData(MatchHistory matchHistory, Summoner summoner) {
@@ -94,7 +112,7 @@ public class ContinuousKeepData extends TimerTask{
 			}
 		}
 		
-		PlayerDataOfTheWeek playerDataOfTheWeek = new PlayerDataOfTheWeek();
+		PlayerDataOfTheWeek playerDataOfTheWeek = new PlayerDataOfTheWeek(weekDateStart, weekDateEnd);
 		
 		playerDataOfTheWeek.setListeDuration(listeDuration);
 		playerDataOfTheWeek.setListOfChampionPlayed(listOfChampionPlayed);

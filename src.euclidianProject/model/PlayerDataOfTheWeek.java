@@ -2,6 +2,7 @@ package model;
 
 import java.util.ArrayList;
 
+import org.joda.time.DateTime;
 import org.joda.time.Duration;
 
 import com.merakianalytics.orianna.types.core.staticdata.Champion;
@@ -9,6 +10,8 @@ import com.merakianalytics.orianna.types.core.staticdata.SummonerSpell;
 
 public class PlayerDataOfTheWeek {
 
+	private DateTime weekStart;
+	private DateTime weekEnd;
 	private ArrayList<Duration> listeDuration;
 	private ArrayList<Integer> listTotCreep10Minute;
 	private ArrayList<Integer> listTotCreep20Minute;
@@ -20,8 +23,9 @@ public class PlayerDataOfTheWeek {
 	private int nbrGames = 0;
 	private int nbrWin = 0;
 
-	public PlayerDataOfTheWeek() {
-		//Data implemented by the setters
+	public PlayerDataOfTheWeek(DateTime weekStart, DateTime weekEnd) {
+		this.weekStart = weekStart;
+		this.weekEnd = weekEnd;
 	}
 
 	public double getWinRate() {
@@ -81,6 +85,22 @@ public class PlayerDataOfTheWeek {
 	}
 	public void setNbrWin(int nbrWin) {
 		this.nbrWin = nbrWin;
+	}
+
+	public DateTime getWeekStart() {
+		return weekStart;
+	}
+
+	public void setWeekStart(DateTime weekStart) {
+		this.weekStart = weekStart;
+	}
+
+	public DateTime getWeekEnd() {
+		return weekEnd;
+	}
+
+	public void setWeekEnd(DateTime weekEnd) {
+		this.weekEnd = weekEnd;
 	}
 
 }
