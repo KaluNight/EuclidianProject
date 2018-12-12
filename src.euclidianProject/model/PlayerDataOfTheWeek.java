@@ -21,9 +21,13 @@ public class PlayerDataOfTheWeek {
 	private int nbrWin = 0;
 
 	public PlayerDataOfTheWeek() {
-		
+		//Data implemented by the setters
 	}
 
+	public double getWinRate() {
+		return (nbrGames * 100) / (double) nbrWin;
+	}
+	
 	public ArrayList<Duration> getListeDuration() {
 		return listeDuration;
 	}

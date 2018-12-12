@@ -48,13 +48,13 @@ public class ContinuousKeepData extends TimerTask{
 			
 			MatchHistory matchHistory = MatchHistory.forSummoner(summoner).withStartTime(weekDateStart).withEndTime(weekDateEnd).get();
 			
-			treatmentData(matchHistory, player.getSummoner()); //TODO: return later an object with compiled data
+			PlayerDataOfTheWeek playerDataOfTheWeek = treatmentData(matchHistory, player.getSummoner());
+			
+			
 		}
 	}
 	
-	private void treatmentData(MatchHistory matchHistory, Summoner summoner) {
-		//TODO
-		
+	private PlayerDataOfTheWeek treatmentData(MatchHistory matchHistory, Summoner summoner) {
 		ArrayList<Duration> listeDuration = new ArrayList<>();
 		ArrayList<Integer> listTotCreep10Minute = new ArrayList<>();
 		ArrayList<Integer> listTotCreep20Minute = new ArrayList<>();
@@ -106,5 +106,6 @@ public class ContinuousKeepData extends TimerTask{
 		playerDataOfTheWeek.setNbrGames(nbrGames);
 		playerDataOfTheWeek.setNbrWin(nbrWin);
 		
+		return playerDataOfTheWeek;
 	}
 }
