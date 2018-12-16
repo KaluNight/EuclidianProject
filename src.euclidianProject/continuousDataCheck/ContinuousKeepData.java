@@ -32,6 +32,7 @@ public class ContinuousKeepData extends TimerTask{
 	
 	//TODO: Object for stack treated history of player
 	
+	//IDEA: Do a treatment of data each end of day (?) for prevent chaine lose after 3 lose ?
 	
 	/**
 	 * Run this every end of week. (TODO)
@@ -51,28 +52,22 @@ public class ContinuousKeepData extends TimerTask{
 			
 			MatchHistory matchHistory = MatchHistory.forSummoner(summoner).withStartTime(weekDateStart).withEndTime(weekDateEnd).get();
 			
-			PlayerDataOfTheWeek playerDataOfTheWeek = treatmentData(matchHistory, player.getSummoner());
+			PlayerDataOfTheWeek playerDataOfTheWeek = getDataFromTheHistory(matchHistory, player.getSummoner());
 			
 			player.getListDataOfWeek().add(playerDataOfTheWeek);
 			Main.getPlayerList().remove(indexPlayerSelected);
 			Main.getPlayerList().add(player); //Check if copy
 			
-			generatingStats(player.getListDataOfWeek());
+			generatingStats(player);
 		}
 	}
 	
-	private void generatingStats(ArrayList<PlayerDataOfTheWeek> listPlayesData) {
-		XYChart chart = new XYChartBuilder()
-				.width(600)
-				.height(500)
-				.title("Graphique Winrate")
-				.xAxisTitle("Semaine")
-				.yAxisTitle("Winrate Moyen")
-				.build();
-		//TODO: Suite
+	private void generatingStats(Player player) {
+		//TODO: check value different value with ChangedStats
+		
 	}
 	
-	private PlayerDataOfTheWeek treatmentData(MatchHistory matchHistory, Summoner summoner) {
+	private PlayerDataOfTheWeek getDataFromTheHistory(MatchHistory matchHistory, Summoner summoner) {
 		ArrayList<Duration> listeDuration = new ArrayList<>();
 		ArrayList<Integer> listTotCreep10Minute = new ArrayList<>();
 		ArrayList<Integer> listTotCreep20Minute = new ArrayList<>();

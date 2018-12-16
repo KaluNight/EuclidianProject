@@ -10,6 +10,10 @@ public class KDA {
 		this.deaths = deaths;
 		this.assists = assists;
 	}
+	
+	public double getKDAScores() {
+		return (kills + assists) / (double) deaths; //TODO: Check if the formula is correct
+	}
 
 	public int getKills() {
 		return kills;
