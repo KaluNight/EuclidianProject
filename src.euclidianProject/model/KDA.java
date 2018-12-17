@@ -12,6 +12,9 @@ public class KDA {
 	}
 	
 	public double getKDAScores() {
+		if(deaths == 0) {
+			return kills + assists;
+		}
 		return (kills + assists) / (double) deaths; //TODO: Check if the formula is correct
 	}
 

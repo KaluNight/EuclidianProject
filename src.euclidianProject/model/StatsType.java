@@ -7,5 +7,5 @@ public enum StatsType {
 	CREEP_AT_30,
 	SUMMONER_TYPE,
 	KDA,
-	CHAMPION_PLAYED
+	CHAMPIONS_PLAYED
 }

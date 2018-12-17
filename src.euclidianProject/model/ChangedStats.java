@@ -34,7 +34,7 @@ public class ChangedStats {
 						+ newMinutes + " min. " + newSecondes + " s.";
 			}
 
-		case CHAMPION_PLAYED:
+		case CHAMPIONS_PLAYED:
 
 			if((int) oldValue < (int) newValue) {
 				return "Vous avez joué " + ((int) newValue - (int) oldValue) + " champions de plus que la dernière fois.\n"
@@ -50,11 +50,11 @@ public class ChangedStats {
 
 		case CREEP_AT_10:
 			
-			if((int) oldValue < (int) newValue) {
+			if((double) oldValue < (double) newValue) {
 				return "Vous avez en moyenne " + ((double) newValue - (double) oldValue) + " creeps à 10 minutes de plus que la dernière fois.\n"
 						+ "Semaine passé : " + (double) oldValue + " creeps à 10 minutes en moyenne.\n"
 						+ "Cette semaine : " + (double) newValue + " creeps à 10 minutes en moyenne.";
-			}else if((int) oldValue > (int) newValue) {
+			}else if((double) oldValue > (double) newValue) {
 				return "Vous avez en moyenne " + ((double) oldValue - (double) newValue) + " creeps à 10 minutes de moins que la dernière fois.\n"
 						+ "Semaine passé : " + (double) oldValue + " creeps à 10 minutes en moyenne.\n"
 						+ "Cette semaine : " + (double) newValue + " creeps à 10 minutes en moyenne.";
@@ -65,11 +65,11 @@ public class ChangedStats {
 			
 		case CREEP_AT_20:
 			
-			if((int) oldValue < (int) newValue) {
+			if((double) oldValue < (double) newValue) {
 				return "Vous avez en moyenne " + ((double) newValue - (double) oldValue) + " creeps à 20 minutes de plus que la dernière fois.\n"
 						+ "Semaine passé : " + (double) oldValue + " creeps à 20 minutes en moyenne.\n"
 						+ "Cette semaine : " + (double) newValue + " creeps à 20 minutes en moyenne.";
-			}else if((int) oldValue > (int) newValue) {
+			}else if((double) oldValue > (double) newValue) {
 				return "Vous avez en moyenne " + ((double) oldValue - (double) newValue) + " creeps à 20 minutes de moins que la dernière fois.\n"
 						+ "Semaine passé : " + (double) oldValue + " creeps à 20 minutes en moyenne.\n"
 						+ "Cette semaine : " + (double) newValue + " creeps à 20 minutes en moyenne.";
@@ -80,11 +80,11 @@ public class ChangedStats {
 			
 		case CREEP_AT_30:
 			
-			if((int) oldValue < (int) newValue) {
+			if((double) oldValue < (double) newValue) {
 				return "Vous avez en moyenne " + ((double) newValue - (double) oldValue) + " creeps à 30 minutes de plus que la dernière fois.\n"
 						+ "Semaine passé : " + (double) oldValue + " creeps à 30 minutes en moyenne.\n"
 						+ "Cette semaine : " + (double) newValue + " creeps à 30 minutes en moyenne.";
-			}else if((int) oldValue > (int) newValue) {
+			}else if((double) oldValue > (double) newValue) {
 				return "Vous avez en moyenne " + ((double) oldValue - (double) newValue) + " creeps à 30 minutes de moins que la dernière fois.\n"
 						+ "Semaine passé : " + (double) oldValue + " creeps à 30 minutes en moyenne.\n"
 						+ "Cette semaine : " + (double) newValue + " creeps à 30 minutes en moyenne.";
@@ -94,17 +94,22 @@ public class ChangedStats {
 			}
 			
 		case KDA:
-			break;
-		case SUMMONER_TYPE:
-			break;
+			
+			if((double) oldValue < (double) newValue) {
+				return "Vous avez en moyenne " + ((double) newValue - (double) oldValue) + " de KDA moyen supplémentaires par rapport à la dernière fois.\n"
+						+ "Semaine passé : " + (double) oldValue + " de KDA moyen\n"
+						+ "Cette semaine : " + (double) newValue + " de KDA moyen";
+			}else if((double) oldValue > (double) newValue) {
+				return "Vous avez en moyenne " + ((double) oldValue - (double) newValue) + " de KDA moyen en moins par rapport à la dernière fois.\n"
+						+ "Semaine passé : " + (double) oldValue + " de KDA moyen.\n"
+						+ "Cette semaine : " + (double) newValue + " de KDA moyen.";
+			}else{
+				return "Vous avez en moyenne un KDA moyen égale à la dernière fois. "
+						+ "KDA moyen cette semaine : " + (double) newValue;
+			}
+			
 		default:
-			break;
-
-
+			return "Statistques inaffichable x(";
 		}
-
-
-
-		return null;
 	}
 }

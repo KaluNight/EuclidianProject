@@ -1,5 +1,6 @@
 package model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
@@ -34,7 +35,100 @@ public class PlayerDataOfTheWeek {
 		}
 		return (nbrWin / (double) nbrGames) * 100;
 	}
+
+	public double getKDAOfTheWeek(){
+		double totalKdaScores = 0;
+
+		for(int i = 0; i < listOfKDA.size(); i++) {
+			totalKdaScores += listOfKDA.get(i).getKDAScores();
+		}
+
+		if(listOfKDA.size() == 0) {
+			return 0.0;
+		}
+		return totalKdaScores / listOfKDA.size();
+	}
+
+	public int getAverageDurationOfTheWeek() {
+		int totalDuration = 0;
+
+		for(int i = 0; i < listeDuration.size(); i++) {
+			totalDuration += listeDuration.get(i).getStandardSeconds();
+		}
+		
+		if(listeDuration.size() == 0) {
+			return 0;
+		}
+		
+		return totalDuration / listeDuration.size();
+	}
+
+	public double getAverageCreepsAt10() {
+		int totalCreep = 0;
+
+		for(int i = 0; i < listTotCreep10Minute.size(); i++) {
+			totalCreep += listTotCreep10Minute.get(i);
+		}
+		
+		if(listTotCreep10Minute.size() == 0) {
+			return 0;
+		}
+		
+		return totalCreep / listTotCreep10Minute.size();
+	}
 	
+	public double getAverageCreepsAt20() {
+		int totalCreep = 0;
+		
+		for(int i = 0; i < listTotCreep20Minute.size(); i++) {
+			totalCreep += listTotCreep20Minute.get(i);
+		}
+		
+		if(listTotCreep20Minute.size() == 0) {
+			return 0;
+		}
+		
+		return totalCreep / listTotCreep20Minute.size();
+	}
+	
+	public double getAverageCreepsAt30() {
+		int totalCreep = 0;
+		
+		for(int i = 0; i < listTotCreep30Minute.size(); i++) {
+			totalCreep += listTotCreep30Minute.get(i);
+		}
+		
+		if(listTotCreep30Minute.size() == 0) {
+			return 0;
+		}
+		
+		return totalCreep / listTotCreep30Minute.size();
+	}
+	
+	public int getNumberOfDifferentChampionsPlayed() {
+		ArrayList<Integer> championTreated = new ArrayList<>();
+		
+		for(int i = 0; i < listOfChampionPlayed.size(); i++) {
+			int actualID = listOfChampionPlayed.get(i).getId();
+			
+			boolean championIsInTheList = false;
+			for(int j = 0; j < championTreated.size(); j++) {
+				if(championTreated.get(j) == actualID) {
+					championIsInTheList = true;
+					break;
+				}
+			}
+			
+			if(!championIsInTheList) {
+				championTreated.add(actualID);
+			}
+		}
+		
+		return championTreated.size();
+	}
+	
+	
+
 	public List<Duration> getListeDuration() {
 		return listeDuration;
 	}
@@ -46,9 +140,6 @@ public class PlayerDataOfTheWeek {
 	}
 	public void setListTotCreep10Minute(List<Integer> listTotCreep10Minute) {
 		this.listTotCreep10Minute = listTotCreep10Minute;
-	}
-	public List<Integer> getListTotCreep20Minute() {
-		return listTotCreep20Minute;
 	}
 	public void setListTotCreep20Minute(List<Integer> listTotCreep20Minute) {
 		this.listTotCreep20Minute = listTotCreep20Minute;
@@ -104,6 +195,10 @@ public class PlayerDataOfTheWeek {
 
 	public void setWeekEnd(DateTime weekEnd) {
 		this.weekEnd = weekEnd;
+	}
+
+	public List<Integer> getListTotCreep20Minute() {
+		return listTotCreep20Minute;
 	}
 
 }
