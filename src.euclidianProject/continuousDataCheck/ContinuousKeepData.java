@@ -93,7 +93,7 @@ public class ContinuousKeepData extends TimerTask{
 		if(player.getListDataOfWeek().size() == 1) {
 			statsChannel.sendMessage("C'est la première fois que vos donnés sont analysé, vous aurez un rapport la semaine prochaine.").complete();
 			return new ArrayList<>();
-		}else if(player.getListDataOfWeek().size() == 0) {
+		}else if(player.getListDataOfWeek().isEmpty()) {
 			statsChannel.sendMessage("Vos données n'ont pas pu être analysé normalement, un dev va s'occuper de votre cas :x").complete();
 			return new ArrayList<>();
 		}else {
@@ -110,7 +110,7 @@ public class ContinuousKeepData extends TimerTask{
 			listOfChangedStats.add(new ChangedStats(StatsType.SUMMONER_TYPE, lastWeek.getNumberOfDifferentChampionsPlayed(), thisWeek.getNumberOfDifferentChampionsPlayed()));
 			
 			return listOfChangedStats;
-		}
+		}%
 	}
 	
 	private PlayerDataOfTheWeek getDataFromTheHistory(MatchHistory matchHistory, Summoner summoner) {
