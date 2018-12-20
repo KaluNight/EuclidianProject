@@ -9,11 +9,13 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
+import org.joda.time.DateTime;
+
 import com.merakianalytics.orianna.Orianna;
 import com.merakianalytics.orianna.types.common.Platform;
-import com.merakianalytics.orianna.types.core.staticdata.Languages;
 import com.merakianalytics.orianna.types.core.summoner.Summoner;
 
+import continuousDataCheck.ContinuousKeepData;
 import model.Player;
 import model.Postulation;
 import model.Team;
@@ -64,7 +66,6 @@ public class Main {
 
 	private static TextChannel logBot;
 
-
 	public static void main(String[] args) {
 		try {
 			jda = new JDABuilder(AccountType.BOT).setToken(args[0]).build();
@@ -82,7 +83,6 @@ public class Main {
 		Orianna.setDefaultLocale("fr_FR");
 		Orianna.setDefaultPlatform(Platform.EUROPE_WEST);
 		Orianna.setRiotAPIKey(args[1]);
-		System.out.println(Languages.withPlatform(Platform.EUROPE_WEST).get());
 	}
 
 	public static synchronized void saveDataTxt() throws FileNotFoundException, UnsupportedEncodingException {
@@ -145,8 +145,15 @@ public class Main {
 			saveString.append("--r\n");
 
 			saveString.append(reportList.get(i));
-			saveString.append("--end");
+			saveString.append("--end\n");
 		}
+		
+		saveString.append("\n\n//StatsDate");
+		saveString.append("--st\n");
+		
+		saveString.append(ContinuousKeepData.getStatsChannel().getId() + "\n");
+		saveString.append(ContinuousKeepData.getWeekDateStart().toString() + "\n");
+		saveString.append(ContinuousKeepData.getWeekDateEnd().toString() + "\n");
 
 		PrintWriter writer = null;
 
@@ -204,14 +211,25 @@ public class Main {
 					team.setPlayers(players);
 					teamList.add(team);
 
-				} else if (line.equals("--post")){
+				} else if (line.equals("--st")){
+				  
+				  String idChannel = reader.readLine();
+				  ContinuousKeepData.setStatsChannel(guild.getTextChannelById(idChannel));
+				  
+				  String millisStart = reader.readLine();
+				  ContinuousKeepData.setWeekDateStart(DateTime.parse(millisStart));
+				  
+				  String millisEnd = reader.readLine();
+				  ContinuousKeepData.setWeekDateEnd(DateTime.parse(millisEnd));
+				  
+				} else if(line.equals("--post")) {
 
 					String userId = reader.readLine();
 					Member member = guild.getMemberById(userId);
 
 					Summoner summoner = Summoner.withAccountId(Long.parseLong(reader.readLine())).get();
 
-					ArrayList<Role> roles = new ArrayList<Role>();
+					ArrayList<Role> roles = new ArrayList<>();
 
 					int roleNmbr = Integer.parseInt(reader.readLine());
 					for(int j = 0; j < roleNmbr; j++) {

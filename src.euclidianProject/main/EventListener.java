@@ -8,8 +8,11 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
+import org.joda.time.DateTime;
+
 import com.merakianalytics.orianna.types.core.summoner.Summoner;
 
+import continuousDataCheck.ContinuousKeepData;
 import continuousDataCheck.ContinuousPanelRefresh;
 import continuousDataCheck.ContinuousSaveData;
 import model.Team;
@@ -37,6 +40,8 @@ public class EventListener extends ListenerAdapter{
 	private static final String ID_POSTULATION_CHANNEL = "497763778268495882";
 
 	private static final String ID_REPORT_CHANNEL = "513422522637877266";
+	
+	private static final long DURATION_WEEK_IN_MILLISECONDES = 604800000;
 
 	private static Message statusReportMessage;
 
@@ -127,10 +132,17 @@ public class EventListener extends ListenerAdapter{
 		setTimerTask(new Timer());
 
 		TimerTask panelRefresh = new ContinuousPanelRefresh();
-		timerTask.schedule(panelRefresh, 0, 180000);
+		timerTask.schedule(panelRefresh, 0, 180000); //3min
 
 		TimerTask saveDataRefresh = new ContinuousSaveData();
-		timerTask.schedule(saveDataRefresh, 180000, 600000);
+		timerTask.schedule(saveDataRefresh, 300000, 600000); //5min - 10min
+		
+		long millisToNextReport = ContinuousKeepData.getWeekDateEnd().getMillis() - DateTime.now().getMillis();
+		
+		ContinuousKeepData.getWeekDateStart().toString();
+		
+		TimerTask reportData = new ContinuousKeepData();
+		timerTask.schedule(reportData, millisToNextReport, DURATION_WEEK_IN_MILLISECONDES);
 
 		Main.getLogBot().sendMessage("Je suis Up !").complete();
 	}

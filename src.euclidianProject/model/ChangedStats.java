@@ -112,4 +112,12 @@ public class ChangedStats {
 			return "Statistques inaffichable x(";
 		}
 	}
+
+  public StatsType getType() {
+    return type;
+  }
+
+  public void setType(StatsType type) {
+    this.type = type;
+  }
 }
