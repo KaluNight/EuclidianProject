@@ -85,9 +85,9 @@ public class ContinuousKeepData extends TimerTask{
         messagesToSend.add("Vous n'avez fait aucune partie cette semaine, je ne peux donc rien analyser :c");
       }
     }
-    
+
     LogHelper.logSender("Analyse terminé, les rapports sont sauvegardés ...");
-    
+
     try {
       saveData();
       LogHelper.logSender("Donnés sauvegardés ! Les rapports sont envoyés ...");
@@ -105,14 +105,14 @@ public class ContinuousKeepData extends TimerTask{
     }
 
     LogHelper.logSender("Tous les rapports ont été envoyé !");
-    
+
     setWeekDateEnd(weekDateEnd.plusWeeks(1));
     setWeekDateStart(weekDateStart.plusWeeks(1));
-    
+
     statsChannel.sendTyping().complete();
     statsChannel.sendMessage("Le prochain rapport que je ferai sera le **"
-    + weekDateEnd.getDayOfMonth() + "." + weekDateEnd.getMonthOfYear() + "." + weekDateEnd.getYear() + " à "
-    + weekDateEnd.getHourOfDay() + ":" + weekDateEnd.getMinuteOfHour() + "**.\nPassez une bonne journée !").complete();
+        + weekDateEnd.getDayOfMonth() + "." + weekDateEnd.getMonthOfYear() + "." + weekDateEnd.getYear() + " à "
+        + weekDateEnd.getHourOfDay() + ":" + weekDateEnd.getMinuteOfHour() + "**.\nPassez une bonne journée !").complete();
 
     setMessagesToSend(new ArrayList<>());
   }

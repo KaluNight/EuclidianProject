@@ -51,7 +51,7 @@ public class EventListener extends ListenerAdapter{
   @Override
   public void onReady(ReadyEvent event) {
     Main.setLogBot(Main.getJda().getTextChannelById(ID_LOG_BOT_CHANNEL));
-    
+
     LogHelper.logSender("Démarrage...");
 
     Main.setGuild(Main.getLogBot().getGuild());
@@ -127,26 +127,26 @@ public class EventListener extends ListenerAdapter{
     statusReportMessage = message;
 
     LogHelper.logSender("Chargement des données général...");
-    
+
     try {
       Main.loadDataTxt();
     } catch (IOException e) {
       e.printStackTrace();
     }
-    
+
     LogHelper.logSender("Chargement des données général terminé !");
     LogHelper.logSender("Chargement des données des joueurs...");
-    
+
     try {
       Main.loadPlayerDataWeek();
     }catch (IOException e) {
       e.printStackTrace();
     }
-    
+
     LogHelper.logSender("Chargement des données des joueurs terminé !");
 
     LogHelper.logSender("Démarrage des tâches continue...");
-    
+
     setTimerTask(new Timer());
 
     TimerTask panelRefresh = new ContinuousPanelRefresh();
@@ -159,14 +159,14 @@ public class EventListener extends ListenerAdapter{
     if(millisToNextReport < 0) {
       millisToNextReport = 0;
     }
-    
+
     ContinuousKeepData.getWeekDateStart().toString();
 
     TimerTask reportData = new ContinuousKeepData();
     timerTask.schedule(reportData, millisToNextReport, DURATION_WEEK_IN_MILLISECONDES);
 
     LogHelper.logSender("Démarrage des tâches continues terminés !");
-    
+
     LogHelper.logSender("Démarrage terminés !");
   }
 
@@ -300,7 +300,7 @@ public class EventListener extends ListenerAdapter{
         event.getTextChannel().sendTyping().complete();
         String result = CommandManagement.clearCommand(message.substring(6));
         event.getTextChannel().sendMessage(result).queue();
-        
+
       } else if(command.equalsIgnoreCase("getAccountId")) {
 
         event.getTextChannel().sendTyping().complete();

@@ -8,14 +8,14 @@ import main.Main;
 
 public class ContinuousSaveData extends TimerTask{
 
-	@Override
-	public void run() {
-		try {
-			Main.saveDataTxt();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
-	}
+  @Override
+  public void run() {
+    try {
+      Main.saveDataTxt();
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    } catch (UnsupportedEncodingException e) {
+      e.printStackTrace();
+    }
+  }
 }
