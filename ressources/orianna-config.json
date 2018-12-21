@@ -29,7 +29,7 @@
             "unit": "HOURS"
           },
           "com.merakianalytics.orianna.types.core.spectator.CurrentMatch": {
-            "period": 5,
+            "period": 3,
             "unit": "MINUTES"
           },
           "com.merakianalytics.orianna.types.core.spectator.FeaturedMatches": {
