@@ -1,5 +1,6 @@
 package model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.merakianalytics.orianna.types.core.summoner.Summoner;
@@ -16,6 +17,7 @@ public class Player {
 		this.name = name;
 		this.discordUser = discordUser;
 		this.summoner = summoner;
+		this.listDataOfWeek = new ArrayList<>();
 		}
 
 	public double getListMoyenneWinrate(){

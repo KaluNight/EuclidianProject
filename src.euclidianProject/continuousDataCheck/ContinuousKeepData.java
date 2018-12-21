@@ -6,6 +6,8 @@ import java.util.TimerTask;
 
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
+import org.joda.time.Minutes;
+
 import com.merakianalytics.orianna.types.core.match.Match;
 import com.merakianalytics.orianna.types.core.match.MatchHistory;
 import com.merakianalytics.orianna.types.core.match.Participant;
@@ -13,6 +15,7 @@ import com.merakianalytics.orianna.types.core.searchable.SearchableList;
 import com.merakianalytics.orianna.types.core.staticdata.Champion;
 import com.merakianalytics.orianna.types.core.staticdata.SummonerSpell;
 import com.merakianalytics.orianna.types.core.summoner.Summoner;
+
 import main.Main;
 import model.ChangedStats;
 import model.KDA;
@@ -20,6 +23,7 @@ import model.Player;
 import model.PlayerDataOfTheWeek;
 import model.StatsType;
 import net.dv8tion.jda.core.entities.TextChannel;
+import util.LogHelper;
 
 public class ContinuousKeepData extends TimerTask{
 
@@ -27,68 +31,84 @@ public class ContinuousKeepData extends TimerTask{
 
   private static DateTime weekDateEnd;
 
-  private static TextChannel statsChannel; //TODO: Initialize
-
-  //TODO: Object for stack treated history of player
+  private static TextChannel statsChannel;
+  
+  private static ArrayList<String> messagesToSend;
 
   //IDEA: Do a treatment of data each end of day (?) for prevent chaine lose after 3 lose ?
 
-  /**
-   * Run this every end of week. (TODO)
-   * Get All player history of in the week and return a PlayerDataObject (TODO)
-   */
   @Override
   public void run() {
 
     statsChannel.sendTyping().complete();
-    statsChannel.sendMessage("__**Début d'analyse Hebdomadaire**__").complete();
+    statsChannel.sendMessage("Je commence l'analyse de vos parties de la semaine, cela devrait me prendre quelques minutes").complete();
+    
+    setMessagesToSend(new ArrayList<>());
 
-    for(int i = 0; i < Main.getPlayerList().size(); i++) {
+    messagesToSend.add("__**Début d'analyse Hebdomadaire**__");
 
+    for(int i = 0; i < Main.getPlayerList().size(); i++) {      
       Player player = Main.getPlayerList().get(i);
+      
+      LogHelper.logSender("Construction du rapport de " + player.getName());
+      
       Summoner summoner = player.getSummoner();
 
-      statsChannel.sendMessage("**Rapport pour " + player.getDiscordUser().getAsMention() + " sur le compte " + summoner.getName() + ".**").complete();
-      statsChannel.sendTyping().complete();
+      //TODO: Change for discord Ping
+      messagesToSend.add("**Rapport pour " + player.getDiscordUser().getName() + " sur le compte " + summoner.getName() + ".**");
 
       MatchHistory matchHistory = MatchHistory.forSummoner(summoner).withStartTime(weekDateStart).withEndTime(weekDateEnd).get();
 
-      PlayerDataOfTheWeek playerDataOfTheWeek = getDataFromTheHistory(matchHistory, player.getSummoner());
+      if(!matchHistory.isEmpty()) {
 
-      List<PlayerDataOfTheWeek> savedDatasPlayer = Main.getPlayerList().get(i).getListDataOfWeek(); //Check if copy
-      savedDatasPlayer.add(playerDataOfTheWeek);
-      Main.getPlayerList().get(i).setListDataOfWeek(savedDatasPlayer);
-      
-      List<ChangedStats> changedStats = generatingStats(player);
+        PlayerDataOfTheWeek playerDataOfTheWeek = getDataFromTheHistory(matchHistory, player.getSummoner());
 
-      if(!changedStats.isEmpty()) {
-        sendReport(player, changedStats);
+        if(playerDataOfTheWeek != null) {
+          List<PlayerDataOfTheWeek> savedDatasPlayer = Main.getPlayerList().get(i).getListDataOfWeek(); //Check if copy
+          savedDatasPlayer.add(playerDataOfTheWeek);
+          Main.getPlayerList().get(i).setListDataOfWeek(savedDatasPlayer);
+
+          List<ChangedStats> changedStats = generatingStats(player);
+
+          if(!changedStats.isEmpty()) {
+            sendReport(player, changedStats);
+          }
+        }else {
+          messagesToSend.add("Vos données n'ont pas pu être analysé :O");
+        }
+      }else {
+        messagesToSend.add("Vous n'avez fait aucune partie cette semaine, je ne peux donc rien analyser :c");
       }
-      
-      setWeekDateEnd(weekDateEnd.plusWeeks(1));
-      setWeekDateStart(weekDateStart.plusWeeks(1));
     }
+
+    LogHelper.logSender("Analyse terminé, les rapports sont envoyé");
+    
+    for(int i = 0; i < messagesToSend.size(); i++) {
+      statsChannel.sendTyping().complete();
+      statsChannel.sendMessage(messagesToSend.get(i)).complete();
+    }
+    
+    setWeekDateEnd(weekDateEnd.plusWeeks(1));
+    setWeekDateStart(weekDateStart.plusWeeks(1));
+    
+    setMessagesToSend(new ArrayList<>());
   }
 
   private void sendReport(Player player, List<ChangedStats> changedStats) {
 
     for (int i = 0; i < changedStats.size(); i++) {
-      statsChannel.sendTyping().queue();
-
       ChangedStats stats = changedStats.get(i);
-      statsChannel.sendMessage("**" + stats.getType().toString() + "**\n"
-          + " \n "
-          + stats.toString()).queue();
+      messagesToSend.add("**" + stats.getType().toString() + "**\n " + stats.toString());
     }
   }
 
   private List<ChangedStats> generatingStats(Player player) {
     //TODO: check value different value with ChangedStats
     if(player.getListDataOfWeek().size() == 1) {
-      statsChannel.sendMessage("C'est la première fois que vos donnés sont analysé, vous aurez un rapport la semaine prochaine.").complete();
+      messagesToSend.add("C'est la première fois que vos donnés sont analysé, vous aurez un rapport la semaine prochaine.");
       return new ArrayList<>();
     }else if(player.getListDataOfWeek().isEmpty()) {
-      statsChannel.sendMessage("Vos données n'ont pas pu être analysé normalement, un dev va s'occuper de votre cas :x").complete();
+      messagesToSend.add("Vos données n'ont pas pu être analysé normalement, un dev va s'occuper de votre cas :x");
       return new ArrayList<>();
     }else {
       PlayerDataOfTheWeek lastWeek = player.getListDataOfWeek().get(player.getListDataOfWeek().size() - 1);
@@ -122,28 +142,42 @@ public class ContinuousKeepData extends TimerTask{
     for(int i = 0; i < matchHistory.size(); i++) {
       Match match = matchHistory.get(i);
 
-      listeDuration.add(match.getDuration());
-      SearchableList<Participant> participants = match.getBlueTeam().getParticipants();
+      SearchableList<Participant> participants = match.getParticipants();
 
-      Participant participant = participants.search(summoner.getAccountId()).get(0);
+      Participant participant = participants.find(summoner);
 
-      listTotCreep10Minute.add((int) participant.getTimeline().getCreepScore().getAt10());
-      listTotCreep20Minute.add((int) participant.getTimeline().getCreepScore().getAt20());
-      listTotCreep30Minute.add((int) participant.getTimeline().getCreepScore().getAt30());
+      if(participant == null) {
+        return null;
+      }
 
-      listOfSummonerSpellUsed.add(participant.getSummonerSpellD());
-      listOfSummonerSpellUsed.add(participant.getSummonerSpellF());
+      if(participant.getTimeline().getCreepScore() != null) {
 
-      int kills = participant.getStats().getKills();
-      int deaths = participant.getStats().getDeaths();
-      int assists = participant.getStats().getAssists();
-      listOfKDA.add(new KDA(kills, deaths, assists));
+        listeDuration.add(match.getDuration());
 
-      listOfChampionPlayed.add(participant.getChampion());
+        Minutes minutes = match.getDuration().toStandardMinutes();
 
-      nbrGames++;
-      if(participant.getTeam().isWinner()) {
-        nbrWin++;
+        listTotCreep10Minute.add((int) participant.getTimeline().getCreepScore().getAt10());
+        if(minutes.getMinutes() >= 20) {
+          listTotCreep20Minute.add((int) participant.getTimeline().getCreepScore().getAt20());
+        }
+        if(minutes.getMinutes() >= 30) {
+          listTotCreep30Minute.add((int) participant.getTimeline().getCreepScore().getAt30());
+        }
+
+        listOfSummonerSpellUsed.add(participant.getSummonerSpellD());
+        listOfSummonerSpellUsed.add(participant.getSummonerSpellF());
+
+        int kills = participant.getStats().getKills();
+        int deaths = participant.getStats().getDeaths();
+        int assists = participant.getStats().getAssists();
+        listOfKDA.add(new KDA(kills, deaths, assists));
+
+        listOfChampionPlayed.add(participant.getChampion());
+
+        nbrGames++;
+        if(participant.getTeam().isWinner()) {
+          nbrWin++;
+        }
       }
     }
 
@@ -184,5 +218,13 @@ public class ContinuousKeepData extends TimerTask{
 
   public static void setStatsChannel(TextChannel statsChannel) {
     ContinuousKeepData.statsChannel = statsChannel;
+  }
+
+  public static ArrayList<String> getMessagesToSend() {
+    return messagesToSend;
+  }
+
+  public static void setMessagesToSend(ArrayList<String> messagesToSend) {
+    ContinuousKeepData.messagesToSend = messagesToSend;
   }
 }

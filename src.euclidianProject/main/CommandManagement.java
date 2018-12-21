@@ -2,6 +2,8 @@ package main;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import com.merakianalytics.orianna.types.core.summoner.Summoner;
 
@@ -11,343 +13,374 @@ import model.Team;
 import net.dv8tion.jda.core.entities.Category;
 import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.PrivateChannel;
 import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.requests.restaction.RoleAction;
 import request.MessageBuilderRequest;
+import util.LogHelper;
 
 public class CommandManagement {
 
-	//							Main Command Section
-	//-------------------------------------------------------------------------
-
-	public static String showCommand(String commande, User user) {
-		return "Erreur dans le choix de l'affichage";
-	}
-
-	public static String postulationCommand(String commande, User user) {
-		if(commande.substring(0, 6).equalsIgnoreCase("accept")) {
-			int index = Integer.parseInt(commande.split(" ")[1]) - 1;
-			return postulationAcceptCommand(index, user);
-		}else {
-			return "Erreur dans le choix de l'action a faire";
-		}
-	}
-
-	public static String registerCommand(String commande, User user) {
-		if(commande.substring(0, 6).equalsIgnoreCase("player")) {
-			return registerPlayerCommand(commande, user);
-		}else {
-			return "Erreur dans le choix de l'enregistrement. Note : Vous devez écrire \"register player VotreServeur VotrePseudo\" pour vous enregistrer";
-		}
-	}
-
-	public static String addCommand(String commande, User user) {
-		if(commande.substring(0, 4).equalsIgnoreCase("team")) {
-			return addTeamCommand(commande.substring(5));
-		}else if (commande.substring(0, 12).equalsIgnoreCase("playerToTeam")) {
-			try {
-				return addPlayerToTeam(commande.split(" ")[1], commande.split(" ")[2]);
-			} catch (Exception e) {
-				return "Erreur dans les arguments de la commande (Note : >add playerToTeam DiscordPlayerName Team)";
-			}
-		}else {
-			return "Erreur dans le choix de l'ajout";
-		}
-	}
+  private CommandManagement() {
+  }
+  
+  //							Main Command Section
+  //-------------------------------------------------------------------------
+
+  public static String showCommand(String commande, User user) {
+    return "Erreur dans le choix de l'affichage";
+  }
+
+  public static String postulationCommand(String commande, User user) {
+    if(commande.substring(0, 6).equalsIgnoreCase("accept")) {
+      int index = Integer.parseInt(commande.split(" ")[1]) - 1;
+      return postulationAcceptCommand(index, user);
+    }else {
+      return "Erreur dans le choix de l'action a faire";
+    }
+  }
+
+  public static String registerCommand(String commande, User user) {
+    if(commande.substring(0, 6).equalsIgnoreCase("player")) {
+      return registerPlayerCommand(commande, user);
+    }else {
+      return "Erreur dans le choix de l'enregistrement. Note : Vous devez écrire \"register player VotreServeur VotrePseudo\" pour vous enregistrer";
+    }
+  }
+
+  public static String addCommand(String commande, User user) {
+    if(commande.substring(0, 4).equalsIgnoreCase("team")) {
+      return addTeamCommand(commande.substring(5));
+    }else if (commande.substring(0, 12).equalsIgnoreCase("playerToTeam")) {
+      try {
+        return addPlayerToTeam(commande.split(" ")[1], commande.split(" ")[2]);
+      } catch (Exception e) {
+        return "Erreur dans les arguments de la commande (Note : >add playerToTeam DiscordPlayerName Team)";
+      }
+    }else {
+      return "Erreur dans le choix de l'ajout";
+    }
+  }
+
+  public static String deleteCommand(String commande) {
+    if(commande.substring(0, 4).equalsIgnoreCase("team")) {
+      return deleteTeamCommand(commande);
+    }else if (commande.substring(0, 7).equalsIgnoreCase("reports")){
+      return deleteReportsCommand();
+    }else {
+      return "Erreur dans le choix de la suppression";
+    }
+  }
+
+  public static String clearCommand(String commande) {
+    if(commande.substring(0, 3).equalsIgnoreCase("bot")) {
+      return clearSelectedChannel(Main.getGuild().getTextChannelById(commande.substring(4)), true);
+    }else if (commande.substring(0, 3).equalsIgnoreCase("all")){
+      return clearSelectedChannel(Main.getGuild().getTextChannelById(commande.substring(4)), false);
+    }else {
+      return "Erreur dans le choix du type de suppression";
+    }
+
+  }
+
+  //               Clear Command
+  //-----------------------------------------------------------------------
+
+  public static String clearSelectedChannel(TextChannel textChannel, boolean onlyBot) {
+
+    List<Message> messages = textChannel.getIterableHistory().stream()
+        .limit(1000)
+        .filter(m-> m.getAuthor().equals(Main.getJda().getSelfUser()))
+        .collect(Collectors.toList());
 
-	public static String deleteCommand(String commande) {
-		if(commande.substring(0, 4).equalsIgnoreCase("team")) {
-			return deleteTeamCommand(commande);
-		}else if (commande.substring(0, 7).equalsIgnoreCase("reports")){
-			return deleteReportsCommand();
-		}else {
-			return "Erreur dans le choix de la suppression";
-		}
-	}
+    if(onlyBot) {
 
-	//							 Show Command
-	//-----------------------------------------------------------------------
+      for(int i = 0; i < messages.size(); i++) {
+        messages.get(i).delete().queue();
+      }
+      return "Mes messages ont bien été supprimé !";
 
-	public static ArrayList<MessageEmbed> showPostulationsCommand(String commande) {
-		ArrayList<MessageEmbed> listesPostulation = new ArrayList<MessageEmbed>();
-		for(int i = 0; i < Main.getPostulationsList().size(); i++) {
-			listesPostulation.add(MessageBuilderRequest.createShowPostulation(Main.getPostulationsList().get(i), i + 1));
-		}
-		logSender("Postulations affichées");
+    }else {
+      return "On ne supprime pas tous les messages de tous le monde comme sa voyons, un peu de bon sens";
+    }
+  }
 
-		return listesPostulation;
-	}
+  //							 Show Command
+  //-----------------------------------------------------------------------
 
-	public static ArrayList<String> showReportsCommand(){
-		ArrayList<String> listReport = new ArrayList<String>();
+  public static List<MessageEmbed> showPostulationsCommand(String commande) {
+    ArrayList<MessageEmbed> listesPostulation = new ArrayList<MessageEmbed>();
+    for(int i = 0; i < Main.getPostulationsList().size(); i++) {
+      listesPostulation.add(MessageBuilderRequest.createShowPostulation(Main.getPostulationsList().get(i), i + 1));
+    }
+    LogHelper.logSender("Postulations affichées");
 
-		for(int i = 0; i < Main.getReportList().size(); i++) {
-			listReport.add(Main.getReportList().get(i));
-		}
-		logSender("Reports envoyés");
+    return listesPostulation;
+  }
 
-		return listReport;
-	}
+  public static List<String> showReportsCommand(){
+    ArrayList<String> listReport = new ArrayList<>();
 
-	//						    Register Command
-	//-----------------------------------------------------------------------
+    for(int i = 0; i < Main.getReportList().size(); i++) {
+      listReport.add(Main.getReportList().get(i));
+    }
+    LogHelper.logSender("Reports envoyés");
 
-	private static String registerPlayerCommand(String commande, User user) {
+    return listReport;
+  }
 
-		String summonerName;
-		
-		try {
-			String[] info = commande.split(" ");
+  //						    Register Command
+  //-----------------------------------------------------------------------
 
-			summonerName = info[1];
+  private static String registerPlayerCommand(String commande, User user) {
 
-			for(int i = 0; i < Main.getPlayerList().size(); i++) {
-				if(Main.getPlayerList().get(i).getSummoner().getName().equals(summonerName)) {
-					return "Ce compte est déjà enregistré";
-				}
-			}
+    String summonerName;
 
-		}catch(ArrayIndexOutOfBoundsException e) {
-			return "Erreur dans l'enregistrement. Note : Vous devez écrire \"register player VotrePseudo\" pour vous enregistrer";
-		}
+    try {
+      String[] info = commande.split(" ");
 
+      summonerName = info[1];
 
-		Member member = Main.getGuild().getMemberById(user.getId());
+      for(int i = 0; i < Main.getPlayerList().size(); i++) {
+        if(Main.getPlayerList().get(i).getSummoner().getName().equals(summonerName)) {
+          return "Ce compte est déjà enregistré";
+        }
+      }
 
-		for(int i = 0; i < member.getRoles().size(); i++) {
-			if(member.getRoles().get(i).equals(Main.getRegisteredRole())) {
-				return "Vous êtes déjà enregistée !";
-			}
-		}
+    }catch(ArrayIndexOutOfBoundsException e) {
+      return "Erreur dans l'enregistrement. Note : Vous devez écrire \"register player VotrePseudo\" pour vous enregistrer";
+    }
 
-		Summoner summoner = Summoner.named(summonerName).get();
 
-		Player player = new Player(user.getName(), user, summoner);
+    Member member = Main.getGuild().getMemberById(user.getId());
 
-		Main.getPlayerList().add(player);
+    for(int i = 0; i < member.getRoles().size(); i++) {
+      if(member.getRoles().get(i).equals(Main.getRegisteredRole())) {
+        return "Vous êtes déjà enregistée !";
+      }
+    }
 
-		Main.getController().addRolesToMember(member, Main.getRegisteredRole()).queue();
+    Summoner summoner = Summoner.named(summonerName).get();
 
-		logSender(user.getName() + " c'est enregistré en tant que joueur");
+    Player player = new Player(user.getName(), user, summoner);
 
-		return "Vous avez bien été enregistré !";
-	}
+    Main.getPlayerList().add(player);
 
-	//							Add Command
-	//-------------------------------------------------------------------------
+    Main.getController().addRolesToMember(member, Main.getRegisteredRole()).queue();
 
+    LogHelper.logSender(user.getName() + " c'est enregistré en tant que joueur");
 
-	private static String addPlayerToTeam(String discordName, String team) {
-		User user = Main.getJda().getUsersByName(discordName, true).get(0);
-		Player player = Main.getPlayersByDiscordId(user.getId());
+    return "Vous avez bien été enregistré !";
+  }
 
-		if(player == null) {
-			return discordName + " n'est pas enregistrée en tant que joueur";
-		}
+  //							Add Command
+  //-------------------------------------------------------------------------
 
-		Team teamToUse = Main.getTeamByName(team);
-		Team teamBase = teamToUse;
 
-		teamToUse.getPlayers().add(player);
+  private static String addPlayerToTeam(String discordName, String team) {
+    User user = Main.getJda().getUsersByName(discordName, true).get(0);
+    Player player = Main.getPlayersByDiscordId(user.getId());
 
-		Main.getPlayerList().add(player);
+    if(player == null) {
+      return discordName + " n'est pas enregistrée en tant que joueur";
+    }
 
-		Member member = Main.getGuild().getMember(user);
+    Team teamToUse = Main.getTeamByName(team);
+    Team teamBase = teamToUse;
 
-		Main.getController().addRolesToMember(member, teamToUse.getRole()).queue();
+    teamToUse.getPlayers().add(player);
 
-		Main.getTeamList().remove(teamBase);
-		Main.getTeamList().add(teamToUse);
+    Main.getPlayerList().add(player);
 
-		logSender(player.getName() + " à été ajouté à l'équipe " + team);
+    Member member = Main.getGuild().getMember(user);
 
-		return "Le joueur a bien été ajouté à l'équipe";
-	}
+    Main.getController().addRolesToMember(member, teamToUse.getRole()).queue();
 
-	private static String addTeamCommand(String commande) {
-		RoleAction role = Main.getController().createRole();
-		role.setName("Division " + commande);
-		role.setColor(Color.RED);
-		role.setMentionable(true);
-		role.setPermissions(Team.getPermissionsList());
+    Main.getTeamList().remove(teamBase);
+    Main.getTeamList().add(teamToUse);
 
-		Role teamRole = role.complete();
-		Role everyone = Main.getGuild().getPublicRole();
+    LogHelper.logSender(player.getName() + " à été ajouté à l'équipe " + team);
 
-		Channel section = Main.getController().createCategory("Section " + commande).complete();
-		section.createPermissionOverride(teamRole).setAllow(Team.getPermissionsList()).queue();
-		section.createPermissionOverride(everyone).setDeny(Team.getPermissionsList()).queue();
+    return "Le joueur a bien été ajouté à l'équipe";
+  }
 
-		String sectionId = section.getId();
+  private static String addTeamCommand(String commande) {
+    RoleAction role = Main.getController().createRole();
+    role.setName("Division " + commande);
+    role.setColor(Color.RED);
+    role.setMentionable(true);
+    role.setPermissions(Team.getPermissionsList());
 
-		Category category = Main.getGuild().getCategoryById(sectionId);
+    Role teamRole = role.complete();
+    Role everyone = Main.getGuild().getPublicRole();
 
-		category.createTextChannel("annonce-" + commande).queue();
-		category.createTextChannel("general-" + commande).queue();
-		category.createTextChannel("liste-de-pick").queue();
-		category.createTextChannel("annonce-absence").queue();
-		category.createVoiceChannel("Général " + commande).queue();
+    Channel section = Main.getController().createCategory("Section " + commande).complete();
+    section.createPermissionOverride(teamRole).setAllow(Team.getPermissionsList()).queue();
+    section.createPermissionOverride(everyone).setDeny(Team.getPermissionsList()).queue();
 
-		ArrayList<Team> teamList = new ArrayList<Team>();
-		teamList.addAll(Main.getTeamList());
-		teamList.add(new Team(commande, category, teamRole));
+    String sectionId = section.getId();
 
-		Main.setTeamList(teamList);
+    Category category = Main.getGuild().getCategoryById(sectionId);
 
-		logSender("Equipe " + commande + " créé");
+    category.createTextChannel("annonce-" + commande).queue();
+    category.createTextChannel("general-" + commande).queue();
+    category.createTextChannel("liste-de-pick").queue();
+    category.createTextChannel("annonce-absence").queue();
+    category.createVoiceChannel("Général " + commande).queue();
 
-		return "Equipe " + commande + " créé !";
-	}
+    ArrayList<Team> teamList = new ArrayList<>();
+    teamList.addAll(Main.getTeamList());
+    teamList.add(new Team(commande, category, teamRole));
 
+    Main.setTeamList(teamList);
 
-	//							Delete Command
-	//-------------------------------------------------------------------------
+    LogHelper.logSender("Equipe " + commande + " créé");
 
-	public static String deleteTeamCommand(String commande) {
-		Team team = Main.getTeamByName(commande.split(" ")[1]);
+    return "Equipe " + commande + " créé !";
+  }
 
-		for(int i = 0; i < team.getCategory().getChannels().size(); i++) {
-			team.getCategory().getChannels().get(i).delete().queue();
-		}
 
-		team.getCategory().delete().queue();
-		team.getRole().delete().queue();
+  //							Delete Command
+  //-------------------------------------------------------------------------
 
-		String name = team.getName();
+  public static String deleteTeamCommand(String commande) {
+    Team team = Main.getTeamByName(commande.split(" ")[1]);
 
-		Main.getTeamList().remove(team);
+    for(int i = 0; i < team.getCategory().getChannels().size(); i++) {
+      team.getCategory().getChannels().get(i).delete().queue();
+    }
 
-		logSender("Equipe " + name + " supprimé");
+    team.getCategory().delete().queue();
+    team.getRole().delete().queue();
 
-		return "Equipe " + name + " supprimé !";
-	}
+    String name = team.getName();
 
-	public static String deleteReportsCommand() {
-		Main.setReportList(new ArrayList<String>());
+    Main.getTeamList().remove(team);
 
-		logSender("Reports Supprimé");
+    LogHelper.logSender("Equipe " + name + " supprimé");
 
-		return "Les reports ont bien été supprimé";
-	}
+    return "Equipe " + name + " supprimé !";
+  }
 
-	//							Postulation Command
-	//-------------------------------------------------------------------------
+  public static String deleteReportsCommand() {
+    Main.setReportList(new ArrayList<String>());
 
-	public static String postulationCommand(String[] postulation, Member member) {
-		String lolPseudo = "";
-		try {
-			lolPseudo = postulation[1].split(":")[1].replaceAll(" ", "");
-		} catch (Exception e) {
-			return "Erreur dans le format du Pseudo. (Format : \"Mon pseudo : *Pseudo*\")";
-		}
+    LogHelper.logSender("Reports Supprimé");
 
-		Summoner summoner;
-		try {
-			summoner = Summoner.named(lolPseudo).get();
-		} catch (IllegalArgumentException e) {
-			return "Votre pseudo n'est pas valide. Merci de vérifier la typographie du pseudo (Note : Il doit obligatoirement être de la région EUW)";
-		}
+    return "Les reports ont bien été supprimé";
+  }
 
-		String[] position;
+  //							Postulation Command
+  //-------------------------------------------------------------------------
 
-		try {
-			position = postulation[2].split(":")[1].split(",");
-		}catch (Exception e) {
-			return "Erreur dans le format des rôles. (Format : \"Les rôles que je peux jouer : *Role, Role, Role*\")";
-		}
+  public static String postulationCommand(String[] postulation, Member member) {
+    String lolPseudo = "";
+    try {
+      lolPseudo = postulation[1].split(":")[1].replaceAll(" ", "");
+    } catch (Exception e) {
+      return "Erreur dans le format du Pseudo. (Format : \"Mon pseudo : *Pseudo*\")";
+    }
 
-		ArrayList<Role> roles = new ArrayList<Role>();
+    Summoner summoner;
+    try {
+      summoner = Summoner.named(lolPseudo).get();
+    } catch (IllegalArgumentException e) {
+      return "Votre pseudo n'est pas valide. Merci de vérifier la typographie du pseudo (Note : Il doit obligatoirement être de la région EUW)";
+    }
 
-		try {
-			for(int i = 0; i < position.length; i++) {
-				position[i] = position[i].replaceAll(" ", "");
-				if(Main.getPositionRoleByName(position[i]) == null) {
-					throw new NullPointerException();
-				}else {
-					roles.add(Main.getPositionRoleByName(position[i]));
-				}
-			}
-		}catch (NullPointerException e) {
-			return "Erreur dans la sélection des postes !";
-		}
+    String[] position;
 
-		String horaire = "";
-		try {
-			horaire = postulation[3].split(":")[1];
-		}catch (Exception e) {
-			return "Erreur dans le format de l'heure. (Format : \"Horaires : *VosHoraires*\")";
-		}
+    try {
+      position = postulation[2].split(":")[1].split(",");
+    }catch (Exception e) {
+      return "Erreur dans le format des rôles. (Format : \"Les rôles que je peux jouer : *Role, Role, Role*\")";
+    }
 
-		int index = Main.getPostulationIndexByMember(member);
+    ArrayList<Role> roles = new ArrayList<>();
 
-		Postulation postulationObject = new Postulation(member, summoner, roles, horaire);
+    try {
+      for(int i = 0; i < position.length; i++) {
+        position[i] = position[i].replaceAll(" ", "");
+        if(Main.getPositionRoleByName(position[i]) == null) {
+          throw new NullPointerException();
+        }else {
+          roles.add(Main.getPositionRoleByName(position[i]));
+        }
+      }
+    }catch (NullPointerException e) {
+      return "Erreur dans la sélection des postes !";
+    }
 
-		ArrayList<Role> roleWithPostulant = new ArrayList<Role>();
-		roleWithPostulant.addAll(roles);
-		roleWithPostulant.add(Main.getPostulantRole());
+    String horaire = "";
+    try {
+      horaire = postulation[3].split(":")[1];
+    }catch (Exception e) {
+      return "Erreur dans le format de l'heure. (Format : \"Horaires : *VosHoraires*\")";
+    }
 
-		if(index > -1) {
-			Main.getPostulationsList().remove(index);
-			Main.getPostulationsList().add(postulationObject);
-			Main.getController().modifyMemberRoles(member, roleWithPostulant).queue();
+    int index = Main.getPostulationIndexByMember(member);
 
-			logSender("Postulation de " + member.getUser().getName() + " modifié");
+    Postulation postulationObject = new Postulation(member, summoner, roles, horaire);
 
-			return "Votre postulation a bien été modifié";
-		}else {
-			Main.getPostulationsList().add(postulationObject);
-			Main.getController().addRolesToMember(member, roleWithPostulant).queue();
+    ArrayList<Role> roleWithPostulant = new ArrayList<>();
+    roleWithPostulant.addAll(roles);
+    roleWithPostulant.add(Main.getPostulantRole());
 
-			logSender("Nouvelle postulation créé par " + member.getUser().getName());
+    if(index > -1) {
+      Main.getPostulationsList().remove(index);
+      Main.getPostulationsList().add(postulationObject);
+      Main.getController().modifyMemberRoles(member, roleWithPostulant).queue();
 
-			return "Merci d'avoir postulé ! Vous recevrez des informations concernant votre potentiel recrutement très bientôt !\n"
-			+ "Votre postulations (Vous pouvez la modifier en renvoyant une postulation) : \n \n"
-			+ postulationObject.toString();
-		}
-	}
+      LogHelper.logSender("Postulation de " + member.getUser().getName() + " modifié");
 
-	private static String postulationAcceptCommand(int accepted, User user) {
-		Postulation postulation;
-		try {
-			postulation = Main.getPostulationsList().get(accepted);
-		}catch (IndexOutOfBoundsException e) {
-			return "Erreur dans la sélection de la postulation (index)";
-		}
+      return "Votre postulation a bien été modifié";
+    }else {
+      Main.getPostulationsList().add(postulationObject);
+      Main.getController().addRolesToMember(member, roleWithPostulant).queue();
 
-		PrivateChannel privateChannel = postulation.getMember().getUser().openPrivateChannel().complete();
-		privateChannel.sendTyping().queue();
-		privateChannel.sendMessage("Votre postulation à été accepté, vous recevrez très bientôt des informations concernant votre futur affiliation, "
-				+ "C'est " + user.getName() + " qui s'occupera de vous contacter.").queue();
+      LogHelper.logSender("Nouvelle postulation créé par " + member.getUser().getName());
 
-		String result = "Vous avez accepter la postulation de " + postulation.getMember().getUser().getName() + ". "
-				+ "Il a été automatiquement enregistré en tant que joueur.";
+      return "Merci d'avoir postulé ! Vous recevrez des informations concernant votre potentiel recrutement très bientôt !\n"
+      + "Votre postulations (Vous pouvez la modifier en renvoyant une postulation) : \n \n"
+      + postulationObject.toString();
+    }
+  }
 
-		Player player = new Player(postulation.getMember().getUser().getName(), postulation.getMember().getUser(), postulation.getSummoner());
-		Main.getController().addRolesToMember(postulation.getMember(), Main.getRegisteredRole()).queue();
+  private static String postulationAcceptCommand(int accepted, User user) {
+    Postulation postulation;
+    try {
+      postulation = Main.getPostulationsList().get(accepted);
+    }catch (IndexOutOfBoundsException e) {
+      return "Erreur dans la sélection de la postulation (index)";
+    }
 
-		for(int i = 0; i < Main.getPlayerList().size(); i++) {
-			if(Main.getPlayerList().get(i).getDiscordUser().getName().equals(postulation.getMember().getUser().getName())) {
-				Main.getPlayerList().remove(i);
-			}
-		}
-		
-		Main.getPlayerList().add(player);
+    PrivateChannel privateChannel = postulation.getMember().getUser().openPrivateChannel().complete();
+    privateChannel.sendTyping().queue();
+    privateChannel.sendMessage("Votre postulation à été accepté, vous recevrez très bientôt des informations concernant votre futur affiliation, "
+        + "C'est " + user.getName() + " qui s'occupera de vous contacter.").queue();
 
-		Main.getPostulationsList().remove(accepted);
+    String result = "Vous avez accepter la postulation de " + postulation.getMember().getUser().getName() + ". "
+        + "Il a été automatiquement enregistré en tant que joueur.";
 
-		logSender("Postulation de " + postulation.getMember().getUser().getName() + " accepté par " + user.getName());
+    Player player = new Player(postulation.getMember().getUser().getName(), postulation.getMember().getUser(), postulation.getSummoner());
+    Main.getController().addRolesToMember(postulation.getMember(), Main.getRegisteredRole()).queue();
 
-		return result;
-	}
+    for(int i = 0; i < Main.getPlayerList().size(); i++) {
+      if(Main.getPlayerList().get(i).getDiscordUser().getName().equals(postulation.getMember().getUser().getName())) {
+        Main.getPlayerList().remove(i);
+      }
+    }
 
-	//								Log
-	//----------------------------------------------------------------------
+    Main.getPlayerList().add(player);
 
-	private static void logSender(String str) {
-		Main.getLogBot().sendMessage(str).queue();
-	}
+    Main.getPostulationsList().remove(accepted);
 
+    LogHelper.logSender("Postulation de " + postulation.getMember().getUser().getName() + " accepté par " + user.getName());
+
+    return result;
+  }
 }
