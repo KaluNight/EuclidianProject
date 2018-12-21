@@ -12,9 +12,7 @@ import org.joda.time.DateTime;
 
 import com.merakianalytics.orianna.types.core.summoner.Summoner;
 
-import continuousDataCheck.ContinuousKeepData;
-import continuousDataCheck.ContinuousPanelRefresh;
-import continuousDataCheck.ContinuousSaveData;
+import continuousDataCheck.ContinuousTimeChecking;
 import model.Team;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Message;
@@ -41,8 +39,6 @@ public class EventListener extends ListenerAdapter{
   private static final String ID_POSTULATION_CHANNEL = "497763778268495882";
 
   private static final String ID_REPORT_CHANNEL = "513422522637877266";
-
-  private static final long DURATION_WEEK_IN_MILLISECONDES = 604800000;
 
   private static Message statusReportMessage;
 
@@ -146,24 +142,14 @@ public class EventListener extends ListenerAdapter{
     LogHelper.logSender("Chargement des données des joueurs terminé !");
 
     LogHelper.logSender("Démarrage des tâches continue...");
-
+    
+    ContinuousTimeChecking.setNextTimePanelRefresh(DateTime.now().plusMinutes(3));
+    ContinuousTimeChecking.setNextTimeSaveData(DateTime.now().plusMinutes(10));
+    
     setTimerTask(new Timer());
-
-    TimerTask panelRefresh = new ContinuousPanelRefresh();
-    timerTask.schedule(panelRefresh, 0, 180000); //3min
-
-    TimerTask saveDataRefresh = new ContinuousSaveData();
-    timerTask.schedule(saveDataRefresh, 300000, 600000); //5min - 10min
-
-    long millisToNextReport = ContinuousKeepData.getWeekDateEnd().getMillis() - DateTime.now().getMillis();
-    if(millisToNextReport < 0) {
-      millisToNextReport = 0;
-    }
-
-    ContinuousKeepData.getWeekDateStart().toString();
-
-    TimerTask reportData = new ContinuousKeepData();
-    timerTask.schedule(reportData, millisToNextReport, DURATION_WEEK_IN_MILLISECONDES);
+    
+    TimerTask mainThread = new ContinuousTimeChecking();
+    timerTask.schedule(mainThread, 0, 100); //100 milliseconds
 
     LogHelper.logSender("Démarrage des tâches continues terminés !");
 

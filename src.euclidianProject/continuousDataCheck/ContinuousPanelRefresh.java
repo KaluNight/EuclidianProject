@@ -3,15 +3,13 @@ package continuousDataCheck;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TimerTask;
-
 import main.Main;
 import model.Player;
 import model.Team;
 import net.dv8tion.jda.core.entities.Message;
 import request.RiotRequest;
 
-public class ContinuousPanelRefresh extends TimerTask{
+public class ContinuousPanelRefresh extends Thread{
 
   private static final long MINUTES_BETWEN_EACH_REFRESH = 2;
 

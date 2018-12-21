@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TimerTask;
-
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.Minutes;
@@ -28,7 +26,7 @@ import model.StatsType;
 import net.dv8tion.jda.core.entities.TextChannel;
 import util.LogHelper;
 
-public class ContinuousKeepData extends TimerTask{
+public class ContinuousKeepData extends Thread{
 
   public static final String FOLDER_DATA_PLAYERS = "ressources/playersData/";
 

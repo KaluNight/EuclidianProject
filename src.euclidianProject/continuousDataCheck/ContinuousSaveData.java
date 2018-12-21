@@ -2,11 +2,9 @@ package continuousDataCheck;
 
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
-import java.util.TimerTask;
-
 import main.Main;
 
-public class ContinuousSaveData extends TimerTask{
+public class ContinuousSaveData extends Thread{
 
   @Override
   public void run() {

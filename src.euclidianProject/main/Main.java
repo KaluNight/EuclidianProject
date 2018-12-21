@@ -22,6 +22,7 @@ import com.merakianalytics.orianna.types.common.Region;
 import com.merakianalytics.orianna.types.core.summoner.Summoner;
 
 import continuousDataCheck.ContinuousKeepData;
+import continuousDataCheck.ContinuousTimeChecking;
 import model.Player;
 import model.PlayerDataOfTheWeek;
 import model.Postulation;
@@ -248,6 +249,7 @@ public class Main {
 
           String millisEnd = reader.readLine();
           ContinuousKeepData.setWeekDateEnd(DateTime.parse(millisEnd));
+          ContinuousTimeChecking.setNextTimeSendReport(DateTime.parse(millisEnd));
 
         } else if(line.equals("--post")) {
 
