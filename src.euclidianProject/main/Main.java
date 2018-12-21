@@ -18,6 +18,7 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.merakianalytics.orianna.Orianna;
 import com.merakianalytics.orianna.types.common.Platform;
+import com.merakianalytics.orianna.types.common.Region;
 import com.merakianalytics.orianna.types.core.summoner.Summoner;
 
 import continuousDataCheck.ContinuousKeepData;
@@ -89,6 +90,7 @@ public class Main {
 		Orianna.loadConfiguration(ORIANNA_CONFIG_FILE);
 		Orianna.setDefaultLocale("fr_FR");
 		Orianna.setDefaultPlatform(Platform.EUROPE_WEST);
+		Orianna.setDefaultRegion(Region.EUROPE_WEST);
 		Orianna.setRiotAPIKey(args[1]);
 	}
 	
