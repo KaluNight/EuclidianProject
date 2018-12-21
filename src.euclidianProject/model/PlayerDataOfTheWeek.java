@@ -3,28 +3,24 @@ package model;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.joda.time.DateTime;
 import org.joda.time.Duration;
-
-import com.merakianalytics.orianna.types.core.staticdata.Champion;
-import com.merakianalytics.orianna.types.core.staticdata.SummonerSpell;
 
 public class PlayerDataOfTheWeek {
 
-	private DateTime weekStart;
-	private DateTime weekEnd;
+	private String weekStart; //ISO 8601
+	private String weekEnd; //ISO 8601
 	private List<Duration> listeDuration;
 	private List<Integer> listTotCreep10Minute;
 	private List<Integer> listTotCreep20Minute;
 	private List<Integer> listTotCreep30Minute;
-	private List<SummonerSpell> listOfSummonerSpellUsed;
+	private List<Integer> listOfSummonerSpellUsedId;
 	private List<KDA> listOfKDA;
-	private List<Champion> listOfChampionPlayed;
+	private List<Integer> listOfChampionPlayedId;
 
 	private int nbrGames = 0;
 	private int nbrWin = 0;
 
-	public PlayerDataOfTheWeek(DateTime weekStart, DateTime weekEnd) {
+	public PlayerDataOfTheWeek(String weekStart, String weekEnd) {
 		this.weekStart = weekStart;
 		this.weekEnd = weekEnd;
 	}
@@ -108,8 +104,8 @@ public class PlayerDataOfTheWeek {
 	public int getNumberOfDifferentChampionsPlayed() {
 		ArrayList<Integer> championTreated = new ArrayList<>();
 		
-		for(int i = 0; i < listOfChampionPlayed.size(); i++) {
-			int actualID = listOfChampionPlayed.get(i).getId();
+		for(int i = 0; i < listOfChampionPlayedId.size(); i++) {
+			int actualID = listOfChampionPlayedId.get(i);
 			
 			boolean championIsInTheList = false;
 			for(int j = 0; j < championTreated.size(); j++) {
@@ -150,11 +146,11 @@ public class PlayerDataOfTheWeek {
 	public void setListTotCreep30Minute(List<Integer> listTotCreep30Minute) {
 		this.listTotCreep30Minute = listTotCreep30Minute;
 	}
-	public List<SummonerSpell> getListOfSummonerSpellUsed() {
-		return listOfSummonerSpellUsed;
+	public List<Integer> getListOfSummonerSpellUsed() {
+		return listOfSummonerSpellUsedId;
 	}
-	public void setListOfSummonerSpellUsed(List<SummonerSpell> listOfSummonerSpellUsed) {
-		this.listOfSummonerSpellUsed = listOfSummonerSpellUsed;
+	public void setListOfSummonerSpellUsed(List<Integer> listOfSummonerSpellUsed) {
+		this.listOfSummonerSpellUsedId = listOfSummonerSpellUsed;
 	}
 	public List<KDA> getListOfKDA() {
 		return listOfKDA;
@@ -162,11 +158,11 @@ public class PlayerDataOfTheWeek {
 	public void setListOfKDA(List<KDA> listOfKDA) {
 		this.listOfKDA = listOfKDA;
 	}
-	public List<Champion> getListOfChampionPlayed() {
-		return listOfChampionPlayed;
+	public List<Integer> getListOfChampionPlayed() {
+		return listOfChampionPlayedId;
 	}
-	public void setListOfChampionPlayed(List<Champion> listOfChampionPlayed) {
-		this.listOfChampionPlayed = listOfChampionPlayed;
+	public void setListOfChampionPlayed(List<Integer> listOfChampionPlayed) {
+		this.listOfChampionPlayedId = listOfChampionPlayed;
 	}
 	public int getNbrGames() {
 		return nbrGames;
@@ -181,19 +177,19 @@ public class PlayerDataOfTheWeek {
 		this.nbrWin = nbrWin;
 	}
 
-	public DateTime getWeekStart() {
+	public String getWeekStart() {
 		return weekStart;
 	}
 
-	public void setWeekStart(DateTime weekStart) {
+	public void setWeekStart(String weekStart) {
 		this.weekStart = weekStart;
 	}
 
-	public DateTime getWeekEnd() {
+	public String getWeekEnd() {
 		return weekEnd;
 	}
 
-	public void setWeekEnd(DateTime weekEnd) {
+	public void setWeekEnd(String weekEnd) {
 		this.weekEnd = weekEnd;
 	}
 

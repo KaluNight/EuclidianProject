@@ -8,15 +8,21 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.joda.time.DateTime;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
 import com.merakianalytics.orianna.Orianna;
 import com.merakianalytics.orianna.types.common.Platform;
 import com.merakianalytics.orianna.types.core.summoner.Summoner;
 
 import continuousDataCheck.ContinuousKeepData;
 import model.Player;
+import model.PlayerDataOfTheWeek;
 import model.Postulation;
 import model.Team;
 import net.dv8tion.jda.core.AccountType;
@@ -29,6 +35,7 @@ import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.managers.GuildController;
+import util.LogHelper;
 
 public class Main {
 
@@ -84,6 +91,24 @@ public class Main {
 		Orianna.setDefaultPlatform(Platform.EUROPE_WEST);
 		Orianna.setRiotAPIKey(args[1]);
 	}
+	
+  public static synchronized void loadPlayerDataWeek() throws IOException {
+    Gson gson = new Gson();
+    
+    for(int i = 0; i < Main.getPlayerList().size(); i++) {
+      try (FileReader fr = new FileReader(
+          ContinuousKeepData.FOLDER_DATA_PLAYERS + Main.getPlayerList().get(i).getDiscordUser().getId() + ".json");){
+        
+        List<PlayerDataOfTheWeek> playerData = gson.fromJson(fr, new TypeToken<List<PlayerDataOfTheWeek>>(){}.getType());
+        
+        Main.getPlayerList().get(i).setListDataOfWeek(playerData);
+      } catch(JsonSyntaxException | JsonIOException e) {
+        LogHelper.logSender("Le fichier de sauvegarde de " + Main.getPlayerList().get(i).getName() + " est corrompu !");
+      } catch(FileNotFoundException e) {
+        LogHelper.logSender(Main.getPlayerList().get(i).getName() + " ne possède pas de sauvegarde de donnés");
+      }
+    }
+  }
 
 	public static synchronized void saveDataTxt() throws FileNotFoundException, UnsupportedEncodingException {
 
@@ -148,7 +173,7 @@ public class Main {
 			saveString.append("--end\n");
 		}
 		
-		saveString.append("\n\n//StatsDate");
+		saveString.append("\n\n//StatsDate\n");
 		saveString.append("--st\n");
 		
 		saveString.append(ContinuousKeepData.getStatsChannel().getId() + "\n");

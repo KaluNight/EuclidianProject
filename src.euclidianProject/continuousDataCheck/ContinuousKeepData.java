@@ -1,5 +1,8 @@
 package continuousDataCheck;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimerTask;
@@ -8,12 +11,12 @@ import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.Minutes;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.merakianalytics.orianna.types.core.match.Match;
 import com.merakianalytics.orianna.types.core.match.MatchHistory;
 import com.merakianalytics.orianna.types.core.match.Participant;
 import com.merakianalytics.orianna.types.core.searchable.SearchableList;
-import com.merakianalytics.orianna.types.core.staticdata.Champion;
-import com.merakianalytics.orianna.types.core.staticdata.SummonerSpell;
 import com.merakianalytics.orianna.types.core.summoner.Summoner;
 
 import main.Main;
@@ -27,12 +30,14 @@ import util.LogHelper;
 
 public class ContinuousKeepData extends TimerTask{
 
+  public static final String FOLDER_DATA_PLAYERS = "ressources/playersData/";
+
   private static DateTime weekDateStart;
 
   private static DateTime weekDateEnd;
 
   private static TextChannel statsChannel;
-  
+
   private static ArrayList<String> messagesToSend;
 
   //IDEA: Do a treatment of data each end of day (?) for prevent chaine lose after 3 lose ?
@@ -42,16 +47,16 @@ public class ContinuousKeepData extends TimerTask{
 
     statsChannel.sendTyping().complete();
     statsChannel.sendMessage("Je commence l'analyse de vos parties de la semaine, cela devrait me prendre quelques minutes").complete();
-    
+
     setMessagesToSend(new ArrayList<>());
 
-    messagesToSend.add("__**Début d'analyse Hebdomadaire**__");
+    messagesToSend.add("__**Rapports Hebdomadaire**__");
 
     for(int i = 0; i < Main.getPlayerList().size(); i++) {      
       Player player = Main.getPlayerList().get(i);
-      
+
       LogHelper.logSender("Construction du rapport de " + player.getName());
-      
+
       Summoner summoner = player.getSummoner();
 
       //TODO: Change for discord Ping
@@ -74,31 +79,69 @@ public class ContinuousKeepData extends TimerTask{
             sendReport(player, changedStats);
           }
         }else {
-          messagesToSend.add("Vos données n'ont pas pu être analysé :O");
+          messagesToSend.add("Vos données n'ont pas pu être analysé D:");
         }
       }else {
         messagesToSend.add("Vous n'avez fait aucune partie cette semaine, je ne peux donc rien analyser :c");
       }
     }
-
-    LogHelper.logSender("Analyse terminé, les rapports sont envoyé");
     
+    LogHelper.logSender("Analyse terminé, les rapports sont sauvegardés ...");
+    
+    try {
+      saveData();
+      LogHelper.logSender("Donnés sauvegardés ! Les rapports sont envoyés ...");
+    } catch(IOException e) {
+      LogHelper.logSender("Des logs on essayé d'être écrite alors que Witer était fermé ! "
+          + "Les données ne sont donc pas sauvegardés");
+    }
+
+    statsChannel.sendTyping().complete();
+    statsChannel.sendMessage("Me revoilà !\nVoici vos rapports :D").complete();
+
     for(int i = 0; i < messagesToSend.size(); i++) {
       statsChannel.sendTyping().complete();
       statsChannel.sendMessage(messagesToSend.get(i)).complete();
     }
+
+    LogHelper.logSender("Tous les rapports ont été envoyé !");
     
     setWeekDateEnd(weekDateEnd.plusWeeks(1));
     setWeekDateStart(weekDateStart.plusWeeks(1));
     
+    statsChannel.sendTyping().complete();
+    statsChannel.sendMessage("Le prochain rapport que je ferai sera le **"
+    + weekDateEnd.getDayOfMonth() + "." + weekDateEnd.getMonthOfYear() + "." + weekDateEnd.getYear() + " à "
+    + weekDateEnd.getHourOfDay() + ":" + weekDateEnd.getMinuteOfHour() + "**.\nPassez une bonne journée !").complete();
+
     setMessagesToSend(new ArrayList<>());
+  }
+
+  private void saveData() throws IOException {
+    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    for(int i = 0; i < Main.getPlayerList().size(); i++) {
+      List<PlayerDataOfTheWeek> dataPlayer = Main.getPlayerList().get(i).getListDataOfWeek();
+
+      Writer writer = null;
+      try {
+        writer = new FileWriter(FOLDER_DATA_PLAYERS + Main.getPlayerList().get(i).getDiscordUser().getId() + ".json");
+
+        gson.toJson(dataPlayer, writer);
+      } catch(IOException e) {
+        LogHelper.logSender(Main.getPlayerList().get(i).getDiscordUser().getName() + " n'a pas pu être enregistré");
+      }finally {
+        if(writer != null) {
+          writer.close();
+        }
+      }
+    }
   }
 
   private void sendReport(Player player, List<ChangedStats> changedStats) {
 
     for (int i = 0; i < changedStats.size(); i++) {
       ChangedStats stats = changedStats.get(i);
-      messagesToSend.add("**" + stats.getType().toString() + "**\n " + stats.toString());
+      messagesToSend.add("**" + stats.getType().toString() + "**\n" + stats.toString());
     }
   }
 
@@ -132,9 +175,9 @@ public class ContinuousKeepData extends TimerTask{
     ArrayList<Integer> listTotCreep10Minute = new ArrayList<>();
     ArrayList<Integer> listTotCreep20Minute = new ArrayList<>();
     ArrayList<Integer> listTotCreep30Minute = new ArrayList<>();
-    ArrayList<SummonerSpell> listOfSummonerSpellUsed = new ArrayList<>();
+    ArrayList<Integer> listOfSummonerSpellUsed = new ArrayList<>();
     ArrayList<KDA> listOfKDA = new ArrayList<>();
-    ArrayList<Champion> listOfChampionPlayed = new ArrayList<>();
+    ArrayList<Integer> listOfChampionPlayed = new ArrayList<>();
 
     int nbrGames = 0;
     int nbrWin = 0;
@@ -164,15 +207,15 @@ public class ContinuousKeepData extends TimerTask{
           listTotCreep30Minute.add((int) participant.getTimeline().getCreepScore().getAt30());
         }
 
-        listOfSummonerSpellUsed.add(participant.getSummonerSpellD());
-        listOfSummonerSpellUsed.add(participant.getSummonerSpellF());
+        listOfSummonerSpellUsed.add(participant.getSummonerSpellD().getId());
+        listOfSummonerSpellUsed.add(participant.getSummonerSpellF().getId());
 
         int kills = participant.getStats().getKills();
         int deaths = participant.getStats().getDeaths();
         int assists = participant.getStats().getAssists();
         listOfKDA.add(new KDA(kills, deaths, assists));
 
-        listOfChampionPlayed.add(participant.getChampion());
+        listOfChampionPlayed.add(participant.getChampion().getId());
 
         nbrGames++;
         if(participant.getTeam().isWinner()) {
@@ -181,7 +224,7 @@ public class ContinuousKeepData extends TimerTask{
       }
     }
 
-    PlayerDataOfTheWeek playerDataOfTheWeek = new PlayerDataOfTheWeek(weekDateStart, weekDateEnd);
+    PlayerDataOfTheWeek playerDataOfTheWeek = new PlayerDataOfTheWeek(weekDateStart.toString(), weekDateEnd.toString());
 
     playerDataOfTheWeek.setListeDuration(listeDuration);
     playerDataOfTheWeek.setListOfChampionPlayed(listOfChampionPlayed);
