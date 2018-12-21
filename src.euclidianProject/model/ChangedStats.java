@@ -1,7 +1,12 @@
 package model;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+
 public class ChangedStats {
 
+  private static final NumberFormat doubleFormater = new DecimalFormat("#0.00");
+  
 	private StatsType type;
 	private Number oldValue;
 	private Number newValue;
@@ -30,8 +35,7 @@ public class ChangedStats {
 				return "La durée moyenne de vos parties à été réduite de "
 						+ newMinutes + " min. " + newSecondes + " s. à " + oldMinutes + " min. " + oldSecondes + " s.";
 			}else {
-				return "La durée moyenne de vos parties n'a pas changé, elle est de "
-						+ newMinutes + " min. " + newSecondes + " s.";
+				return "La durée moyenne de vos parties n'a pas changé.\nElle est de " + newMinutes + " min. " + newSecondes + " s.";
 			}
 
 		case CHAMPIONS_PLAYED:
@@ -45,67 +49,67 @@ public class ChangedStats {
 						+ "Semaine passé : " + (int) oldValue + " Champions différents joué.\n"
 						+ "Cette semaine : " + (int) newValue + " Champions différents joué.";
 			}else {
-				return "Vous avez joué autant de champions que la semaine passé. Champions différents joué cette semaine : " + (int) newValue;
+				return "Vous avez joué autant de champions que la semaine passé.\nChampions différents joué cette semaine : " + (int) newValue;
 			}
 
 		case CREEP_AT_10:
 			
 			if((double) oldValue < (double) newValue) {
-				return "Vous avez en moyenne " + ((double) newValue - (double) oldValue) + " creeps à 10 minutes de plus que la dernière fois.\n"
-						+ "Semaine passé : " + (double) oldValue + " creeps à 10 minutes en moyenne.\n"
-						+ "Cette semaine : " + (double) newValue + " creeps à 10 minutes en moyenne.";
+				return "Vous avez en moyenne " + doubleFormater.format(((double) newValue - (double) oldValue)) + " creeps à 10 minutes de plus que la dernière fois.\n"
+						+ "Semaine passé : " + doubleFormater.format((double) oldValue) + " creeps à 10 minutes en moyenne.\n"
+						+ "Cette semaine : " + doubleFormater.format((double) newValue) + " creeps à 10 minutes en moyenne.";
 			}else if((double) oldValue > (double) newValue) {
 				return "Vous avez en moyenne " + ((double) oldValue - (double) newValue) + " creeps à 10 minutes de moins que la dernière fois.\n"
-						+ "Semaine passé : " + (double) oldValue + " creeps à 10 minutes en moyenne.\n"
-						+ "Cette semaine : " + (double) newValue + " creeps à 10 minutes en moyenne.";
+						+ "Semaine passé : " + doubleFormater.format((double) oldValue) + " creeps à 10 minutes en moyenne.\n"
+						+ "Cette semaine : " + doubleFormater.format((double) newValue) + " creeps à 10 minutes en moyenne.";
 			}else {
-				return "Vous avez en moyenne autant de creeps à 10 minutes que la dernière fois. "
-						+ "Moyenne de creeps à 10 minutes cette semaine : " + (double) newValue;
+				return "Vous avez en moyenne autant de creeps à 10 minutes que la dernière fois.\n"
+						+ "Moyenne de creeps à 10 minutes cette semaine : " + doubleFormater.format((double) newValue);
 			}
 			
 		case CREEP_AT_20:
 			
 			if((double) oldValue < (double) newValue) {
-				return "Vous avez en moyenne " + ((double) newValue - (double) oldValue) + " creeps à 20 minutes de plus que la dernière fois.\n"
-						+ "Semaine passé : " + (double) oldValue + " creeps à 20 minutes en moyenne.\n"
-						+ "Cette semaine : " + (double) newValue + " creeps à 20 minutes en moyenne.";
+				return "Vous avez en moyenne " + doubleFormater.format(((double) newValue - (double) oldValue)) + " creeps à 20 minutes de plus que la dernière fois.\n"
+						+ "Semaine passé : " + doubleFormater.format((double) oldValue) + " creeps à 20 minutes en moyenne.\n"
+						+ "Cette semaine : " + doubleFormater.format((double) newValue) + " creeps à 20 minutes en moyenne.";
 			}else if((double) oldValue > (double) newValue) {
 				return "Vous avez en moyenne " + ((double) oldValue - (double) newValue) + " creeps à 20 minutes de moins que la dernière fois.\n"
-						+ "Semaine passé : " + (double) oldValue + " creeps à 20 minutes en moyenne.\n"
-						+ "Cette semaine : " + (double) newValue + " creeps à 20 minutes en moyenne.";
+						+ "Semaine passé : " + doubleFormater.format((double) oldValue) + " creeps à 20 minutes en moyenne.\n"
+						+ "Cette semaine : " + doubleFormater.format((double) newValue) + " creeps à 20 minutes en moyenne.";
 			}else {
-				return "Vous avez en moyenne autant de creeps à 20 minutes que la dernière fois. "
-						+ "Moyenne de creeps à 20 minutes cette semaine : " + (double) newValue;
+				return "Vous avez en moyenne autant de creeps à 20 minutes que la dernière fois.\n"
+						+ "Moyenne de creeps à 20 minutes cette semaine : " + doubleFormater.format((double) newValue);
 			}
 			
 		case CREEP_AT_30:
 			
 			if((double) oldValue < (double) newValue) {
-				return "Vous avez en moyenne " + ((double) newValue - (double) oldValue) + " creeps à 30 minutes de plus que la dernière fois.\n"
-						+ "Semaine passé : " + (double) oldValue + " creeps à 30 minutes en moyenne.\n"
-						+ "Cette semaine : " + (double) newValue + " creeps à 30 minutes en moyenne.";
+				return "Vous avez en moyenne " + doubleFormater.format(((double) newValue - (double) oldValue)) + " creeps à 30 minutes de plus que la dernière fois.\n"
+						+ "Semaine passé : " + doubleFormater.format((double) oldValue) + " creeps à 30 minutes en moyenne.\n"
+						+ "Cette semaine : " + doubleFormater.format((double) newValue) + " creeps à 30 minutes en moyenne.";
 			}else if((double) oldValue > (double) newValue) {
-				return "Vous avez en moyenne " + ((double) oldValue - (double) newValue) + " creeps à 30 minutes de moins que la dernière fois.\n"
-						+ "Semaine passé : " + (double) oldValue + " creeps à 30 minutes en moyenne.\n"
-						+ "Cette semaine : " + (double) newValue + " creeps à 30 minutes en moyenne.";
+				return "Vous avez en moyenne " + doubleFormater.format(((double) oldValue - (double) newValue)) + " creeps à 30 minutes de moins que la dernière fois.\n"
+						+ "Semaine passé : " + doubleFormater.format((double) oldValue) + " creeps à 30 minutes en moyenne.\n"
+						+ "Cette semaine : " + doubleFormater.format((double) newValue) + " creeps à 30 minutes en moyenne.";
 			}else {
-				return "Vous avez en moyenne autant de creeps à 30 minutes que la dernière fois. "
-						+ "Moyenne de creeps à 30 minutes cette semaine : " + (double) newValue;
+				return "Vous avez en moyenne autant de creeps à 30 minutes que la dernière fois.\n"
+						+ "Moyenne de creeps à 30 minutes cette semaine : " + doubleFormater.format((double) newValue);
 			}
 			
 		case KDA:
 			
 			if((double) oldValue < (double) newValue) {
-				return "Vous avez en moyenne " + ((double) newValue - (double) oldValue) + " de KDA moyen supplémentaires par rapport à la dernière fois.\n"
-						+ "Semaine passé : " + (double) oldValue + " de KDA moyen\n"
-						+ "Cette semaine : " + (double) newValue + " de KDA moyen";
+				return "Vous avez en moyenne " + doubleFormater.format(((double) newValue - (double) oldValue)) + " de KDA moyen supplémentaires par rapport à la dernière fois.\n"
+						+ "Semaine passé : " + doubleFormater.format((double) oldValue) + " de KDA moyen\n"
+						+ "Cette semaine : " + doubleFormater.format((double) newValue) + " de KDA moyen";
 			}else if((double) oldValue > (double) newValue) {
-				return "Vous avez en moyenne " + ((double) oldValue - (double) newValue) + " de KDA moyen en moins par rapport à la dernière fois.\n"
-						+ "Semaine passé : " + (double) oldValue + " de KDA moyen.\n"
-						+ "Cette semaine : " + (double) newValue + " de KDA moyen.";
+				return "Vous avez en moyenne " + doubleFormater.format(((double) oldValue - (double) newValue)) + " de KDA moyen en moins par rapport à la dernière fois.\n"
+						+ "Semaine passé : " + doubleFormater.format((double) oldValue) + " de KDA moyen.\n"
+						+ "Cette semaine : " + doubleFormater.format((double) newValue) + " de KDA moyen.";
 			}else{
-				return "Vous avez en moyenne un KDA moyen égale à la dernière fois. "
-						+ "KDA moyen cette semaine : " + (double) newValue;
+				return "Vous avez en moyenne un KDA moyen égale à la dernière fois.\n"
+						+ "KDA moyen cette semaine : " + doubleFormater.format((double) newValue);
 			}
 			
 		default:

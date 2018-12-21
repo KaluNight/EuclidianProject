@@ -164,7 +164,6 @@ public class ContinuousKeepData extends TimerTask{
       listOfChangedStats.add(new ChangedStats(StatsType.CREEP_AT_20, lastWeek.getAverageCreepsAt20(), thisWeek.getAverageCreepsAt20()));
       listOfChangedStats.add(new ChangedStats(StatsType.CREEP_AT_30, lastWeek.getAverageCreepsAt30(), thisWeek.getAverageCreepsAt30()));
       listOfChangedStats.add(new ChangedStats(StatsType.KDA, lastWeek.getKDAOfTheWeek(), thisWeek.getKDAOfTheWeek()));
-      listOfChangedStats.add(new ChangedStats(StatsType.SUMMONER_TYPE, lastWeek.getNumberOfDifferentChampionsPlayed(), thisWeek.getNumberOfDifferentChampionsPlayed()));
 
       return listOfChangedStats;
     }
