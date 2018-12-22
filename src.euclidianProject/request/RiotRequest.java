@@ -26,13 +26,20 @@ public class RiotRequest {
   public static String getActualGameStatus(Summoner summoner) {
 
     LogHelper.logSender("In Riot request");
-    
-    CurrentMatch currentGameInfo = CurrentMatch.forSummoner(summoner).get(); //Get freeze here
-    if(!currentGameInfo.exists()) {
-      return "Pas en game";
+
+    CurrentMatch currentGameInfo = CurrentMatch.forSummoner(summoner).get();
+    LogHelper.logSender("After Riot request");
+    try {
+      if(!currentGameInfo.exists()) {  //Get freeze here
+        LogHelper.logSender("Before return");
+        return "Pas en game";
+      }
+    }catch (Exception e) {
+      LogHelper.logSender(e.getMessage());
     }
 
     String gameStatus = currentGameInfo.getMode().name();
+    LogHelper.logSender("after return");
 
     gameStatus += " (" + currentGameInfo.getType().name() + ") ";
 
@@ -42,7 +49,7 @@ public class RiotRequest {
     int secondesGameLength = (int) (Double.parseDouble("0." + stringMinutesSecondes[1]) * 60.0);
 
     gameStatus += "(" + minutesGameLength + "m " + secondesGameLength + "s)";
-    
+
     LogHelper.logSender("Out Riot request");
 
     return gameStatus;

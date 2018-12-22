@@ -26,7 +26,7 @@ public class ContinuousTimeChecking extends TimerTask{
 
       if(nextTimePanelRefresh.isBeforeNow()) {
         logger.info("Lanche panel");
-        setNextTimePanelRefresh(nextTimePanelRefresh.plusMinutes(3));
+        setNextTimePanelRefresh(nextTimePanelRefresh.plusMinutes(1));
         new ContinuousPanelRefresh().start();
       }
 
