@@ -8,6 +8,8 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.Minutes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -37,11 +39,15 @@ public class ContinuousKeepData extends Thread{
   private static TextChannel statsChannel;
 
   private static ArrayList<String> messagesToSend;
+  
+  Logger logger = LoggerFactory.getLogger(getClass());
 
   //IDEA: Do a treatment of data each end of day (?) for prevent chaine lose after 3 lose ?
 
   @Override
   public void run() {
+    
+    logger.info("Keep Data");
 
     statsChannel.sendTyping().complete();
     statsChannel.sendMessage("Je commence l'analyse de vos parties de la semaine, cela devrait me prendre quelques minutes").complete();

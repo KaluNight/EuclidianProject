@@ -149,7 +149,7 @@ public class EventListener extends ListenerAdapter{
     setTimerTask(new Timer());
     
     TimerTask mainThread = new ContinuousTimeChecking();
-    timerTask.schedule(mainThread, 0, 100); //100 milliseconds
+    timerTask.schedule(mainThread, 0, 10000); //10 secondes
 
     LogHelper.logSender("Démarrage des tâches continues terminés !");
 

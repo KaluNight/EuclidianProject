@@ -4,6 +4,8 @@ import com.merakianalytics.orianna.types.core.league.LeaguePositions;
 import com.merakianalytics.orianna.types.core.spectator.CurrentMatch;
 import com.merakianalytics.orianna.types.core.summoner.Summoner;
 
+import util.LogHelper;
+
 public class RiotRequest {
 
   public static String getSoloqRank(long summonerID) {
@@ -23,7 +25,9 @@ public class RiotRequest {
 
   public static String getActualGameStatus(Summoner summoner) {
 
-    CurrentMatch currentGameInfo = CurrentMatch.forSummoner(summoner).get();
+    LogHelper.logSender("In Riot request");
+    
+    CurrentMatch currentGameInfo = CurrentMatch.forSummoner(summoner).get(); //Get freeze here
     if(!currentGameInfo.exists()) {
       return "Pas en game";
     }
@@ -38,6 +42,8 @@ public class RiotRequest {
     int secondesGameLength = (int) (Double.parseDouble("0." + stringMinutesSecondes[1]) * 60.0);
 
     gameStatus += "(" + minutesGameLength + "m " + secondesGameLength + "s)";
+    
+    LogHelper.logSender("Out Riot request");
 
     return gameStatus;
   }	
