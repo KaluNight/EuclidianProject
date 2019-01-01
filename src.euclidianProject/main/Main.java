@@ -44,7 +44,7 @@ public class Main {
   private static File SAVE_TXT_FILE = new File("ressources/save.txt");
 
   private static File ORIANNA_CONFIG_FILE = new File("ressources/orianna-config.json");
-  
+
   private static final File SECRET_FILE = new File("secret.txt");
 
   //------------------------------
@@ -80,7 +80,7 @@ public class Main {
   public static void main(String[] args) {
     String discordTocken = "";
     String riotTocken = "";
-    
+
     if(args.length == 0) {
 
       try (BufferedReader reader = new BufferedReader(new FileReader(SECRET_FILE));){
@@ -89,15 +89,15 @@ public class Main {
       }catch (Exception e) {
         e.printStackTrace();
       }
-      
+
       ORIANNA_CONFIG_FILE = new File("orianna-config.json");
       SAVE_TXT_FILE = new File("save.txt");
-      
+
     }else {
       discordTocken = args[0];
       riotTocken = args[1];
     }
-    
+
     try {
       jda = new JDABuilder(AccountType.BOT).setToken(discordTocken).build();
     } catch (IndexOutOfBoundsException e) {
@@ -278,20 +278,23 @@ public class Main {
           String userId = reader.readLine();
           Member member = guild.getMemberById(userId);
 
-          Summoner summoner = Summoner.withAccountId(Long.parseLong(reader.readLine())).get();
+          if(member != null) {
 
-          ArrayList<Role> roles = new ArrayList<>();
+            Summoner summoner = Summoner.withAccountId(Long.parseLong(reader.readLine())).get();
 
-          int roleNmbr = Integer.parseInt(reader.readLine());
-          for(int j = 0; j < roleNmbr; j++) {
-            String roleId = reader.readLine();
-            roles.add(guild.getRoleById(roleId));
+            ArrayList<Role> roles = new ArrayList<>();
+
+            int roleNmbr = Integer.parseInt(reader.readLine());
+            for(int j = 0; j < roleNmbr; j++) {
+              String roleId = reader.readLine();
+              roles.add(guild.getRoleById(roleId));
+            }
+
+            String horaires = reader.readLine();
+
+            Postulation postulation = new Postulation(member, summoner, roles, horaires);
+            postulationsList.add(postulation);
           }
-
-          String horaires = reader.readLine();
-
-          Postulation postulation = new Postulation(member, summoner, roles, horaires);
-          postulationsList.add(postulation);
 
         } else if (line.equals("--r")) {
 
