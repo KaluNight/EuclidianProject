@@ -61,7 +61,7 @@ public class ContinuousKeepData extends Thread{
       Summoner summoner = player.getSummoner();
 
       //TODO: Change for discord Ping
-      messagesToSend.add("**Rapport pour " + player.getDiscordUser().getName() + " sur le compte " + summoner.getName() + ".**");
+      messagesToSend.add("**Rapport pour " + player.getDiscordUser().getAsMention() + " sur le compte " + summoner.getName() + ".**");
 
       MatchHistory matchHistory = MatchHistory.forSummoner(summoner).withStartTime(weekDateStart).withEndTime(weekDateEnd).get();
 
