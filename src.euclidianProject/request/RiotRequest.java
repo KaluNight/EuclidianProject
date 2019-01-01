@@ -4,9 +4,10 @@ import com.merakianalytics.orianna.types.core.league.LeaguePositions;
 import com.merakianalytics.orianna.types.core.spectator.CurrentMatch;
 import com.merakianalytics.orianna.types.core.summoner.Summoner;
 
-import util.LogHelper;
-
 public class RiotRequest {
+  
+  private RiotRequest() {
+  }
 
   public static String getSoloqRank(long summonerID) {
     LeaguePositions list = LeaguePositions.forSummoner(Summoner.withId(summonerID).get()).get();
@@ -25,21 +26,13 @@ public class RiotRequest {
 
   public static String getActualGameStatus(Summoner summoner) {
 
-    LogHelper.logSender("In Riot request");
-
     CurrentMatch currentGameInfo = CurrentMatch.forSummoner(summoner).get();
-    LogHelper.logSender("After Riot request");
-    try {
-      if(!currentGameInfo.exists()) {  //Get freeze here
-        LogHelper.logSender("Before return");
-        return "Pas en game";
-      }
-    }catch (Exception e) {
-      LogHelper.logSender(e.getMessage());
+
+    if(!currentGameInfo.exists()) {  //Get freeze here
+      return "Pas en game";
     }
 
     String gameStatus = currentGameInfo.getMode().name();
-    LogHelper.logSender("after return");
 
     gameStatus += " (" + currentGameInfo.getType().name() + ") ";
 
@@ -49,8 +42,6 @@ public class RiotRequest {
     int secondesGameLength = (int) (Double.parseDouble("0." + stringMinutesSecondes[1]) * 60.0);
 
     gameStatus += "(" + minutesGameLength + "m " + secondesGameLength + "s)";
-
-    LogHelper.logSender("Out Riot request");
 
     return gameStatus;
   }	

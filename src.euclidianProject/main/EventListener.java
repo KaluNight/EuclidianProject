@@ -143,7 +143,7 @@ public class EventListener extends ListenerAdapter{
 
     LogHelper.logSender("Démarrage des tâches continue...");
     
-    ContinuousTimeChecking.setNextTimePanelRefresh(DateTime.now().plusMinutes(3));
+    ContinuousTimeChecking.setNextTimePanelRefresh(DateTime.now());
     ContinuousTimeChecking.setNextTimeSaveData(DateTime.now().plusMinutes(10));
     
     setTimerTask(new Timer());

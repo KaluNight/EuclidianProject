@@ -17,24 +17,30 @@ public class ContinuousTimeChecking extends TimerTask{
 
   @Override
   public void run() {
-      
-      if(nextTimeSendReport.isBeforeNow()) {
-        logger.info("Lanche Report");
-        setNextTimeSendReport(nextTimeSendReport.plusWeeks(1));
+
+    if(nextTimeSendReport.isBeforeNow()) {
+      logger.info("Lanche Report");
+      setNextTimeSendReport(nextTimeSendReport.plusWeeks(1));
+      if(!ContinuousKeepData.isRunning()) { 
         new ContinuousKeepData().start();
       }
+    }
 
-      if(nextTimePanelRefresh.isBeforeNow()) {
-        logger.info("Lanche panel");
-        setNextTimePanelRefresh(nextTimePanelRefresh.plusMinutes(1));
+    if(nextTimePanelRefresh.isBeforeNow()) {
+      logger.info("Lanche panel");
+      setNextTimePanelRefresh(nextTimePanelRefresh.plusMinutes(3));
+      if(!ContinuousPanelRefresh.isRunning()) {
         new ContinuousPanelRefresh().start();
       }
+    }
 
-      if(nextTimeSaveData.isBeforeNow()) {
-        logger.info("Lanche Save");
-        setNextTimeSaveData(nextTimeSaveData.plusMinutes(10));
+    if(nextTimeSaveData.isBeforeNow()) {
+      logger.info("Lanche Save");
+      setNextTimeSaveData(nextTimeSaveData.plusMinutes(10));
+      if(!ContinuousSaveData.isRunning()) {
         new ContinuousSaveData().start();
       }
+    }
   }
 
   public static DateTime getNextTimePanelRefresh() {

@@ -8,9 +8,6 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.Minutes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.merakianalytics.orianna.types.core.match.Match;
@@ -31,6 +28,8 @@ import util.LogHelper;
 public class ContinuousKeepData extends Thread{
 
   public static final String FOLDER_DATA_PLAYERS = "ressources/playersData/";
+  
+  private static boolean running;
 
   private static DateTime weekDateStart;
 
@@ -39,16 +38,14 @@ public class ContinuousKeepData extends Thread{
   private static TextChannel statsChannel;
 
   private static ArrayList<String> messagesToSend;
-  
-  Logger logger = LoggerFactory.getLogger(getClass());
 
   //IDEA: Do a treatment of data each end of day (?) for prevent chaine lose after 3 lose ?
 
   @Override
   public void run() {
-    
-    logger.info("Keep Data");
 
+    setRunning(true);
+    
     statsChannel.sendTyping().complete();
     statsChannel.sendMessage("Je commence l'analyse de vos parties de la semaine, cela devrait me prendre quelques minutes").complete();
 
@@ -119,6 +116,8 @@ public class ContinuousKeepData extends Thread{
         + weekDateEnd.getHourOfDay() + ":" + weekDateEnd.getMinuteOfHour() + "**.\nPassez une bonne journée !").complete();
 
     setMessagesToSend(new ArrayList<>());
+    
+    setRunning(false);
   }
 
   private void saveData() throws IOException {
@@ -272,5 +271,13 @@ public class ContinuousKeepData extends Thread{
 
   public static void setMessagesToSend(ArrayList<String> messagesToSend) {
     ContinuousKeepData.messagesToSend = messagesToSend;
+  }
+
+  public static boolean isRunning() {
+    return running;
+  }
+
+  public static void setRunning(boolean running) {
+    ContinuousKeepData.running = running;
   }
 }

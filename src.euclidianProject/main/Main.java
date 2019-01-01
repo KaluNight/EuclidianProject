@@ -41,9 +41,11 @@ import util.LogHelper;
 
 public class Main {
 
-  private static final File SAVE_TXT_FILE = new File("ressources/save.txt");
+  private static File SAVE_TXT_FILE = new File("ressources/save.txt");
 
-  private static final File ORIANNA_CONFIG_FILE = new File("ressources/orianna-config.json");
+  private static File ORIANNA_CONFIG_FILE = new File("ressources/orianna-config.json");
+  
+  private static final File SECRET_FILE = new File("secret.txt");
 
   //------------------------------
 
@@ -76,8 +78,28 @@ public class Main {
   private static TextChannel logBot;
 
   public static void main(String[] args) {
+    String discordTocken = "";
+    String riotTocken = "";
+    
+    if(args.length == 0) {
+
+      try (BufferedReader reader = new BufferedReader(new FileReader(SECRET_FILE));){
+        discordTocken = reader.readLine();
+        riotTocken = reader.readLine();
+      }catch (Exception e) {
+        e.printStackTrace();
+      }
+      
+      ORIANNA_CONFIG_FILE = new File("orianna-config.json");
+      SAVE_TXT_FILE = new File("save.txt");
+      
+    }else {
+      discordTocken = args[0];
+      riotTocken = args[1];
+    }
+    
     try {
-      jda = new JDABuilder(AccountType.BOT).setToken(args[0]).build();
+      jda = new JDABuilder(AccountType.BOT).setToken(discordTocken).build();
     } catch (IndexOutOfBoundsException e) {
       System.err.println("You must provide a token.");
       return;
@@ -92,7 +114,7 @@ public class Main {
     Orianna.setDefaultLocale("fr_FR");
     Orianna.setDefaultPlatform(Platform.EUROPE_WEST);
     Orianna.setDefaultRegion(Region.EUROPE_WEST);
-    Orianna.setRiotAPIKey(args[1]);
+    Orianna.setRiotAPIKey(riotTocken);
   }
 
   public static synchronized void loadPlayerDataWeek() throws IOException {

@@ -4,30 +4,26 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import main.Main;
 import model.Player;
 import model.Team;
 import net.dv8tion.jda.core.entities.Message;
 import request.RiotRequest;
-import util.LogHelper;
 
 public class ContinuousPanelRefresh extends Thread{
 
   private static final String ID_PANNEAU_DE_CONTROLE = "517436744124334091";
+  
+  private static boolean running;
 
   private static LocalDateTime nextRefreshPanel;
 
   private static Message messagePanel;
 
-  Logger logger = LoggerFactory.getLogger(getClass());
-
   @Override
   public void run() {
-
-    logger.info("Panel refresh");
+    
+    setRunning(true);
 
     if(messagePanel == null) {
 
@@ -45,7 +41,8 @@ public class ContinuousPanelRefresh extends Thread{
     }
     
     messagePanel.editMessage(refreshPannel()).queue();
-    LogHelper.logSender("Panel refresh admin");
+    
+    setRunning(false);
   }
 
   private String refreshPannel() {
@@ -62,15 +59,11 @@ public class ContinuousPanelRefresh extends Thread{
       ArrayList<Player> playersList = teamList.get(i).getPlayers();
 
       for(int j = 0; j < playersList.size(); j++) {
-        LogHelper.logSender("Panel refresh player : " + playersList.get(j).getName());
         stringMessage.append(playersList.get(j).getSummoner().getName() + " (" + playersList.get(j).getDiscordUser().getAsMention() + ") : ");
 
         stringMessage.append(RiotRequest.getActualGameStatus(playersList.get(j).getSummoner()) + "\n");
         
       }
-
-      LogHelper.logSender("Panel refresh end Player loading");
-      
       stringMessage.append(" \n");
     }
 
@@ -91,6 +84,14 @@ public class ContinuousPanelRefresh extends Thread{
 
   public static void setMessagePanel(Message message) {
     ContinuousPanelRefresh.messagePanel = message;
+  }
+
+  public static boolean isRunning() {
+    return running;
+  }
+
+  public static void setRunning(boolean running) {
+    ContinuousPanelRefresh.running = running;
   }
 
 }

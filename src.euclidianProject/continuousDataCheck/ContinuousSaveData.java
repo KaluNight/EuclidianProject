@@ -3,18 +3,15 @@ package continuousDataCheck;
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import main.Main;
 
 public class ContinuousSaveData extends Thread{
-
-  Logger logger = LoggerFactory.getLogger(getClass());
+  
+  private static boolean running;
   
   @Override
   public void run() {
-    logger.info("Save data");
+    setRunning(true);
     try {
       Main.saveDataTxt();
     } catch (FileNotFoundException e) {
@@ -22,5 +19,14 @@ public class ContinuousSaveData extends Thread{
     } catch (UnsupportedEncodingException e) {
       e.printStackTrace();
     }
+    setRunning(false);
+  }
+
+  public static boolean isRunning() {
+    return running;
+  }
+
+  public static void setRunning(boolean running) {
+    ContinuousSaveData.running = running;
   }
 }
