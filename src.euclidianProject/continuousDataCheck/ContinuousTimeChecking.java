@@ -1,6 +1,10 @@
 package continuousDataCheck;
 
 import java.util.TimerTask;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +17,11 @@ public class ContinuousTimeChecking extends TimerTask{
 
   private static DateTime nextTimeSendReport;
 
+  private static int nbProcs = Runtime.getRuntime().availableProcessors();
+
+  private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(nbProcs, nbProcs, 1000,
+      TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+
   Logger logger = LoggerFactory.getLogger(getClass());
 
   @Override
@@ -22,7 +31,7 @@ public class ContinuousTimeChecking extends TimerTask{
       logger.info("Lanche Report");
       setNextTimeSendReport(nextTimeSendReport.plusWeeks(1));
       if(!ContinuousKeepData.isRunning()) { 
-        new ContinuousKeepData().start();
+        threadPoolExecutor.submit(new ContinuousKeepData());
       }
     }
 
@@ -30,7 +39,7 @@ public class ContinuousTimeChecking extends TimerTask{
       logger.info("Lanche panel");
       setNextTimePanelRefresh(nextTimePanelRefresh.plusMinutes(3));
       if(!ContinuousPanelRefresh.isRunning()) {
-        new ContinuousPanelRefresh().start();
+        threadPoolExecutor.submit(new ContinuousPanelRefresh());
       }
     }
 
@@ -38,7 +47,7 @@ public class ContinuousTimeChecking extends TimerTask{
       logger.info("Lanche Save");
       setNextTimeSaveData(nextTimeSaveData.plusMinutes(10));
       if(!ContinuousSaveData.isRunning()) {
-        new ContinuousSaveData().start();
+        threadPoolExecutor.submit(new ContinuousSaveData());
       }
     }
   }
@@ -65,6 +74,10 @@ public class ContinuousTimeChecking extends TimerTask{
 
   public static void setNextTimeSendReport(DateTime nextTimeSendReport) {
     ContinuousTimeChecking.nextTimeSendReport = nextTimeSendReport;
+  }
+  
+  public static void shutdownThreadPool() {
+    threadPoolExecutor.shutdown();
   }
 
 }

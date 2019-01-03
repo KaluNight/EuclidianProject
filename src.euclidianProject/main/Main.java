@@ -86,6 +86,8 @@ public class Main {
   private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
   public static void main(String[] args) {
+    System.setProperty("logback.configurationFile", "logback.xml");
+    
     String discordTocken = "";
     String riotTocken = "";
 

@@ -8,6 +8,7 @@ import net.rithms.riot.api.endpoints.league.dto.LeaguePosition;
 import net.rithms.riot.api.endpoints.spectator.dto.CurrentGameInfo;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 import net.rithms.riot.constant.Platform;
+import util.NameConversion;
 import util.Ressources;
 
 public class RiotRequest {
@@ -43,11 +44,11 @@ public class RiotRequest {
       return "Pas en game";
     }
 
-    String gameStatus = currentGameInfo.getGameMode();
+    String gameStatus = NameConversion.convertGameModeToString(currentGameInfo.getGameMode());
 
-    gameStatus += " (" + currentGameInfo.getGameType() + ") ";
+    gameStatus += " (" + NameConversion.convertGameTypeToString(currentGameInfo.getGameType()) + ") ";
 
-    double minutesOfGames = (currentGameInfo.getGameLength()) / 60.0;
+    double minutesOfGames = (currentGameInfo.getGameLength() + 180.0) / 60.0;
     String[] stringMinutesSecondes = Double.toString(minutesOfGames).split("\\.");
     int minutesGameLength = Integer.parseInt(stringMinutesSecondes[0]);
     int secondesGameLength = (int) (Double.parseDouble("0." + stringMinutesSecondes[1]) * 60.0);

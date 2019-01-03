@@ -8,6 +8,9 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.Minutes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -31,7 +34,7 @@ import util.Ressources;
 public class ContinuousKeepData extends Thread{
 
   public static final String FOLDER_DATA_PLAYERS = "ressources/playersData/";
-  
+
   private static boolean running;
 
   private static DateTime weekDateStart;
@@ -42,13 +45,15 @@ public class ContinuousKeepData extends Thread{
 
   private static ArrayList<String> messagesToSend;
 
+  private static final Logger logger = LoggerFactory.getLogger(ContinuousKeepData.class);
+
   //IDEA: Do a treatment of data each end of day (?) for prevent chaine lose after 3 lose ?
 
   @Override
   public void run() {
 
     setRunning(true);
-    
+
     statsChannel.sendTyping().complete();
     statsChannel.sendMessage("Je commence l'analyse de vos parties de la semaine, cela devrait me prendre quelques minutes").complete();
 
@@ -71,10 +76,10 @@ public class ContinuousKeepData extends Thread{
         matchHistory = Ressources.getRiotApi().getMatchListByAccountId
             (Platform.EUW, summoner.getAccountId(), null, null, null, weekDateStart.getMillis(), weekDateEnd.getMillis(), -1, -1);
       } catch (RiotApiException e) {
-        e.printStackTrace();
+        logger.debug(player.getDiscordUser().getName() + " ne possede pas de games pour la période envoyé");
       }
 
-      if(matchHistory.getTotalGames() != 0) {
+      if(matchHistory != null) {
 
         PlayerDataOfTheWeek playerDataOfTheWeek = getDataFromTheHistory(matchHistory, player.getSummoner());
 
@@ -125,7 +130,7 @@ public class ContinuousKeepData extends Thread{
         + weekDateEnd.getHourOfDay() + ":" + weekDateEnd.getMinuteOfHour() + "**.\nPassez une bonne journée !").complete();
 
     setMessagesToSend(new ArrayList<>());
-    
+
     setRunning(false);
   }
 
@@ -194,45 +199,38 @@ public class ContinuousKeepData extends Thread{
     int nbrWin = 0;
 
     List<MatchReference> matchList = matchHistory.getMatches();
-    
+
     for(int i = 0; i < matchHistory.getTotalGames(); i++) {
       MatchReference matchReference = matchList.get(i);
-      
+
       Match match = null;
       try {
         match = Ressources.getRiotApi().getMatch(Platform.EUW, matchReference.getGameId());
       } catch (RiotApiException e) {
-        e.printStackTrace();
-      }
-      
-      List<Participant> participants = match.getParticipants();
-
-      Participant participant = null;
-      
-      for(int j = 0; j < participants.size(); j++) {
-        if(participants.get(j).getParticipantId() == summoner.getId()) {
-          participant = participants.get(j);
-        }
-      }
-
-      if(participant == null) {
+        logger.error(e.getMessage());
         return null;
       }
 
-      Duration matchLength = new Duration(match.getGameDuration()); //Check if is milli
+      Participant participant = match.getParticipantBySummonerId(summoner.getId());
       
-      if(participant.getTimeline().getCreepsPerMinDeltas().get(Long.toString(matchLength.getStandardMinutes())) != null) {
+      if(participant.getTimeline().getCreepsPerMinDeltas() != null) {
+
+        Duration matchLength = new Duration(match.getGameDuration() * 1000);
 
         listeDuration.add(matchLength);
 
         Minutes minutes = matchLength.toStandardMinutes();
 
-        listTotCreep10Minute.add(participant.getTimeline().getCreepsPerMinDeltas().get("10"));
-        if(minutes.getMinutes() >= 20) {
-          listTotCreep20Minute.add(participant.getTimeline().getCreepsPerMinDeltas().get("20"));
+        if(participant.getTimeline().getCreepsPerMinDeltas().get("0-10") != null) {
+          listTotCreep10Minute.add(participant.getTimeline().getCreepsPerMinDeltas().get("0-10") * 10);
         }
+
+        if(participant.getTimeline().getCreepsPerMinDeltas().get("10-20") != null) {
+          listTotCreep20Minute.add(participant.getTimeline().getCreepsPerMinDeltas().get("10-20") * 10);
+        }
+
         if(minutes.getMinutes() >= 30) {
-          listTotCreep30Minute.add(participant.getTimeline().getCreepsPerMinDeltas().get("30"));
+          listTotCreep30Minute.add(participant.getTimeline().getCreepsPerMinDeltas().get("20-30") * 10);
         }
 
         listOfSummonerSpellUsed.add(participant.getSpell1Id());
@@ -246,11 +244,11 @@ public class ContinuousKeepData extends Thread{
         listOfChampionPlayed.add(participant.getChampionId());
 
         String result = match.getTeamByTeamId(participant.getTeamId()).getWin();
-        if(result.equalsIgnoreCase("Win") || result.equalsIgnoreCase("LOSE")) {
+        if(result.equalsIgnoreCase("Win") || result.equalsIgnoreCase("Fail")) {
           nbrGames++;
         }
-        
-        if(result.equalsIgnoreCase("WIN")) {
+
+        if(result.equalsIgnoreCase("Win")) {
           nbrWin++;
         }
       }

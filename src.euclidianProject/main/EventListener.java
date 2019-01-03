@@ -321,10 +321,9 @@ public class EventListener extends ListenerAdapter{
           System.out.println("Erreur Save");
         }
         Main.getJda().shutdownNow();
-
+        
+        ContinuousTimeChecking.shutdownThreadPool();
         timerTask.cancel();
-
-        System.exit(0);
       }
     }
 
