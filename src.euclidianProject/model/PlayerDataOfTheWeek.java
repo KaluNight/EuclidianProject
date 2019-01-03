@@ -10,9 +10,9 @@ public class PlayerDataOfTheWeek {
   private String weekStart; //ISO 8601
   private String weekEnd; //ISO 8601
   private List<Duration> listeDuration;
-  private List<Integer> listTotCreep10Minute;
-  private List<Integer> listTotCreep20Minute;
-  private List<Integer> listTotCreep30Minute;
+  private List<Double> listTotCreep10Minute;
+  private List<Double> listTotCreep20Minute;
+  private List<Double> listTotCreep30Minute;
   private List<Integer> listOfSummonerSpellUsedId;
   private List<KDA> listOfKDA;
   private List<Integer> listOfChampionPlayedId;
@@ -131,19 +131,19 @@ public class PlayerDataOfTheWeek {
   public void setListeDuration(List<Duration> listeDuration) {
     this.listeDuration = listeDuration;
   }
-  public List<Integer> getListTotCreep10Minute() {
+  public List<Double> getListTotCreep10Minute() {
     return listTotCreep10Minute;
   }
-  public void setListTotCreep10Minute(List<Integer> listTotCreep10Minute) {
+  public void setListTotCreep10Minute(List<Double> listTotCreep10Minute) {
     this.listTotCreep10Minute = listTotCreep10Minute;
   }
-  public void setListTotCreep20Minute(List<Integer> listTotCreep20Minute) {
+  public void setListTotCreep20Minute(List<Double> listTotCreep20Minute) {
     this.listTotCreep20Minute = listTotCreep20Minute;
   }
-  public List<Integer> getListTotCreep30Minute() {
+  public List<Double> getListTotCreep30Minute() {
     return listTotCreep30Minute;
   }
-  public void setListTotCreep30Minute(List<Integer> listTotCreep30Minute) {
+  public void setListTotCreep30Minute(List<Double> listTotCreep30Minute) {
     this.listTotCreep30Minute = listTotCreep30Minute;
   }
   public List<Integer> getListOfSummonerSpellUsed() {
@@ -193,7 +193,7 @@ public class PlayerDataOfTheWeek {
     this.weekEnd = weekEnd;
   }
 
-  public List<Integer> getListTotCreep20Minute() {
+  public List<Double> getListTotCreep20Minute() {
     return listTotCreep20Minute;
   }
 

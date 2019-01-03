@@ -10,11 +10,6 @@ import org.joda.time.Duration;
 import org.joda.time.Minutes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.merakianalytics.orianna.types.core.match.Match;
-import com.merakianalytics.orianna.types.core.match.MatchHistory;
-import com.merakianalytics.orianna.types.core.match.Participant;
-import com.merakianalytics.orianna.types.core.searchable.SearchableList;
-import com.merakianalytics.orianna.types.core.summoner.Summoner;
 
 import main.Main;
 import model.ChangedStats;
@@ -23,7 +18,15 @@ import model.Player;
 import model.PlayerDataOfTheWeek;
 import model.StatsType;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.rithms.riot.api.RiotApiException;
+import net.rithms.riot.api.endpoints.match.dto.Match;
+import net.rithms.riot.api.endpoints.match.dto.MatchList;
+import net.rithms.riot.api.endpoints.match.dto.MatchReference;
+import net.rithms.riot.api.endpoints.match.dto.Participant;
+import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
+import net.rithms.riot.constant.Platform;
 import util.LogHelper;
+import util.Ressources;
 
 public class ContinuousKeepData extends Thread{
 
@@ -63,9 +66,15 @@ public class ContinuousKeepData extends Thread{
       //TODO: Change for discord Ping
       messagesToSend.add("**Rapport pour " + player.getDiscordUser().getAsMention() + " sur le compte " + summoner.getName() + ".**");
 
-      MatchHistory matchHistory = MatchHistory.forSummoner(summoner).withStartTime(weekDateStart).withEndTime(weekDateEnd).get();
+      MatchList matchHistory = null;
+      try {
+        matchHistory = Ressources.getRiotApi().getMatchListByAccountId
+            (Platform.EUW, summoner.getAccountId(), null, null, null, weekDateStart.getMillis(), weekDateEnd.getMillis(), -1, -1);
+      } catch (RiotApiException e) {
+        e.printStackTrace();
+      }
 
-      if(!matchHistory.isEmpty()) {
+      if(matchHistory.getTotalGames() != 0) {
 
         PlayerDataOfTheWeek playerDataOfTheWeek = getDataFromTheHistory(matchHistory, player.getSummoner());
 
@@ -172,11 +181,11 @@ public class ContinuousKeepData extends Thread{
     }
   }
 
-  private PlayerDataOfTheWeek getDataFromTheHistory(MatchHistory matchHistory, Summoner summoner) {
+  private PlayerDataOfTheWeek getDataFromTheHistory(MatchList matchHistory, Summoner summoner) {
     ArrayList<Duration> listeDuration = new ArrayList<>();
-    ArrayList<Integer> listTotCreep10Minute = new ArrayList<>();
-    ArrayList<Integer> listTotCreep20Minute = new ArrayList<>();
-    ArrayList<Integer> listTotCreep30Minute = new ArrayList<>();
+    ArrayList<Double> listTotCreep10Minute = new ArrayList<>();
+    ArrayList<Double> listTotCreep20Minute = new ArrayList<>();
+    ArrayList<Double> listTotCreep30Minute = new ArrayList<>();
     ArrayList<Integer> listOfSummonerSpellUsed = new ArrayList<>();
     ArrayList<KDA> listOfKDA = new ArrayList<>();
     ArrayList<Integer> listOfChampionPlayed = new ArrayList<>();
@@ -184,43 +193,64 @@ public class ContinuousKeepData extends Thread{
     int nbrGames = 0;
     int nbrWin = 0;
 
-    for(int i = 0; i < matchHistory.size(); i++) {
-      Match match = matchHistory.get(i);
+    List<MatchReference> matchList = matchHistory.getMatches();
+    
+    for(int i = 0; i < matchHistory.getTotalGames(); i++) {
+      MatchReference matchReference = matchList.get(i);
+      
+      Match match = null;
+      try {
+        match = Ressources.getRiotApi().getMatch(Platform.EUW, matchReference.getGameId());
+      } catch (RiotApiException e) {
+        e.printStackTrace();
+      }
+      
+      List<Participant> participants = match.getParticipants();
 
-      SearchableList<Participant> participants = match.getParticipants();
-
-      Participant participant = participants.find(summoner);
+      Participant participant = null;
+      
+      for(int j = 0; j < participants.size(); j++) {
+        if(participants.get(j).getParticipantId() == summoner.getId()) {
+          participant = participants.get(j);
+        }
+      }
 
       if(participant == null) {
         return null;
       }
 
-      if(participant.getTimeline().getCreepScore() != null) {
+      Duration matchLength = new Duration(match.getGameDuration()); //Check if is milli
+      
+      if(participant.getTimeline().getCreepsPerMinDeltas().get(Long.toString(matchLength.getStandardMinutes())) != null) {
 
-        listeDuration.add(match.getDuration());
+        listeDuration.add(matchLength);
 
-        Minutes minutes = match.getDuration().toStandardMinutes();
+        Minutes minutes = matchLength.toStandardMinutes();
 
-        listTotCreep10Minute.add((int) participant.getTimeline().getCreepScore().getAt10());
+        listTotCreep10Minute.add(participant.getTimeline().getCreepsPerMinDeltas().get("10"));
         if(minutes.getMinutes() >= 20) {
-          listTotCreep20Minute.add((int) participant.getTimeline().getCreepScore().getAt20());
+          listTotCreep20Minute.add(participant.getTimeline().getCreepsPerMinDeltas().get("20"));
         }
         if(minutes.getMinutes() >= 30) {
-          listTotCreep30Minute.add((int) participant.getTimeline().getCreepScore().getAt30());
+          listTotCreep30Minute.add(participant.getTimeline().getCreepsPerMinDeltas().get("30"));
         }
 
-        listOfSummonerSpellUsed.add(participant.getSummonerSpellD().getId());
-        listOfSummonerSpellUsed.add(participant.getSummonerSpellF().getId());
+        listOfSummonerSpellUsed.add(participant.getSpell1Id());
+        listOfSummonerSpellUsed.add(participant.getSpell2Id());
 
         int kills = participant.getStats().getKills();
         int deaths = participant.getStats().getDeaths();
         int assists = participant.getStats().getAssists();
         listOfKDA.add(new KDA(kills, deaths, assists));
 
-        listOfChampionPlayed.add(participant.getChampion().getId());
+        listOfChampionPlayed.add(participant.getChampionId());
 
-        nbrGames++;
-        if(participant.getTeam().isWinner()) {
+        String result = match.getTeamByTeamId(participant.getTeamId()).getWin();
+        if(result.equalsIgnoreCase("Win") || result.equalsIgnoreCase("LOSE")) {
+          nbrGames++;
+        }
+        
+        if(result.equalsIgnoreCase("WIN")) {
           nbrWin++;
         }
       }

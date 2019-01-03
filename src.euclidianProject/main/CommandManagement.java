@@ -4,9 +4,6 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import com.merakianalytics.orianna.types.core.summoner.Summoner;
-
 import model.Player;
 import model.Postulation;
 import model.Team;
@@ -20,8 +17,12 @@ import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.requests.restaction.RoleAction;
+import net.rithms.riot.api.RiotApiException;
+import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
+import net.rithms.riot.constant.Platform;
 import request.MessageBuilderRequest;
 import util.LogHelper;
+import util.Ressources;
 
 public class CommandManagement {
 
@@ -112,7 +113,7 @@ public class CommandManagement {
   //							 Show Command
   //-----------------------------------------------------------------------
 
-  public static List<MessageEmbed> showPostulationsCommand(String commande) {
+  public static List<MessageEmbed> showPostulationsCommand(String commande) throws RiotApiException {
     ArrayList<MessageEmbed> listesPostulation = new ArrayList<MessageEmbed>();
     for(int i = 0; i < Main.getPostulationsList().size(); i++) {
       listesPostulation.add(MessageBuilderRequest.createShowPostulation(Main.getPostulationsList().get(i), i + 1));
@@ -164,7 +165,16 @@ public class CommandManagement {
       }
     }
 
-    Summoner summoner = Summoner.named(summonerName).get();
+    Summoner summoner = null;
+    try {
+      summoner = Ressources.getRiotApi().getSummonerByName(Platform.EUW, summonerName);
+    } catch (RiotApiException e) {
+      e.printStackTrace();
+
+      return "Un problème avec l'api est survenu";
+    } catch (IllegalArgumentException e) {
+      return "Aucun compte à ce nom. Vérfier le pseudo écrit";
+    }
 
     Player player = new Player(user.getName(), user, summoner);
 
@@ -287,9 +297,12 @@ public class CommandManagement {
 
     Summoner summoner;
     try {
-      summoner = Summoner.named(lolPseudo).get();
+      summoner = Ressources.getRiotApi().getSummonerByName(Platform.EUW, lolPseudo);
     } catch (IllegalArgumentException e) {
       return "Votre pseudo n'est pas valide. Merci de vérifier la typographie du pseudo (Note : Il doit obligatoirement être de la région EUW)";
+    } catch (RiotApiException e) {
+      e.printStackTrace();
+      return "L'api à rencontré un problème";
     }
 
     String[] position;

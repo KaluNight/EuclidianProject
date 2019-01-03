@@ -11,16 +11,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-import com.merakianalytics.orianna.Orianna;
-import com.merakianalytics.orianna.types.common.Platform;
-import com.merakianalytics.orianna.types.common.Region;
-import com.merakianalytics.orianna.types.core.summoner.Summoner;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.core.util.StatusPrinter;
 import continuousDataCheck.ContinuousKeepData;
 import continuousDataCheck.ContinuousTimeChecking;
 import model.Player;
@@ -37,13 +37,19 @@ import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.managers.GuildController;
+import net.rithms.riot.api.ApiConfig;
+import net.rithms.riot.api.RiotApi;
+import net.rithms.riot.api.RiotApiException;
+import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
+import net.rithms.riot.api.request.ratelimit.RateLimitHandler;
+import net.rithms.riot.constant.Platform;
 import util.LogHelper;
+import util.Ressources;
+import util.SleeperRateLimitHandler;
 
 public class Main {
 
   private static File SAVE_TXT_FILE = new File("ressources/save.txt");
-
-  private static File ORIANNA_CONFIG_FILE = new File("ressources/orianna-config.json");
 
   private static final File SECRET_FILE = new File("secret.txt");
 
@@ -53,13 +59,13 @@ public class Main {
 
   //-------------------------------
 
-  private static ArrayList<Team> teamList = new ArrayList<Team>();
+  private static ArrayList<Team> teamList = new ArrayList<>();
 
-  private static ArrayList<Player> playerList = new ArrayList<Player>();
+  private static ArrayList<Player> playerList = new ArrayList<>();
 
-  private static ArrayList<Postulation> postulationsList = new ArrayList<Postulation>();
+  private static ArrayList<Postulation> postulationsList = new ArrayList<>();
 
-  private static ArrayList<String> reportList = new ArrayList<String>();
+  private static ArrayList<String> reportList = new ArrayList<>();
 
   private static Role registeredRole;
 
@@ -76,6 +82,8 @@ public class Main {
   //-------------------------------
 
   private static TextChannel logBot;
+  
+  private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
   public static void main(String[] args) {
     String discordTocken = "";
@@ -87,10 +95,9 @@ public class Main {
         discordTocken = reader.readLine();
         riotTocken = reader.readLine();
       }catch (Exception e) {
-        e.printStackTrace();
+        logger.error(e.getMessage());
       }
 
-      ORIANNA_CONFIG_FILE = new File("orianna-config.json");
       SAVE_TXT_FILE = new File("save.txt");
 
     }else {
@@ -101,20 +108,25 @@ public class Main {
     try {
       jda = new JDABuilder(AccountType.BOT).setToken(discordTocken).build();
     } catch (IndexOutOfBoundsException e) {
-      System.err.println("You must provide a token.");
+      logger.error("You must provide a token.");
       return;
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error(e.getMessage());
       return;
     }
 
+    ApiConfig config = new ApiConfig().setKey(riotTocken);
+    
+    RateLimitHandler defaultLimite = new SleeperRateLimitHandler();
+    
+    config.setRateLimitHandler(defaultLimite);
+    Ressources.setRiotApi(new RiotApi(config));
+    
     jda.addEventListener(new EventListener());
-
-    Orianna.loadConfiguration(ORIANNA_CONFIG_FILE);
-    Orianna.setDefaultLocale("fr_FR");
-    Orianna.setDefaultPlatform(Platform.EUROPE_WEST);
-    Orianna.setDefaultRegion(Region.EUROPE_WEST);
-    Orianna.setRiotAPIKey(riotTocken);
+    
+    // print internal state
+    LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+    StatusPrinter.print(lc);
   }
 
   public static synchronized void loadPlayerDataWeek() throws IOException {
@@ -217,7 +229,7 @@ public class Main {
     }
   }
 
-  public static void loadDataTxt() throws IOException {
+  public static void loadDataTxt() throws IOException, RiotApiException {
     BufferedReader reader = null;
 
     try {
@@ -233,7 +245,7 @@ public class Main {
 
           if(!isPlayersAlreadyCopied(discordID)) {
             User user = jda.getUserById(discordID);
-            Summoner summoner = Summoner.withAccountId(accountId).get();
+            Summoner summoner = Ressources.getRiotApi().getSummonerByAccount(Platform.EUW, accountId);
 
             playerList.add(new Player(discordName, user, summoner));
           }
@@ -280,7 +292,7 @@ public class Main {
 
           if(member != null) {
 
-            Summoner summoner = Summoner.withAccountId(Long.parseLong(reader.readLine())).get();
+            Summoner summoner = Ressources.getRiotApi().getSummonerByAccount(Platform.EUW, Long.parseLong(reader.readLine()));
 
             ArrayList<Role> roles = new ArrayList<>();
 

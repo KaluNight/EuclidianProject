@@ -6,10 +6,11 @@ import model.Postulation;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.MessageEmbed.Field;
+import net.rithms.riot.api.RiotApiException;
 
 public class MessageBuilderRequest {
 
-  public static MessageEmbed createShowPostulation(Postulation postulation, int postulationNbr) {
+  public static MessageEmbed createShowPostulation(Postulation postulation, int postulationNbr) throws RiotApiException {
 
     EmbedBuilder message = new EmbedBuilder();
 

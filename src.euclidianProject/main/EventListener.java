@@ -10,8 +10,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.joda.time.DateTime;
 
-import com.merakianalytics.orianna.types.core.summoner.Summoner;
-
 import continuousDataCheck.ContinuousTimeChecking;
 import model.Team;
 import net.dv8tion.jda.core.Permission;
@@ -24,7 +22,11 @@ import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import net.dv8tion.jda.core.requests.restaction.RoleAction;
+import net.rithms.riot.api.RiotApiException;
+import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
+import net.rithms.riot.constant.Platform;
 import util.LogHelper;
+import util.Ressources;
 
 public class EventListener extends ListenerAdapter{
 
@@ -127,6 +129,8 @@ public class EventListener extends ListenerAdapter{
     try {
       Main.loadDataTxt();
     } catch (IOException e) {
+      e.printStackTrace();
+    } catch (RiotApiException e) {
       e.printStackTrace();
     }
 
@@ -242,7 +246,14 @@ public class EventListener extends ListenerAdapter{
 
         if(message.split(" ")[1].equalsIgnoreCase("postulations") || message.split(" ")[1].equalsIgnoreCase("postulation")) {
 
-          ArrayList<MessageEmbed> listEmbended = new ArrayList<>(CommandManagement.showPostulationsCommand(command));
+          ArrayList<MessageEmbed> listEmbended = null;
+          try {
+            listEmbended = new ArrayList<>(CommandManagement.showPostulationsCommand(command));
+          } catch (RiotApiException e) {
+            e.printStackTrace();
+            event.getTextChannel().sendMessage("Erreur api").queue();
+            return;
+          }
 
           for(int i = 0; i < listEmbended.size(); i++) {
             event.getTextChannel().sendMessage(listEmbended.get(i)).queue();
@@ -290,7 +301,14 @@ public class EventListener extends ListenerAdapter{
       } else if(command.equalsIgnoreCase("getAccountId")) {
 
         event.getTextChannel().sendTyping().complete();
-        Summoner result = Summoner.named(message.substring(13)).get();
+        Summoner result;
+        try {
+          result = Ressources.getRiotApi().getSummonerByName(Platform.EUW, message.substring(13));
+        } catch (RiotApiException e) {
+          e.printStackTrace();
+          event.getTextChannel().sendMessage("Erreur d'app").queue();
+          return;
+        }
         event.getTextChannel().sendMessage("Account Id de " + result.getName() + " : " + result.getAccountId()).queue();
 
       } else if (command.equals("stop")) {

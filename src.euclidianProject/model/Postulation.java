@@ -2,10 +2,9 @@ package model;
 
 import java.util.ArrayList;
 
-import com.merakianalytics.orianna.types.core.summoner.Summoner;
-
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
+import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 
 public class Postulation {
 
@@ -29,7 +28,7 @@ public class Postulation {
 
     for(int i = 0; i < roles.size(); i++) {
       str += roles.get(i).getName();
-      if(!((i + 1) == roles.size())) {
+      if(((i + 1) != roles.size())) {
         str += ", ";
       }
     }

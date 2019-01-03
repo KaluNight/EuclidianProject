@@ -13,7 +13,7 @@ import request.RiotRequest;
 public class ContinuousPanelRefresh extends Thread{
 
   private static final String ID_PANNEAU_DE_CONTROLE = "517436744124334091";
-  
+
   private static boolean running;
 
   private static LocalDateTime nextRefreshPanel;
@@ -22,7 +22,7 @@ public class ContinuousPanelRefresh extends Thread{
 
   @Override
   public void run() {
-    
+
     setRunning(true);
 
     if(messagePanel == null) {
@@ -39,9 +39,9 @@ public class ContinuousPanelRefresh extends Thread{
         setMessagePanel(Main.getGuild().getTextChannelById(ID_PANNEAU_DE_CONTROLE).sendMessage("__**Panneau de controle**__\n \n*En chargement*").complete());
       }
     }
-    
+
     messagePanel.editMessage(refreshPannel()).queue();
-    
+
     setRunning(false);
   }
 
@@ -62,7 +62,7 @@ public class ContinuousPanelRefresh extends Thread{
         stringMessage.append(playersList.get(j).getSummoner().getName() + " (" + playersList.get(j).getDiscordUser().getAsMention() + ") : ");
 
         stringMessage.append(RiotRequest.getActualGameStatus(playersList.get(j).getSummoner()) + "\n");
-        
+
       }
       stringMessage.append(" \n");
     }
