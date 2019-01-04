@@ -77,4 +77,26 @@ public class SleeperRateLimitHandler extends DefaultRateLimitHandler {
 
     super.onRequestAboutToFire(request);
   }
+  
+  @Override
+  public void onRequestDone(Request request) {
+    
+    if(request.isFailed()) {
+      if(request.getResponse().getCode() == Request.CODE_ERROR_SERVICE_UNAVAILABLE) {
+        logger.info("Service Unavailable error code got, Retry...");
+        try {
+          Thread.sleep(1000);
+        } catch (InterruptedException e) {
+          logger.error(e.getMessage());
+          Thread.currentThread().interrupt();
+        }
+        try {
+          onRequestAboutToFire(request);
+        } catch (RespectedRateLimitException e) {
+          logger.error(e.getMessage());
+        }
+      }
+    }
+    super.onRequestDone(request);
+  }
 }
