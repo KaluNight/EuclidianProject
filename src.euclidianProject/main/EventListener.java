@@ -10,7 +10,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.joda.time.DateTime;
 
-import continuousDataCheck.ContinuousTimeChecking;
 import model.Team;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Message;
@@ -25,6 +24,7 @@ import net.dv8tion.jda.core.requests.restaction.RoleAction;
 import net.rithms.riot.api.RiotApiException;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 import net.rithms.riot.constant.Platform;
+import refresh.ContinuousTimeChecking;
 import util.LogHelper;
 import util.Ressources;
 

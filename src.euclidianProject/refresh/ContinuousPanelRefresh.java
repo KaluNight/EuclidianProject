@@ -1,13 +1,16 @@
-package continuousDataCheck;
+package refresh;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import main.Main;
 import model.Player;
 import model.Team;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageEmbed;
+import net.dv8tion.jda.core.entities.TextChannel;
 import request.RiotRequest;
 
 public class ContinuousPanelRefresh extends Thread{
@@ -42,7 +45,36 @@ public class ContinuousPanelRefresh extends Thread{
 
     messagePanel.editMessage(refreshPannel()).queue();
 
+    manageInfoCards();
+
     setRunning(false);
+  }
+
+  private void manageInfoCards() {
+    TextChannel controlPannel = Main.getGuild().getTextChannelById(ID_PANNEAU_DE_CONTROLE);
+
+    List<Message> messages = controlPannel.getIterableHistory().stream()
+        .limit(1000)
+        .filter(m-> m.getAuthor().equals(Main.getJda().getSelfUser()))
+        .collect(Collectors.toList());
+
+    ArrayList<Message> messageToDelete = new ArrayList<>();
+    
+    for(int i = 0; i < messages.size(); i++) {
+      if(messages.get(i).getId() != messagePanel.getId()) {
+        messageToDelete.add(messages.get(i));
+      }
+    }
+    
+    
+  }
+  
+  private List<MessageEmbed> createInfoCards(){
+    
+    ArrayList<MessageEmbed> infoCards = new ArrayList<>();
+    
+    
+    
   }
 
   private String refreshPannel() {

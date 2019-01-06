@@ -56,5 +56,5 @@ public class RiotRequest {
     gameStatus += "(" + minutesGameLength + "m " + secondesGameLength + "s)";
 
     return gameStatus;
-  }	
+  }
 }

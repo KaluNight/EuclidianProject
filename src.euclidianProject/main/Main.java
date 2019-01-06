@@ -21,8 +21,6 @@ import com.google.gson.reflect.TypeToken;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.core.util.StatusPrinter;
-import continuousDataCheck.ContinuousKeepData;
-import continuousDataCheck.ContinuousTimeChecking;
 import model.Player;
 import model.PlayerDataOfTheWeek;
 import model.Postulation;
@@ -43,6 +41,8 @@ import net.rithms.riot.api.RiotApiException;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 import net.rithms.riot.api.request.ratelimit.RateLimitHandler;
 import net.rithms.riot.constant.Platform;
+import refresh.ContinuousKeepData;
+import refresh.ContinuousTimeChecking;
 import util.LogHelper;
 import util.Ressources;
 import util.SleeperRateLimitHandler;

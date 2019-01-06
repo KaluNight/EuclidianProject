@@ -1,4 +1,4 @@
-package continuousDataCheck;
+package refresh;
 
 import java.io.FileWriter;
 import java.io.IOException;
