@@ -11,4 +11,7 @@ public class LogHelper {
     Main.getLogBot().sendMessage(str).queue();
   }
 
+  public static void logSenderDirectly(String str) {
+	  Main.getLogBot().sendMessage(str).complete();
+  }
 }

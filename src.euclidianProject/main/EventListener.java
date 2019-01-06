@@ -9,6 +9,8 @@ import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import model.Team;
 import net.dv8tion.jda.core.Permission;
@@ -45,12 +47,14 @@ public class EventListener extends ListenerAdapter{
   private static Message statusReportMessage;
 
   private static Timer timerTask;
+  
+  private static Logger logger = LoggerFactory.getLogger(EventListener.class);
 
   @Override
   public void onReady(ReadyEvent event) {
     Main.setLogBot(Main.getJda().getTextChannelById(ID_LOG_BOT_CHANNEL));
 
-    LogHelper.logSender("Démarrage...");
+    LogHelper.logSenderDirectly("Démarrage...");
 
     Main.setGuild(Main.getLogBot().getGuild());
     Main.setController(Main.getGuild().getController());
@@ -124,28 +128,37 @@ public class EventListener extends ListenerAdapter{
 
     statusReportMessage = message;
 
-    LogHelper.logSender("Chargement des données général...");
+    LogHelper.logSenderDirectly("Chargement des champions...");
+    
+    try {
+		Ressources.setChampions(Ressources.getRiotApi().getChampions(Platform.EUW));
+	} catch (RiotApiException e) {
+		logger.error(e.getMessage());
+	}
+    
+    LogHelper.logSenderDirectly("Chargement des champions terminés !");
+    LogHelper.logSenderDirectly("Chargement des sauvegardes détaillés...");
 
     try {
       Main.loadDataTxt();
     } catch (IOException e) {
-      e.printStackTrace();
+      logger.error(e.getMessage());
     } catch (RiotApiException e) {
-      e.printStackTrace();
+      logger.error(e.getMessage());
     }
 
-    LogHelper.logSender("Chargement des données général terminé !");
-    LogHelper.logSender("Chargement des données des joueurs...");
+    LogHelper.logSenderDirectly("Chargement des sauvegardes détaillés terminé !");
+    LogHelper.logSenderDirectly("Chargement des données des joueurs...");
 
     try {
       Main.loadPlayerDataWeek();
     }catch (IOException e) {
-      e.printStackTrace();
+      logger.error(e.getMessage());
     }
 
-    LogHelper.logSender("Chargement des données des joueurs terminé !");
+    LogHelper.logSenderDirectly("Chargement des données des joueurs terminé !");
 
-    LogHelper.logSender("Démarrage des tâches continue...");
+    LogHelper.logSenderDirectly("Démarrage des tâches continue...");
     
     ContinuousTimeChecking.setNextTimePanelRefresh(DateTime.now());
     ContinuousTimeChecking.setNextTimeSaveData(DateTime.now().plusMinutes(10));
@@ -155,9 +168,9 @@ public class EventListener extends ListenerAdapter{
     TimerTask mainThread = new ContinuousTimeChecking();
     timerTask.schedule(mainThread, 0, 10000); //10 secondes
 
-    LogHelper.logSender("Démarrage des tâches continues terminés !");
+    LogHelper.logSenderDirectly("Démarrage des tâches continues terminés !");
 
-    LogHelper.logSender("Démarrage terminés !");
+    LogHelper.logSenderDirectly("Démarrage terminés !");
   }
 
   @Override

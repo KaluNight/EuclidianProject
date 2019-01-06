@@ -5,13 +5,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import main.Main;
 import model.Player;
 import model.Team;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.rithms.riot.api.RiotApiException;
+import net.rithms.riot.constant.Platform;
 import request.RiotRequest;
+import util.Ressources;
 
 public class ContinuousPanelRefresh extends Thread{
 
@@ -23,6 +29,8 @@ public class ContinuousPanelRefresh extends Thread{
 
   private static Message messagePanel;
 
+  private static Logger logger = LoggerFactory.getLogger(ContinuousPanelRefresh.class);
+  
   @Override
   public void run() {
 
@@ -45,6 +53,12 @@ public class ContinuousPanelRefresh extends Thread{
 
     messagePanel.editMessage(refreshPannel()).queue();
 
+    try {
+		Ressources.setChampions(Ressources.getRiotApi().getChampions(Platform.EUW));
+	} catch (RiotApiException e) {
+		logger.error(e.getMessage());
+	}
+    
     manageInfoCards();
 
     setRunning(false);

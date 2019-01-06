@@ -14,6 +14,8 @@ import net.rithms.riot.api.RiotApiException;
 import net.rithms.riot.api.endpoints.spectator.dto.CurrentGameInfo;
 import net.rithms.riot.api.endpoints.spectator.dto.CurrentGameParticipant;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
+import net.rithms.riot.constant.Platform;
+import util.Ressources;
 
 public class MessageBuilderRequest {
   
@@ -52,7 +54,15 @@ public class MessageBuilderRequest {
         redTeam.add(match.getParticipants().get(i));
       }
     }
-    redTeam.get(0)
+    
+    StringBuilder blueTeamString = new StringBuilder();
+    
+    for(int i = 0; i < blueTeam.size(); i++) {
+    	String rank;
+    	
+    	blueTeamString.append(blueTeam.get(i).getSummonerName() + " | " + rank);
+    }
+    
     Field field = new Field("Équipe Bleu", value, inline);
     
     
