@@ -28,22 +28,22 @@ public class RiotRequest {
     while (gettableList.hasNext()) {
       LeaguePosition leaguePosition = gettableList.next();
 
-      System.out.println(leaguePosition.getTier());
-      System.out.println(leaguePosition.getRank());
+      if(leaguePosition.getQueueType().equals("RANKED_SOLO_5x5")) {
+        ligue = leaguePosition.getRank();
+        rank = leaguePosition.getTier();
+        return ligue + " " + rank + "(" + leaguePosition.getLeaguePoints() + " LP)";
+      }
     }
 
-    return ligue + " " + rank;
+    return ligue;
   }
 
-  public static String getActualGameStatus(Summoner summoner) {
+  public static String getActualGameStatus(CurrentGameInfo currentGameInfo) {
 
-    CurrentGameInfo currentGameInfo;
-    try {
-      currentGameInfo = Ressources.getRiotApi().getActiveGameBySummoner(Platform.EUW, summoner.getId());
-    } catch (RiotApiException e) {
+    if(currentGameInfo == null) {
       return "Pas en game";
     }
-
+    
     String gameStatus = NameConversion.convertGameModeToString(currentGameInfo.getGameMode());
 
     gameStatus += " (" + NameConversion.convertGameTypeToString(currentGameInfo.getGameType()) + ") ";

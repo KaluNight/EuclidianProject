@@ -2,11 +2,15 @@ package refresh;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
 
 import main.Main;
 import model.Player;
@@ -15,6 +19,8 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.rithms.riot.api.RiotApiException;
+import net.rithms.riot.api.endpoints.spectator.dto.CurrentGameInfo;
+import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 import net.rithms.riot.constant.Platform;
 import request.RiotRequest;
 import util.Ressources;
@@ -26,11 +32,15 @@ public class ContinuousPanelRefresh extends Thread{
   private static boolean running;
 
   private static LocalDateTime nextRefreshPanel;
+  
+  private static HashMap<Summoner, CurrentGameInfo> currentGames = new HashMap<>();
+
+  private static HashMap<Long, Message> infoCards = new HashMap<>();
 
   private static Message messagePanel;
 
   private static Logger logger = LoggerFactory.getLogger(ContinuousPanelRefresh.class);
-  
+
   @Override
   public void run() {
 
@@ -53,12 +63,6 @@ public class ContinuousPanelRefresh extends Thread{
 
     messagePanel.editMessage(refreshPannel()).queue();
 
-    try {
-		Ressources.setChampions(Ressources.getRiotApi().getChampions(Platform.EUW));
-	} catch (RiotApiException e) {
-		logger.error(e.getMessage());
-	}
-    
     manageInfoCards();
 
     setRunning(false);
@@ -66,29 +70,37 @@ public class ContinuousPanelRefresh extends Thread{
 
   private void manageInfoCards() {
     TextChannel controlPannel = Main.getGuild().getTextChannelById(ID_PANNEAU_DE_CONTROLE);
-
-    List<Message> messages = controlPannel.getIterableHistory().stream()
-        .limit(1000)
-        .filter(m-> m.getAuthor().equals(Main.getJda().getSelfUser()))
-        .collect(Collectors.toList());
-
-    ArrayList<Message> messageToDelete = new ArrayList<>();
     
-    for(int i = 0; i < messages.size(); i++) {
-      if(messages.get(i).getId() != messagePanel.getId()) {
-        messageToDelete.add(messages.get(i));
+    List<MessageEmbed> messageToSend = createInfoCards();
+
+  }
+
+  private List<MessageEmbed> createInfoCards(){
+    
+    for(int i = 0; i < Main.getPlayerList().size(); i++) {
+      CurrentGameInfo currentGameInfo = currentGames.get(Main.getPlayerList().get(i).getSummoner());
+      
+      if(currentGameInfo != null) {
+        
+        List<Player> listOfPlayerInTheGame = checkIfOthersPlayersIsKnowInTheMatch(currentGameInfo);
+        
       }
     }
     
-    
   }
   
-  private List<MessageEmbed> createInfoCards(){
+  private List<Player> checkIfOthersPlayersIsKnowInTheMatch(CurrentGameInfo currentGameInfo){
     
-    ArrayList<MessageEmbed> infoCards = new ArrayList<>();
+    ArrayList<Player> listOfPlayers = new ArrayList<>();
     
-    
-    
+    for(int i = 0; i < Main.getPlayerList().size(); i++) {
+      for(int j = 0; j < currentGameInfo.getParticipants().size(); j++) {
+        if(currentGameInfo.getParticipants().get(j).getSummonerId() == Main.getPlayerList().get(i).getSummoner().getId()) {
+          listOfPlayers.add(Main.getPlayerList().get(i));
+        }
+      }
+    }
+    return listOfPlayers;
   }
 
   private String refreshPannel() {
@@ -107,8 +119,21 @@ public class ContinuousPanelRefresh extends Thread{
       for(int j = 0; j < playersList.size(); j++) {
         stringMessage.append(playersList.get(j).getSummoner().getName() + " (" + playersList.get(j).getDiscordUser().getAsMention() + ") : ");
 
-        stringMessage.append(RiotRequest.getActualGameStatus(playersList.get(j).getSummoner()) + "\n");
-
+        CurrentGameInfo actualGame = null;
+        
+        try {
+          actualGame = Ressources.getRiotApi().getActiveGameBySummoner(Platform.EUW, playersList.get(j).getSummoner().getId());
+        } catch (RiotApiException e) {
+          logger.info(e.getMessage());
+        }
+        
+        if(actualGame == null) {
+          stringMessage.append("Pas en game\n");
+        }else {
+          stringMessage.append(RiotRequest.getActualGameStatus(actualGame) + "\n");
+        }
+        
+        currentGames.put(playersList.get(j).getSummoner().getId(), actualGame); //Can be null
       }
       stringMessage.append(" \n");
     }

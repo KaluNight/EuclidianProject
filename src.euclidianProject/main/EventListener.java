@@ -128,15 +128,6 @@ public class EventListener extends ListenerAdapter{
 
     statusReportMessage = message;
 
-    LogHelper.logSenderDirectly("Chargement des champions...");
-    
-    try {
-		Ressources.setChampions(Ressources.getRiotApi().getChampions(Platform.EUW));
-	} catch (RiotApiException e) {
-		logger.error(e.getMessage());
-	}
-    
-    LogHelper.logSenderDirectly("Chargement des champions terminés !");
     LogHelper.logSenderDirectly("Chargement des sauvegardes détaillés...");
 
     try {

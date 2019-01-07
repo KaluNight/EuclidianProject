@@ -54,6 +54,9 @@ public class ContinuousKeepData extends Thread{
 
     setRunning(true);
 
+    //Reset ChampionDataCache
+    Ressources.resetChampionCache();
+    
     statsChannel.sendTyping().complete();
     statsChannel.sendMessage("Je commence l'analyse de vos parties de la semaine, cela devrait me prendre quelques minutes").complete();
 
@@ -68,7 +71,6 @@ public class ContinuousKeepData extends Thread{
 
       Summoner summoner = player.getSummoner();
 
-      //TODO: Change for discord Ping
       messagesToSend.add("**Rapport pour " + player.getDiscordUser().getAsMention() + " sur le compte " + summoner.getName() + ".**");
 
       MatchList matchHistory = null;
@@ -212,7 +214,7 @@ public class ContinuousKeepData extends Thread{
       }
 
       Participant participant = match.getParticipantBySummonerId(summoner.getId());
-      
+
       if(participant.getTimeline().getCreepsPerMinDeltas() != null) {
 
         Duration matchLength = new Duration(match.getGameDuration() * 1000);
