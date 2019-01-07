@@ -32,7 +32,7 @@ public class ContinuousPanelRefresh extends Thread{
   private static boolean running;
 
   private static LocalDateTime nextRefreshPanel;
-  
+
   private static HashMap<Summoner, CurrentGameInfo> currentGames = new HashMap<>();
 
   private static HashMap<Long, Message> infoCards = new HashMap<>();
@@ -70,29 +70,32 @@ public class ContinuousPanelRefresh extends Thread{
 
   private void manageInfoCards() {
     TextChannel controlPannel = Main.getGuild().getTextChannelById(ID_PANNEAU_DE_CONTROLE);
-    
+
     List<MessageEmbed> messageToSend = createInfoCards();
 
   }
 
   private List<MessageEmbed> createInfoCards(){
-    
+
     for(int i = 0; i < Main.getPlayerList().size(); i++) {
       CurrentGameInfo currentGameInfo = currentGames.get(Main.getPlayerList().get(i).getSummoner());
-      
+
       if(currentGameInfo != null) {
-        
+
         List<Player> listOfPlayerInTheGame = checkIfOthersPlayersIsKnowInTheMatch(currentGameInfo);
-        
+
+        if(listOfPlayerInTheGame.size() == 1) {
+          
+        }
       }
     }
-    
+
   }
-  
+
   private List<Player> checkIfOthersPlayersIsKnowInTheMatch(CurrentGameInfo currentGameInfo){
-    
+
     ArrayList<Player> listOfPlayers = new ArrayList<>();
-    
+
     for(int i = 0; i < Main.getPlayerList().size(); i++) {
       for(int j = 0; j < currentGameInfo.getParticipants().size(); j++) {
         if(currentGameInfo.getParticipants().get(j).getSummonerId() == Main.getPlayerList().get(i).getSummoner().getId()) {
@@ -120,19 +123,19 @@ public class ContinuousPanelRefresh extends Thread{
         stringMessage.append(playersList.get(j).getSummoner().getName() + " (" + playersList.get(j).getDiscordUser().getAsMention() + ") : ");
 
         CurrentGameInfo actualGame = null;
-        
+
         try {
           actualGame = Ressources.getRiotApi().getActiveGameBySummoner(Platform.EUW, playersList.get(j).getSummoner().getId());
         } catch (RiotApiException e) {
           logger.info(e.getMessage());
         }
-        
+
         if(actualGame == null) {
           stringMessage.append("Pas en game\n");
         }else {
           stringMessage.append(RiotRequest.getActualGameStatus(actualGame) + "\n");
         }
-        
+
         currentGames.put(playersList.get(j).getSummoner().getId(), actualGame); //Can be null
       }
       stringMessage.append(" \n");
