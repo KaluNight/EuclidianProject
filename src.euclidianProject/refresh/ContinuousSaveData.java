@@ -5,7 +5,7 @@ import java.io.UnsupportedEncodingException;
 
 import main.Main;
 
-public class ContinuousSaveData extends Thread{
+public class ContinuousSaveData implements Runnable {
   
   private static boolean running;
   

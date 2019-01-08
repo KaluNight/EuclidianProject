@@ -9,6 +9,8 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import model.BotStatus;
+
 public class ContinuousTimeChecking extends TimerTask{
 
   private static DateTime nextTimePanelRefresh;
@@ -16,6 +18,8 @@ public class ContinuousTimeChecking extends TimerTask{
   private static DateTime nextTimeSaveData;
 
   private static DateTime nextTimeSendReport;
+  
+  private static DateTime nextTimeStatusRefresh;
 
   private static int nbProcs = Runtime.getRuntime().availableProcessors();
 
@@ -28,30 +32,39 @@ public class ContinuousTimeChecking extends TimerTask{
   public void run() {
 
     if(nextTimeSendReport.isBeforeNow()) {
-      logger.info("Lanche Report");
+      logger.info("Launch Report");
       setNextTimeSendReport(nextTimeSendReport.plusWeeks(1));
       if(!ContinuousKeepData.isRunning()) { 
         threadPoolExecutor.submit(new ContinuousKeepData());
+        ContinuousStatusRefresh.setStatus(BotStatus.REPORT_CONSTRUCTION);
       }
     }
 
     if(nextTimePanelRefresh.isBeforeNow()) {
-      logger.info("Lanche panel");
+      logger.info("Launch panel");
       setNextTimePanelRefresh(nextTimePanelRefresh.plusMinutes(3));
       if(!ContinuousPanelRefresh.isRunning()) {
         threadPoolExecutor.submit(new ContinuousPanelRefresh());
+        ContinuousStatusRefresh.setStatus(BotStatus.PANEL_REFRESH);
       }
     }
 
     if(nextTimeSaveData.isBeforeNow()) {
-      logger.info("Lanche Save");
+      logger.info("Launch Save");
       setNextTimeSaveData(nextTimeSaveData.plusMinutes(10));
       if(!ContinuousSaveData.isRunning()) {
         threadPoolExecutor.submit(new ContinuousSaveData());
+        ContinuousStatusRefresh.setStatus(BotStatus.SAVE_DATA);
       }
     }
     
-    
+    if(nextTimeStatusRefresh.isBeforeNow()) {
+      logger.info("Launch Status refresh");
+      setNextTimeStatusRefresh(nextTimeStatusRefresh.plusSeconds(30));
+      if(!ContinuousStatusRefresh.isRunning()) {
+        threadPoolExecutor.submit(new ContinuousStatusRefresh());
+      }
+    }
   }
 
   public static DateTime getNextTimePanelRefresh() {
@@ -80,6 +93,14 @@ public class ContinuousTimeChecking extends TimerTask{
   
   public static void shutdownThreadPool() {
     threadPoolExecutor.shutdown();
+  }
+
+  public static DateTime getNextTimeStatusRefresh() {
+    return nextTimeStatusRefresh;
+  }
+
+  public static void setNextTimeStatusRefresh(DateTime nextTimeStatusRefresh) {
+    ContinuousTimeChecking.nextTimeStatusRefresh = nextTimeStatusRefresh;
   }
 
 }

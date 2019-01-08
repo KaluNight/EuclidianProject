@@ -21,7 +21,7 @@ import request.MessageBuilderRequest;
 import request.RiotRequest;
 import util.Ressources;
 
-public class ContinuousPanelRefresh extends Thread{
+public class ContinuousPanelRefresh implements Runnable {
 
   private static final String ID_PANNEAU_DE_CONTROLE = "517436744124334091";
 

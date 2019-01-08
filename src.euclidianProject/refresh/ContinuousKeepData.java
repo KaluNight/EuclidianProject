@@ -31,7 +31,7 @@ import net.rithms.riot.constant.Platform;
 import util.LogHelper;
 import util.Ressources;
 
-public class ContinuousKeepData extends Thread{
+public class ContinuousKeepData implements Runnable {
 
   public static final String FOLDER_DATA_PLAYERS = "ressources/playersData/";
 
