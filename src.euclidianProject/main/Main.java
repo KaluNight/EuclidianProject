@@ -2,12 +2,14 @@ package main;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.joda.time.DateTime;
@@ -82,12 +84,12 @@ public class Main {
   //-------------------------------
 
   private static TextChannel logBot;
-  
+
   private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
   public static void main(String[] args) {
     System.setProperty("logback.configurationFile", "logback.xml");
-    
+
     String discordTocken = "";
     String riotTocken = "";
 
@@ -118,17 +120,41 @@ public class Main {
     }
 
     ApiConfig config = new ApiConfig().setKey(riotTocken);
-    
+
     RateLimitHandler defaultLimite = new SleeperRateLimitHandler();
-    
+
     config.setRateLimitHandler(defaultLimite);
     Ressources.setRiotApi(new RiotApi(config));
-    
+
     jda.addEventListener(new EventListener());
-    
+
     // print internal state
     LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
     StatusPrinter.print(lc);
+  }
+
+  public static synchronized void loadChampions() {
+    final Collection<File> all = new ArrayList<File>();
+    findFilesRecursively(new File("ressources/champion"), all, ".json");
+    
+    
+  }
+
+
+  private static void findFilesRecursively(File file, Collection<File> all, final String extension) {
+    //Liste des fichiers correspondant a l'extension souhaitee
+    final File[] children = file.listFiles(new FileFilter() {
+      public boolean accept(File f) {
+        return f.getName().endsWith(extension) ;
+      }}
+        );
+    if (children != null) {
+      //Pour chaque fichier recupere, on appelle a nouveau la methode
+      for (File child : children) {
+        all.add(child);
+        findFilesRecursively(child, all, extension);
+      }
+    }
   }
 
   public static synchronized void loadPlayerDataWeek() throws IOException {

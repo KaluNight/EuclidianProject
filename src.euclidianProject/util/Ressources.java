@@ -5,6 +5,8 @@ import java.util.List;
 
 import net.rithms.riot.api.RiotApi;
 import net.rithms.riot.api.RiotApiException;
+import net.rithms.riot.api.endpoints.static_data.constant.ChampionTags;
+import net.rithms.riot.api.endpoints.static_data.constant.Locale;
 import net.rithms.riot.api.endpoints.static_data.dto.Champion;
 import net.rithms.riot.constant.Platform;
 
@@ -29,7 +31,7 @@ public class Ressources {
         return championsData.get(i);
       }
     }
-    Champion championToReturn = Ressources.getRiotApi().getDataChampion(Platform.EUW, id);
+    Champion championToReturn = Ressources.getRiotApi().getDataChampion(Platform.EUW, id, Locale.FR_FR, null, ChampionTags.INFO);
     championsData.add(championToReturn);
     return championToReturn;
   }

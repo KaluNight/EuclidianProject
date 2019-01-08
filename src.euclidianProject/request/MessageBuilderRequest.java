@@ -62,6 +62,7 @@ public class MessageBuilderRequest {
       try {
         champion = Ressources.getChampionDataById(blueTeam.get(i).getChampionId());
       } catch (RiotApiException e) {
+        e.printStackTrace();
         logger.error(e.getMessage());
         return null;
       }
