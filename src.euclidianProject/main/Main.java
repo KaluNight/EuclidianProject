@@ -10,6 +10,7 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import org.joda.time.DateTime;
@@ -40,6 +41,7 @@ import net.dv8tion.jda.core.managers.GuildController;
 import net.rithms.riot.api.ApiConfig;
 import net.rithms.riot.api.RiotApi;
 import net.rithms.riot.api.RiotApiException;
+import net.rithms.riot.api.endpoints.champion.dto.Champion;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 import net.rithms.riot.api.request.ratelimit.RateLimitHandler;
 import net.rithms.riot.constant.Platform;
@@ -133,13 +135,29 @@ public class Main {
     StatusPrinter.print(lc);
   }
 
-  public static synchronized void loadChampions() {
+  public static boolean loadChampions() {
+    Gson gson = new Gson();
+
     final Collection<File> all = new ArrayList<File>();
     findFilesRecursively(new File("ressources/champion"), all, ".json");
-    
-    
-  }
 
+    Iterator<File> allFile = all.iterator();
+    List<Champion> listChampion = new ArrayList<>();
+    
+    while(allFile.hasNext()) {
+      try(FileReader fr = new FileReader(allFile.next())) {
+        listChampion.add(gson.fromJson(fr, Champion.class));
+      } catch (FileNotFoundException e) {
+        logger.error(e.getMessage());
+        return false;
+      } catch (IOException e) {
+        logger.error(e.getMessage());
+        return false;
+      }
+    }
+    Ressources.setChampions(listChampion);
+    return true;
+  }
 
   private static void findFilesRecursively(File file, Collection<File> all, final String extension) {
     //Liste des fichiers correspondant a l'extension souhaitee

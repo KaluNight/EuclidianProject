@@ -128,14 +128,23 @@ public class EventListener extends ListenerAdapter{
 
     statusReportMessage = message;
 
+    LogHelper.logSenderDirectly("Chargement des champions ...");
+    if(!Main.loadChampions()) {
+      LogHelper.logSenderDirectly("Chargement des champions terminé !");
+    }else {
+      LogHelper.logSenderDirectly("Une erreur est survenu lors du chargement des champions, les infos cards ne s'afficheront pas !");
+    }
+    
     LogHelper.logSenderDirectly("Chargement des sauvegardes détaillés...");
 
     try {
       Main.loadDataTxt();
     } catch (IOException e) {
       logger.error(e.getMessage());
+      LogHelper.logSenderDirectly("Une erreur est survenu lors du chargement des sauvegardes détaillés !");
     } catch (RiotApiException e) {
       logger.error(e.getMessage());
+      LogHelper.logSenderDirectly("Une erreur est survenu lors du chargement des sauvegardes détaillés !");
     }
 
     LogHelper.logSenderDirectly("Chargement des sauvegardes détaillés terminé !");
@@ -145,6 +154,7 @@ public class EventListener extends ListenerAdapter{
       Main.loadPlayerDataWeek();
     }catch (IOException e) {
       logger.error(e.getMessage());
+      LogHelper.logSenderDirectly("Une erreur est survenu lors du chagements des données joueurs !");
     }
 
     LogHelper.logSenderDirectly("Chargement des données des joueurs terminé !");

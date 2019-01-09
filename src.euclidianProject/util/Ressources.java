@@ -5,10 +5,7 @@ import java.util.List;
 
 import net.rithms.riot.api.RiotApi;
 import net.rithms.riot.api.RiotApiException;
-import net.rithms.riot.api.endpoints.static_data.constant.ChampionTags;
-import net.rithms.riot.api.endpoints.static_data.constant.Locale;
-import net.rithms.riot.api.endpoints.static_data.dto.Champion;
-import net.rithms.riot.constant.Platform;
+import net.rithms.riot.api.endpoints.champion.dto.Champion;
 
 public class Ressources {
 
@@ -20,20 +17,18 @@ public class Ressources {
   }
 
   /**
-   * Return the champion data by the id, if the champion is not in the list, get from the api and cache it.
+   * Return the champion data by the id, if the champion is not in the list, return null
    * @param id of the Champion
-   * @return Champion object
+   * @return Champion object or null if id is incorrect
    * @throws RiotApiException 
    */
-  public synchronized static Champion getChampionDataById(int id) throws RiotApiException {
+  public static Champion getChampionDataById(int id) {
     for(int i = 0; i < championsData.size(); i++) {
       if(championsData.get(i).getId() == id) {
         return championsData.get(i);
       }
     }
-    Champion championToReturn = Ressources.getRiotApi().getDataChampion(Platform.EUW, id, Locale.FR_FR, null, ChampionTags.INFO);
-    championsData.add(championToReturn);
-    return championToReturn;
+    return null;
   }
 
   public static void resetChampionCache() {
