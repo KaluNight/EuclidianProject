@@ -1,4 +1,4 @@
-package main;
+package ch.euclidian.main;
 
 import java.awt.Color;
 import java.io.IOException;
@@ -12,7 +12,10 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import model.Team;
+import ch.euclidian.main.model.Team;
+import ch.euclidian.main.refresh.ContinuousTimeChecking;
+import ch.euclidian.main.util.LogHelper;
+import ch.euclidian.main.util.Ressources;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
@@ -26,9 +29,6 @@ import net.dv8tion.jda.core.requests.restaction.RoleAction;
 import net.rithms.riot.api.RiotApiException;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 import net.rithms.riot.constant.Platform;
-import refresh.ContinuousTimeChecking;
-import util.LogHelper;
-import util.Ressources;
 
 public class EventListener extends ListenerAdapter{
 

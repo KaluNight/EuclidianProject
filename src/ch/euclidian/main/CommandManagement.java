@@ -1,12 +1,16 @@
-package main;
+package ch.euclidian.main;
 
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import model.Player;
-import model.Postulation;
-import model.Team;
+
+import ch.euclidian.main.model.Player;
+import ch.euclidian.main.model.Postulation;
+import ch.euclidian.main.model.Team;
+import ch.euclidian.main.util.LogHelper;
+import ch.euclidian.main.util.Ressources;
+import ch.euclidian.main.util.request.MessageBuilderRequest;
 import net.dv8tion.jda.core.entities.Category;
 import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Member;
@@ -20,9 +24,7 @@ import net.dv8tion.jda.core.requests.restaction.RoleAction;
 import net.rithms.riot.api.RiotApiException;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 import net.rithms.riot.constant.Platform;
-import request.MessageBuilderRequest;
-import util.LogHelper;
-import util.Ressources;
+
 
 public class CommandManagement {
 

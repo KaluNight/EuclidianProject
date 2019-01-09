@@ -1,4 +1,4 @@
-package model;
+package ch.euclidian.main.model;
 
 public class KDA {
   private int kills;

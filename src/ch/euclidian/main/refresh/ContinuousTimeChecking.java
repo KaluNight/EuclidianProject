@@ -1,4 +1,4 @@
-package refresh;
+package ch.euclidian.main.refresh;
 
 import java.util.TimerTask;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -9,7 +9,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import model.BotStatus;
+import ch.euclidian.main.model.BotStatus;
 
 public class ContinuousTimeChecking extends TimerTask{
 

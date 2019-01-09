@@ -1,6 +1,6 @@
-package util;
+package ch.euclidian.main.util;
 
-import main.Main;
+import ch.euclidian.main.Main;
 
 public class LogHelper {
 

@@ -1,4 +1,4 @@
-package util;
+package ch.euclidian.main.util;
 
 import net.rithms.riot.api.request.ratelimit.DefaultRateLimitHandler;
 import net.rithms.riot.api.request.ratelimit.RespectedRateLimitException;

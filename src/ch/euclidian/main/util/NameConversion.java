@@ -1,4 +1,4 @@
-package util;
+package ch.euclidian.main.util;
 
 public class NameConversion {
 

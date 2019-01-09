@@ -1,4 +1,4 @@
-package model;
+package ch.euclidian.main.model;
 
 public enum StatsType {
   DURATION("Durée de la partie"),

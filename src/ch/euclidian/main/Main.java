@@ -1,4 +1,4 @@
-package main;
+package ch.euclidian.main;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -18,16 +18,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
+import ch.euclidian.main.model.Player;
+import ch.euclidian.main.model.PlayerDataOfTheWeek;
+import ch.euclidian.main.model.Postulation;
+import ch.euclidian.main.model.Team;
+import ch.euclidian.main.refresh.ContinuousKeepData;
+import ch.euclidian.main.refresh.ContinuousTimeChecking;
+import ch.euclidian.main.util.LogHelper;
+import ch.euclidian.main.util.Ressources;
+import ch.euclidian.main.util.SleeperRateLimitHandler;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.core.util.StatusPrinter;
-import model.Player;
-import model.PlayerDataOfTheWeek;
-import model.Postulation;
-import model.Team;
+
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
@@ -41,15 +48,10 @@ import net.dv8tion.jda.core.managers.GuildController;
 import net.rithms.riot.api.ApiConfig;
 import net.rithms.riot.api.RiotApi;
 import net.rithms.riot.api.RiotApiException;
-import net.rithms.riot.api.endpoints.champion.dto.Champion;
+import net.rithms.riot.api.endpoints.static_data.dto.Champion;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 import net.rithms.riot.api.request.ratelimit.RateLimitHandler;
 import net.rithms.riot.constant.Platform;
-import refresh.ContinuousKeepData;
-import refresh.ContinuousTimeChecking;
-import util.LogHelper;
-import util.Ressources;
-import util.SleeperRateLimitHandler;
 
 public class Main {
 
@@ -136,8 +138,8 @@ public class Main {
   }
 
   public static boolean loadChampions() {
-    Gson gson = new Gson();
-
+    Gson gson = new GsonBuilder().setLenient().create();
+    
     final Collection<File> all = new ArrayList<File>();
     findFilesRecursively(new File("ressources/champion"), all, ".json");
 

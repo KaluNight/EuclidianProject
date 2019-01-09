@@ -1,4 +1,4 @@
-package refresh;
+package ch.euclidian.main.refresh;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -7,19 +7,19 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import main.Main;
-import model.InfoCard;
-import model.Player;
-import model.Team;
+import ch.euclidian.main.Main;
+import ch.euclidian.main.model.InfoCard;
+import ch.euclidian.main.model.Player;
+import ch.euclidian.main.model.Team;
+import ch.euclidian.main.util.Ressources;
+import ch.euclidian.main.util.request.MessageBuilderRequest;
+import ch.euclidian.main.util.request.RiotRequest;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.rithms.riot.api.RiotApiException;
 import net.rithms.riot.api.endpoints.spectator.dto.CurrentGameInfo;
 import net.rithms.riot.constant.Platform;
-import request.MessageBuilderRequest;
-import request.RiotRequest;
-import util.Ressources;
 
 public class ContinuousPanelRefresh implements Runnable {
 

@@ -1,4 +1,4 @@
-package model;
+package ch.euclidian.main.model;
 
 import java.util.ArrayList;
 

@@ -1,9 +1,9 @@
-package refresh;
+package ch.euclidian.main.refresh;
 
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 
-import main.Main;
+import ch.euclidian.main.Main;
 
 public class ContinuousSaveData implements Runnable {
   

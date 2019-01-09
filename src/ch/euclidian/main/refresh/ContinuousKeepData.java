@@ -1,4 +1,4 @@
-package refresh;
+package ch.euclidian.main.refresh;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -14,12 +14,14 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import main.Main;
-import model.ChangedStats;
-import model.KDA;
-import model.Player;
-import model.PlayerDataOfTheWeek;
-import model.StatsType;
+import ch.euclidian.main.Main;
+import ch.euclidian.main.model.ChangedStats;
+import ch.euclidian.main.model.KDA;
+import ch.euclidian.main.model.Player;
+import ch.euclidian.main.model.PlayerDataOfTheWeek;
+import ch.euclidian.main.model.StatsType;
+import ch.euclidian.main.util.LogHelper;
+import ch.euclidian.main.util.Ressources;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.rithms.riot.api.RiotApiException;
 import net.rithms.riot.api.endpoints.match.dto.Match;
@@ -28,8 +30,6 @@ import net.rithms.riot.api.endpoints.match.dto.MatchReference;
 import net.rithms.riot.api.endpoints.match.dto.Participant;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 import net.rithms.riot.constant.Platform;
-import util.LogHelper;
-import util.Ressources;
 
 public class ContinuousKeepData implements Runnable {
 

@@ -1,11 +1,11 @@
-package util;
+package ch.euclidian.main.util;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import net.rithms.riot.api.RiotApi;
 import net.rithms.riot.api.RiotApiException;
-import net.rithms.riot.api.endpoints.champion.dto.Champion;
+import net.rithms.riot.api.endpoints.static_data.dto.Champion;
 
 public class Ressources {
 

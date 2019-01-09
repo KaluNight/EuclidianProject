@@ -1,4 +1,4 @@
-package request;
+package ch.euclidian.main.util.request;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -7,8 +7,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import model.Player;
-import model.Postulation;
+import ch.euclidian.main.model.Player;
+import ch.euclidian.main.model.Postulation;
+import ch.euclidian.main.util.Ressources;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.MessageEmbed.Field;
@@ -18,7 +19,6 @@ import net.rithms.riot.api.endpoints.spectator.dto.CurrentGameInfo;
 import net.rithms.riot.api.endpoints.spectator.dto.CurrentGameParticipant;
 import net.rithms.riot.api.endpoints.static_data.dto.Champion;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
-import util.Ressources;
 
 public class MessageBuilderRequest {
 
@@ -59,13 +59,7 @@ public class MessageBuilderRequest {
 
     for(int i = 0; i < blueTeam.size(); i++) {
       Champion champion = null;
-      try {
-        champion = Ressources.getChampionDataById(blueTeam.get(i).getChampionId());
-      } catch (RiotApiException e) {
-        e.printStackTrace();
-        logger.error(e.getMessage());
-        return null;
-      }
+      champion = Ressources.getChampionDataById(blueTeam.get(i).getChampionId());
 
       String rank = null;
       try {
@@ -96,12 +90,7 @@ public class MessageBuilderRequest {
 
     for(int i = 0; i < redTeam.size(); i++) {
       Champion champion = null;
-      try {
-        champion = Ressources.getChampionDataById(redTeam.get(i).getChampionId());
-      } catch (RiotApiException e) {
-        logger.error(e.getMessage());
-        return null;
-      }
+      champion = Ressources.getChampionDataById(redTeam.get(i).getChampionId());
 
       String rank = null;
       try {
@@ -182,12 +171,7 @@ public class MessageBuilderRequest {
 
     for(int i = 0; i < blueTeam.size(); i++) {
       Champion champion = null;
-      try {
-        champion = Ressources.getChampionDataById(blueTeam.get(i).getChampionId());
-      } catch (RiotApiException e) {
-        logger.error(e.getMessage());
-        return null;
-      }
+      champion = Ressources.getChampionDataById(blueTeam.get(i).getChampionId());
 
       String rank = null;
       try {
@@ -218,12 +202,7 @@ public class MessageBuilderRequest {
 
     for(int i = 0; i < redTeam.size(); i++) {
       Champion champion = null;
-      try {
-        champion = Ressources.getChampionDataById(redTeam.get(i).getChampionId());
-      } catch (RiotApiException e) {
-        logger.error(e.getMessage());
-        return null;
-      }
+      champion = Ressources.getChampionDataById(redTeam.get(i).getChampionId());
 
       String rank = null;
       try {
