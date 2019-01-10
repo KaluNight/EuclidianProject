@@ -21,6 +21,14 @@ public class NameConversion {
     }
   }
   
+  public static String convertGameQueueIdToString(int id) {
+    
+    switch(id) {
+      case 620: return "Classé | Faille de l'invocateur";
+      default: return "Mode inconnue";
+    }
+  }
+ 
   public static String convertGameTypeToString(String stringToConvert) {
     
     if(stringToConvert.equals("MATCHED_GAME")) {

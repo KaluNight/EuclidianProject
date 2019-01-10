@@ -38,7 +38,7 @@ public class MessageBuilderRequest {
 
     message.setAuthor(user.getName(), null, user.getAvatarUrl());
 
-    message.setTitle("Info sur la partie de " + user.getName());
+    message.setTitle("Info sur la partie de " + user.getName() + " : " + match.getGameQueueConfigId());
 
     int blueTeamID = 0;
 
