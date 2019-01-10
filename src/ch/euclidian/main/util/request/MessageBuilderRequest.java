@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import ch.euclidian.main.model.Champion;
 import ch.euclidian.main.model.Player;
 import ch.euclidian.main.model.Postulation;
+import ch.euclidian.main.util.NameConversion;
 import ch.euclidian.main.util.Ressources;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.MessageEmbed;
@@ -38,7 +39,7 @@ public class MessageBuilderRequest {
 
     message.setAuthor(user.getName(), null, user.getAvatarUrl());
 
-    message.setTitle("Info sur la partie de " + user.getName() + " : " + match.getGameQueueConfigId());
+    message.setTitle("Info sur la partie de " + user.getName() + " : " + NameConversion.convertGameQueueIdToString(match.getGameQueueConfigId()));
 
     int blueTeamID = 0;
 
@@ -145,7 +146,7 @@ public class MessageBuilderRequest {
       }
     }
 
-    title.append(" : " + currentGameInfo.getGameQueueConfigId());
+    title.append(" : " + NameConversion.convertGameQueueIdToString(currentGameInfo.getGameQueueConfigId()));
     
     message.setTitle(title.toString());
 
