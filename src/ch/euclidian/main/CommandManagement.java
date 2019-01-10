@@ -51,7 +51,7 @@ public class CommandManagement {
     if(commande.substring(0, 6).equalsIgnoreCase("player")) {
       return registerPlayerCommand(commande, user, selfCreated); //TODO: do a version for "player new"
     }else {
-      return "Erreur dans le choix de l'enregistrement. Note : Vous devez écrire \"register player VotrePseudo\" pour vous enregistrer";
+      return "Erreur dans le choix de l'enregistrement. Note : Vous devez écrire \"register player (VotrePseudo)\" pour vous enregistrer";
     }
   }
 
@@ -144,13 +144,9 @@ public class CommandManagement {
     String summonerName;
 
     try {
-      String[] info = commande.split(" ");
-
-      summonerName = info[1];
-      
-      if(info[1].equals("new")) {
-        summonerName = info[2];
-      }
+      String[] info = commande.split("\\(");
+      info = info[1].split("\\)");
+      summonerName = info[0];
 
       for(int i = 0; i < Main.getPlayerList().size(); i++) {
         if(Main.getPlayerList().get(i).getSummoner().getName().equals(summonerName)) {
@@ -159,7 +155,7 @@ public class CommandManagement {
       }
 
     }catch(ArrayIndexOutOfBoundsException e) {
-      return "Erreur dans l'enregistrement. Note : Vous devez écrire \"register player VotrePseudo\" pour vous enregistrer";
+      return "Erreur dans l'enregistrement. Note : Vous devez écrire \"register player (VotrePseudo)\" pour vous enregistrer";
     }
 
 
