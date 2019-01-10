@@ -25,7 +25,7 @@ import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 
 public class MessageBuilderRequest {
 
-  private static final DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd.MM.yyyy");
+  private static final DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("HH:mm");
 
   private static Logger logger = LoggerFactory.getLogger(MessageBuilderRequest.class);
 
@@ -116,14 +116,14 @@ public class MessageBuilderRequest {
     String[] stringMinutesSecondes = Double.toString(minutesOfGames).split("\\.");
     int minutesGameLength = Integer.parseInt(stringMinutesSecondes[0]);
     int secondesGameLength = (int) (Double.parseDouble("0." + stringMinutesSecondes[1]) * 60.0);
-
-    String gameLenght = minutesGameLength + ":" + secondesGameLength;
     
-    message.setFooter("Date de création du message : " + DateTime.now().toString(dateFormatter)
+    String gameLenght = String.format("%02d", minutesGameLength) + ":" + String.format("%02d",secondesGameLength);
+    
+    message.setFooter("Heure de création du message : " + DateTime.now().plusHours(1).toString(dateFormatter)
         + " | Durée actuel de la partie : " + gameLenght, null);
-    
-    message.setColor(Color.GREEN);
 
+    message.setColor(Color.GREEN);
+    
     return message.build();
   }
 
@@ -234,9 +234,10 @@ public class MessageBuilderRequest {
     int minutesGameLength = Integer.parseInt(stringMinutesSecondes[0]);
     int secondesGameLength = (int) (Double.parseDouble("0." + stringMinutesSecondes[1]) * 60.0);
 
-    String gameLenght = minutesGameLength + ":" + secondesGameLength;
+    String gameLenght = String.format("%02d", minutesGameLength) + ":" + String.format("%02d",secondesGameLength);
     
-    message.setFooter("Date de création : " + DateTime.now().toString(dateFormatter) + " | Durée actuel de la partie : " + gameLenght, null);
+    message.setFooter("Heure de création du message : " + DateTime.now().plusHours(1).toString(dateFormatter)
+        + " | Durée actuel de la partie : " + gameLenght, null);
 
     message.setColor(Color.GREEN);
 
