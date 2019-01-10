@@ -3,9 +3,9 @@ package ch.euclidian.main.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.euclidian.main.model.Champion;
 import net.rithms.riot.api.RiotApi;
 import net.rithms.riot.api.RiotApiException;
-import net.rithms.riot.api.endpoints.static_data.dto.Champion;
 
 public class Ressources {
 
@@ -24,7 +24,7 @@ public class Ressources {
    */
   public static Champion getChampionDataById(int id) {
     for(int i = 0; i < championsData.size(); i++) {
-      if(championsData.get(i).getId() == id) {
+      if(championsData.get(i).getKey() == id) {
         return championsData.get(i);
       }
     }

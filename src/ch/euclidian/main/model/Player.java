@@ -12,12 +12,14 @@ public class Player {
   private User discordUser;
   private Summoner summoner;
   private List<PlayerDataOfTheWeek> listDataOfWeek;
+  private boolean mentionnable;
 
-  public Player(String name, User discordUser, Summoner summoner) {
+  public Player(String name, User discordUser, Summoner summoner, boolean mentionnable) {
     this.name = name;
     this.discordUser = discordUser;
     this.summoner = summoner;
     this.listDataOfWeek = new ArrayList<>();
+    this.mentionnable = mentionnable;
   }
 
   public double getListMoyenneWinrate(){
@@ -66,6 +68,14 @@ public class Player {
 
   public void setListDataOfWeek(List<PlayerDataOfTheWeek> listDataOfWeek) {
     this.listDataOfWeek = listDataOfWeek;
+  }
+
+  public boolean isMentionnable() {
+    return mentionnable;
+  }
+
+  public void setMentionnable(boolean mentionned) {
+    this.mentionnable = mentionned;
   }
 
 }

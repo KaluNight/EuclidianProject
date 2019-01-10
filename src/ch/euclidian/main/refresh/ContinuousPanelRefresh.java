@@ -11,6 +11,7 @@ import ch.euclidian.main.Main;
 import ch.euclidian.main.model.InfoCard;
 import ch.euclidian.main.model.Player;
 import ch.euclidian.main.model.Team;
+import ch.euclidian.main.util.NameConversion;
 import ch.euclidian.main.util.Ressources;
 import ch.euclidian.main.util.request.MessageBuilderRequest;
 import ch.euclidian.main.util.request.RiotRequest;
@@ -77,19 +78,23 @@ public class ContinuousPanelRefresh implements Runnable {
       
       StringBuilder title = new StringBuilder();
       title.append("Info sur la partie de");
+      
+      List<String> playersName = NameConversion.getListNameOfPlayers(players);
 
       for(int j = 0; j < card.getPlayers().size(); j++) {
-        if(j + 1 == players.size()) {
-          title.append(" et de " + players.get(j).getDiscordUser().getAsMention());
-        }else if(j + 2 == players.size()) {
-          title.append(" " + players.get(j).getDiscordUser().getAsMention());
+        if(playersName.size() == 1) {
+          title.append(" " + playersName.get(j));
+        } else if(j + 1 == playersName.size()) {
+          title.append(" et de " + playersName.get(j));
+        } else if(j + 2 == playersName.size()) {
+          title.append(" " + playersName.get(j));
         }else {
-          title.append(" " + players.get(j).getDiscordUser().getAsMention() + ",");
+          title.append(" " + playersName.get(j) + ",");
         }
       }
       
       controlPannel.sendMessage(title.toString()).complete();
-      Message cardMessage = controlPannel.sendMessage(infoCards.get(i).getCard()).complete();
+      Message cardMessage = controlPannel.sendMessage(card.getCard()).complete();
       messageToSend.get(i).setMessage(cardMessage);
     }
     
@@ -104,7 +109,7 @@ public class ContinuousPanelRefresh implements Runnable {
     for(int i = 0; i < infoCards.size(); i++) {
       InfoCard card = infoCards.get(i);
       
-      if(card.getCreationTime().plusHours(1).isAfterNow()) {
+      if(card.getCreationTime().plusHours(1).isBeforeNow()) {
         cardsToRemove.add(card);
       }
     }
@@ -172,8 +177,19 @@ public class ContinuousPanelRefresh implements Runnable {
     ArrayList<Team> teamList = Main.getTeamList();
     StringBuilder stringMessage = new StringBuilder();
 
-    stringMessage.append("__**Panneau de contrôle**__\n \n");
+    for(int i = 0; i < Main.getPlayerList().size(); i++) {
+      CurrentGameInfo actualGame = null;
 
+      try {
+        actualGame = Ressources.getRiotApi().getActiveGameBySummoner(Platform.EUW, Main.getPlayerList().get(i).getSummoner().getId());
+      } catch (RiotApiException e) {
+        logger.info(e.getMessage());
+      }
+      currentGames.put(Main.getPlayerList().get(i).getSummoner().getId(), actualGame); //Can be null
+    }
+    
+    stringMessage.append("__**Panneau de contrôle**__\n \n");
+    
     for(int i = 0; i < teamList.size(); i++) {
 
       stringMessage.append("**Division " + teamList.get(i).getName() + "**\n \n");
@@ -183,21 +199,14 @@ public class ContinuousPanelRefresh implements Runnable {
       for(int j = 0; j < playersList.size(); j++) {
         stringMessage.append(playersList.get(j).getSummoner().getName() + " (" + playersList.get(j).getDiscordUser().getAsMention() + ") : ");
 
-        CurrentGameInfo actualGame = null;
-
-        try {
-          actualGame = Ressources.getRiotApi().getActiveGameBySummoner(Platform.EUW, playersList.get(j).getSummoner().getId());
-        } catch (RiotApiException e) {
-          logger.info(e.getMessage());
-        }
-
+        CurrentGameInfo actualGame = currentGames.get(playersList.get(j).getSummoner().getId());
+        
         if(actualGame == null) {
           stringMessage.append("Pas en game\n");
         }else {
           stringMessage.append(RiotRequest.getActualGameStatus(actualGame) + "\n");
         }
 
-        currentGames.put(playersList.get(j).getSummoner().getId(), actualGame); //Can be null
       }
       stringMessage.append(" \n");
     }

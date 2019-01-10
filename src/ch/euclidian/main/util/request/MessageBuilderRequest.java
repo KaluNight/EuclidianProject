@@ -7,6 +7,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.euclidian.main.model.Champion;
 import ch.euclidian.main.model.Player;
 import ch.euclidian.main.model.Postulation;
 import ch.euclidian.main.util.Ressources;
@@ -17,7 +18,6 @@ import net.dv8tion.jda.core.entities.User;
 import net.rithms.riot.api.RiotApiException;
 import net.rithms.riot.api.endpoints.spectator.dto.CurrentGameInfo;
 import net.rithms.riot.api.endpoints.spectator.dto.CurrentGameParticipant;
-import net.rithms.riot.api.endpoints.static_data.dto.Champion;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 
 public class MessageBuilderRequest {
@@ -69,17 +69,13 @@ public class MessageBuilderRequest {
         return null;
       }
 
-      if(blueTeam.size() == i + 1) {
-        if(summoner.getName().equals(blueTeam.get(i).getSummonerName())) {
-          blueTeamString.append(champion.getName() + " | __" + blueTeam.get(i).getSummonerName() + "__" + "\n");
-        }else {
-          blueTeamString.append(champion.getName() + " | " + blueTeam.get(i).getSummonerName() + "\n");
-        }
-
-        blueTeamRankString.append(rank);
+      if(summoner.getName().equals(blueTeam.get(i).getSummonerName())) {
+        blueTeamString.append(champion.getName() + " | __**" + blueTeam.get(i).getSummonerName() + "**__" + "\n");
       }else {
-        blueTeamRankString.append(rank + "\n");
+        blueTeamString.append(champion.getName() + " | " + blueTeam.get(i).getSummonerName() + "\n");
       }
+
+      blueTeamRankString.append(rank + "\n");
     }
 
     message.addField("Équipe Bleu", blueTeamString.toString(), true);
@@ -100,20 +96,15 @@ public class MessageBuilderRequest {
         return null;
       }
 
-      if(redTeam.size() == i + 1) {
-        if(summoner.getName().equals(redTeam.get(i).getSummonerName())) {
-          redTeamString.append(champion.getName() + " | __" + redTeam.get(i).getSummonerName() + "__" + "\n");
-        }else {
-          redTeamString.append(champion.getName() + " | " + redTeam.get(i).getSummonerName() + "\n");
-        }
-
-        redTeamRankString.append(rank);
+      if(summoner.getName().equals(redTeam.get(i).getSummonerName())) {
+        redTeamString.append(champion.getName() + " | __**" + redTeam.get(i).getSummonerName() + "**__" + "\n");
       }else {
-        redTeamRankString.append(rank + "\n");
+        redTeamString.append(champion.getName() + " | " + redTeam.get(i).getSummonerName() + "\n");
       }
+      redTeamRankString.append(rank + "\n");
     }
-
-    message.addField("Équipe Rouge", redTeamString.toString(), false);
+    message.addBlankField(false);
+    message.addField("Équipe Rouge", redTeamString.toString(), true);
     message.addField("Grades", redTeamRankString.toString(), true);
 
     message.setColor(Color.GREEN);
@@ -159,13 +150,13 @@ public class MessageBuilderRequest {
         redTeam.add(currentGameInfo.getParticipants().get(i));
       }
     }
-    
+
     ArrayList<Long> listIdPlayers = new ArrayList<>();
-    
+
     for(int i = 0; i < players.size(); i++) {
       listIdPlayers.add(players.get(i).getSummoner().getId());
     }
-    
+
     StringBuilder blueTeamString = new StringBuilder();
     StringBuilder blueTeamRankString = new StringBuilder();
 
@@ -181,22 +172,19 @@ public class MessageBuilderRequest {
         return null;
       }
 
-      if(blueTeam.size() == i + 1) {
-        if(listIdPlayers.contains(blueTeam.get(i).getSummonerId())) {
-          blueTeamString.append(champion.getName() + " | __" + blueTeam.get(i).getSummonerName() + "__" + "\n");
-        }else {
-          blueTeamString.append(champion.getName() + " | " + blueTeam.get(i).getSummonerName() + "\n");
-        }
-
-        blueTeamRankString.append(rank);
+      if(listIdPlayers.contains(blueTeam.get(i).getSummonerId())) {
+        blueTeamString.append(champion.getName() + " | __" + blueTeam.get(i).getSummonerName() + "__" + "\n");
       }else {
-        blueTeamRankString.append(rank + "\n");
+        blueTeamString.append(champion.getName() + " | " + blueTeam.get(i).getSummonerName() + "\n");
       }
+
+      blueTeamRankString.append(rank);
+      blueTeamRankString.append(rank + "\n");
     }
 
     message.addField("Équipe Bleu", blueTeamString.toString(), true);
     message.addField("Grades", blueTeamRankString.toString(), true);
-    
+
     StringBuilder redTeamString = new StringBuilder();
     StringBuilder redTeamRankString = new StringBuilder();
 
@@ -212,24 +200,22 @@ public class MessageBuilderRequest {
         return null;
       }
 
-      if(redTeam.size() == i + 1) {
-        if(listIdPlayers.contains(redTeam.get(i).getSummonerId())) {
-          redTeamString.append(champion.getName() + " | __" + redTeam.get(i).getSummonerName() + "__" + "\n");
-        }else {
-          redTeamString.append(champion.getName() + " | " + redTeam.get(i).getSummonerName() + "\n");
-        }
-
-        redTeamRankString.append(rank);
+      if(listIdPlayers.contains(redTeam.get(i).getSummonerId())) {
+        redTeamString.append(champion.getName() + " | __" + redTeam.get(i).getSummonerName() + "__" + "\n");
       }else {
-        redTeamRankString.append(rank + "\n");
+        redTeamString.append(champion.getName() + " | " + redTeam.get(i).getSummonerName() + "\n");
       }
+
+      redTeamRankString.append(rank + "\n");
+
     }
 
-    message.addField("Équipe Rouge", redTeamString.toString(), false);
+    message.addBlankField(false);
+    message.addField("Équipe Rouge", redTeamString.toString(), true);
     message.addField("Grades", redTeamRankString.toString(), true);
-    
+
     message.setColor(Color.GREEN);
-    
+
     return message.build();
   }
 

@@ -47,11 +47,11 @@ public class CommandManagement {
     }
   }
 
-  public static String registerCommand(String commande, User user) {
+  public static String registerCommand(String commande, User user, boolean selfCreated) {
     if(commande.substring(0, 6).equalsIgnoreCase("player")) {
-      return registerPlayerCommand(commande, user);
+      return registerPlayerCommand(commande, user, selfCreated); //TODO: do a version for "player new"
     }else {
-      return "Erreur dans le choix de l'enregistrement. Note : Vous devez écrire \"register player VotreServeur VotrePseudo\" pour vous enregistrer";
+      return "Erreur dans le choix de l'enregistrement. Note : Vous devez écrire \"register player VotrePseudo\" pour vous enregistrer";
     }
   }
 
@@ -139,7 +139,7 @@ public class CommandManagement {
   //						    Register Command
   //-----------------------------------------------------------------------
 
-  private static String registerPlayerCommand(String commande, User user) {
+  private static String registerPlayerCommand(String commande, User user, boolean selfCreated) {
 
     String summonerName;
 
@@ -147,6 +147,10 @@ public class CommandManagement {
       String[] info = commande.split(" ");
 
       summonerName = info[1];
+      
+      if(info[1].equals("new")) {
+        summonerName = info[2];
+      }
 
       for(int i = 0; i < Main.getPlayerList().size(); i++) {
         if(Main.getPlayerList().get(i).getSummoner().getName().equals(summonerName)) {
@@ -178,7 +182,7 @@ public class CommandManagement {
       return "Aucun compte à ce nom. Vérfier le pseudo écrit";
     }
 
-    Player player = new Player(user.getName(), user, summoner);
+    Player player = new Player(user.getName(), user, summoner, selfCreated);
 
     Main.getPlayerList().add(player);
 
@@ -381,7 +385,7 @@ public class CommandManagement {
     String result = "Vous avez accepter la postulation de " + postulation.getMember().getUser().getName() + ". "
         + "Il a été automatiquement enregistré en tant que joueur.";
 
-    Player player = new Player(postulation.getMember().getUser().getName(), postulation.getMember().getUser(), postulation.getSummoner());
+    Player player = new Player(postulation.getMember().getUser().getName(), postulation.getMember().getUser(), postulation.getSummoner(), false);
     Main.getController().addRolesToMember(postulation.getMember(), Main.getRegisteredRole()).queue();
 
     for(int i = 0; i < Main.getPlayerList().size(); i++) {

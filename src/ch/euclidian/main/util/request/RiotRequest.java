@@ -31,7 +31,7 @@ public class RiotRequest {
       if(leaguePosition.getQueueType().equals("RANKED_SOLO_5x5")) {
         ligue = leaguePosition.getRank();
         rank = leaguePosition.getTier();
-        return ligue + " " + rank + "(" + leaguePosition.getLeaguePoints() + " LP)";
+        return rank + " " + ligue + " (" + leaguePosition.getLeaguePoints() + " LP)";
       }
     }
 

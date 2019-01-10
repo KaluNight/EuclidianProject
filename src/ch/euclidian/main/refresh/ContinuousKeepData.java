@@ -71,7 +71,14 @@ public class ContinuousKeepData implements Runnable {
 
       Summoner summoner = player.getSummoner();
 
-      messagesToSend.add("**Rapport pour " + player.getDiscordUser().getAsMention() + " sur le compte " + summoner.getName() + ".**");
+      String name = "";
+      if(player.isMentionnable()) {
+        name = player.getDiscordUser().getAsMention();
+      }else {
+        name = player.getDiscordUser().getName();
+      }
+      
+      messagesToSend.add("**Rapport pour " + name + " sur le compte " + summoner.getName() + ".**");
 
       MatchList matchHistory = null;
       try {

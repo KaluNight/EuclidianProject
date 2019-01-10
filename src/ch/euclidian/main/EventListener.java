@@ -17,6 +17,7 @@ import ch.euclidian.main.refresh.ContinuousTimeChecking;
 import ch.euclidian.main.util.LogHelper;
 import ch.euclidian.main.util.Ressources;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.PrivateChannel;
@@ -38,6 +39,8 @@ public class EventListener extends ListenerAdapter{
 
   private static final String ENREGISTRED_PLAYER_ROLE_NAME = "Enregistré";
 
+  private static final String POSTULANT_PLAYER_ROLE_NAME = "Postulant";
+
   private static final String ID_LOG_BOT_CHANNEL = "506541176200101909";
 
   private static final String ID_POSTULATION_CHANNEL = "497763778268495882";
@@ -47,15 +50,10 @@ public class EventListener extends ListenerAdapter{
   private static Message statusReportMessage;
 
   private static Timer timerTask;
-  
+
   private static Logger logger = LoggerFactory.getLogger(EventListener.class);
 
-  @Override
-  public void onReady(ReadyEvent event) {
-    Main.setLogBot(Main.getJda().getTextChannelById(ID_LOG_BOT_CHANNEL));
-
-    LogHelper.logSenderDirectly("Démarrage...");
-
+  private void initializeGuild() {
     Main.setGuild(Main.getLogBot().getGuild());
     Main.setController(Main.getGuild().getController());
 
@@ -88,19 +86,32 @@ public class EventListener extends ListenerAdapter{
         Role usableRole = role.complete();
         Main.setRegisteredRole(usableRole);
       } catch (Exception e) {
-        System.err.println("Unknow Error");
+        LogHelper.logSenderDirectly("Unknow Error : " + e.getMessage());
+        logger.error(e.getMessage());
       }
     } else {
       Main.setRegisteredRole(Main.getGuild().getRolesByName("Enregistré", true).get(0));
     }
 
-    if(Main.getGuild().getRolesByName("Postulant", true).isEmpty()) {
-      System.err.println("Please create Postulant role !");
+    if(Main.getGuild().getRolesByName(POSTULANT_PLAYER_ROLE_NAME, true).isEmpty()) {
+      LogHelper.logSenderDirectly("Creation d'un rôle postulant ...");
+      try {
+        RoleAction role = Main.getController().createRole();
+        role.setName(POSTULANT_PLAYER_ROLE_NAME);
+        role.setColor(Color.YELLOW);
+        role.setMentionable(false);
+        role.setPermissions(Team.getPermissionsList());
+
+        role.complete();
+      } catch (Exception e) {
+        LogHelper.logSenderDirectly("Unknow Error : " + e.getMessage());
+        logger.error(e.getMessage());
+      }
     }else {
-      Main.setPostulantRole(Main.getGuild().getRolesByName("Postulant", true).get(0));
+      Main.setPostulantRole(Main.getGuild().getRolesByName(POSTULANT_PLAYER_ROLE_NAME, true).get(0));
     }
 
-    ArrayList<Role> posteRole = new ArrayList<Role>();
+    ArrayList<Role> posteRole = new ArrayList<>();
 
     posteRole.add(Main.getGuild().getRolesByName("top", true).get(0));
     posteRole.add(Main.getGuild().getRolesByName("jungle", true).get(0));
@@ -126,15 +137,35 @@ public class EventListener extends ListenerAdapter{
       message.editMessage("Status : En Ligne").complete();
     }
 
-    statusReportMessage = message;
+    setStatusReportMessage(message);
+  }
+
+  private void setupContinousRefreshThread() {
+    ContinuousTimeChecking.setNextTimePanelRefresh(DateTime.now());
+    ContinuousTimeChecking.setNextTimeStatusRefresh(DateTime.now());
+    ContinuousTimeChecking.setNextTimeSaveData(DateTime.now().plusMinutes(10));
+
+    setTimerTask(new Timer());
+
+    TimerTask mainThread = new ContinuousTimeChecking();
+    timerTask.schedule(mainThread, 0, 10000); //10 secondes
+  }
+
+  @Override
+  public void onReady(ReadyEvent event) {
+    Main.setLogBot(Main.getJda().getTextChannelById(ID_LOG_BOT_CHANNEL));
+
+    LogHelper.logSenderDirectly("Démarrage...");
+
+    initializeGuild();
 
     LogHelper.logSenderDirectly("Chargement des champions ...");
-    if(!Main.loadChampions()) {
+    if(Main.loadChampions()) {
       LogHelper.logSenderDirectly("Chargement des champions terminé !");
     }else {
       LogHelper.logSenderDirectly("Une erreur est survenu lors du chargement des champions, les infos cards ne s'afficheront pas !");
     }
-    
+
     LogHelper.logSenderDirectly("Chargement des sauvegardes détaillés...");
 
     try {
@@ -160,15 +191,8 @@ public class EventListener extends ListenerAdapter{
     LogHelper.logSenderDirectly("Chargement des données des joueurs terminé !");
 
     LogHelper.logSenderDirectly("Démarrage des tâches continue...");
-    
-    ContinuousTimeChecking.setNextTimePanelRefresh(DateTime.now());
-    ContinuousTimeChecking.setNextTimeStatusRefresh(DateTime.now());
-    ContinuousTimeChecking.setNextTimeSaveData(DateTime.now().plusMinutes(10));
-    
-    setTimerTask(new Timer());
-    
-    TimerTask mainThread = new ContinuousTimeChecking();
-    timerTask.schedule(mainThread, 0, 10000); //10 secondes
+
+    setupContinousRefreshThread();
 
     LogHelper.logSenderDirectly("Démarrage des tâches continues terminés !");
 
@@ -179,21 +203,18 @@ public class EventListener extends ListenerAdapter{
   public void onMessageReceived(MessageReceivedEvent event) {
     String message = event.getMessage().getContentRaw();
 
-    List<Role> list = null;
+    List<Role> rolesOfSender = null;
 
     try {
-      list = event.getMember().getRoles();
-    } catch (NullPointerException e) {
+      rolesOfSender = initializeRolesFromSender(event);
+    }catch (NullPointerException e) {
+      logger.info("L'envoyeur ne fait plus parti du serveur");
       return;
     }
 
     boolean isAdmin = false;
 
-    for(int i = 0; i < list.size(); i++) {
-      if(list.get(i).getId().equals(ADMIN_ROLE_ID)) {
-        isAdmin = true;
-      }
-    }
+    isAdmin = isAdminByRoles(rolesOfSender, isAdmin);
 
     if(event.getTextChannel().getId().equals(ID_POSTULATION_CHANNEL) && message.charAt(0) != PREFIX && !isAdmin
         && !Main.getJda().getSelfUser().equals(event.getAuthor())){
@@ -294,7 +315,22 @@ public class EventListener extends ListenerAdapter{
           event.getTextChannel().sendMessage(result).queue();
         }
 
-      }else if (command.equalsIgnoreCase("postulation")){
+      } else if(command.equalsIgnoreCase("register") && message.contains("new")) {
+
+        List<Member> members = event.getMessage().getMentionedMembers();
+
+        if(members.size() == 1) {
+          event.getTextChannel().sendTyping().queue();
+          String result = CommandManagement.registerCommand(message.substring(9), members.get(0).getUser(), false);
+          event.getTextChannel().sendMessage(result).queue();
+
+        }else {
+          event.getTextChannel().sendMessage("Merci d'envoyer la commande dans ce format pour enregistrer quelqu'un : "
+              + "\">register new PseudoLol MentionDuJoueur\"").queue();
+        }
+        return;
+
+      } else if (command.equalsIgnoreCase("postulation")){
 
         event.getTextChannel().sendTyping().complete();
         String result = CommandManagement.postulationCommand(message.substring(12), event.getAuthor());
@@ -336,7 +372,7 @@ public class EventListener extends ListenerAdapter{
           System.out.println("Erreur Save");
         }
         Main.getJda().shutdownNow();
-        
+
         ContinuousTimeChecking.shutdownThreadPool();
         timerTask.cancel();
       }
@@ -344,9 +380,24 @@ public class EventListener extends ListenerAdapter{
 
     if (command.equalsIgnoreCase("register")) {
       event.getTextChannel().sendTyping().queue();
-      String result = CommandManagement.registerCommand(message.substring(9), event.getAuthor());
+      String result = CommandManagement.registerCommand(message.substring(9), event.getAuthor(), true);
       event.getTextChannel().sendMessage(result).queue();
     }
+  }
+
+  private List<Role> initializeRolesFromSender(MessageReceivedEvent event) {
+    List<Role> roles = new ArrayList<>();
+    roles.addAll(event.getMember().getRoles());   
+    return roles;
+  }
+
+  private boolean isAdminByRoles(List<Role> rolesOfSender, boolean isAdmin) {
+    for(int i = 0; i < rolesOfSender.size(); i++) {
+      if(rolesOfSender.get(i).getId().equals(ADMIN_ROLE_ID)) {
+        isAdmin = true;
+      }
+    }
+    return isAdmin;
   }
 
   public static String getEnregistredPlayerRoleName() {
@@ -359,5 +410,9 @@ public class EventListener extends ListenerAdapter{
 
   public static void setTimerTask(Timer timerTask) {
     EventListener.timerTask = timerTask;
+  }
+
+  public static void setStatusReportMessage(Message statusReportMessage) {
+    EventListener.statusReportMessage = statusReportMessage;
   }
 }

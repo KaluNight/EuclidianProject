@@ -2,27 +2,30 @@ package ch.euclidian.main;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonIOException;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
+import ch.euclidian.main.model.Champion;
 import ch.euclidian.main.model.Player;
 import ch.euclidian.main.model.PlayerDataOfTheWeek;
 import ch.euclidian.main.model.Postulation;
@@ -48,7 +51,6 @@ import net.dv8tion.jda.core.managers.GuildController;
 import net.rithms.riot.api.ApiConfig;
 import net.rithms.riot.api.RiotApi;
 import net.rithms.riot.api.RiotApiException;
-import net.rithms.riot.api.endpoints.static_data.dto.Champion;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 import net.rithms.riot.api.request.ratelimit.RateLimitHandler;
 import net.rithms.riot.constant.Platform;
@@ -138,43 +140,30 @@ public class Main {
   }
 
   public static boolean loadChampions() {
-    Gson gson = new GsonBuilder().setLenient().create();
-    
-    final Collection<File> all = new ArrayList<File>();
-    findFilesRecursively(new File("ressources/champion"), all, ".json");
+    JsonParser parser = new JsonParser();
+    List<Champion> champions = new ArrayList<>();
 
-    Iterator<File> allFile = all.iterator();
-    List<Champion> listChampion = new ArrayList<>();
-    
-    while(allFile.hasNext()) {
-      try(FileReader fr = new FileReader(allFile.next())) {
-        listChampion.add(gson.fromJson(fr, Champion.class));
-      } catch (FileNotFoundException e) {
-        logger.error(e.getMessage());
-        return false;
-      } catch (IOException e) {
-        logger.error(e.getMessage());
-        return false;
+    try (FileReader fr = new FileReader("ressources/champion.json")){
+
+      JsonObject object = parser.parse(fr).getAsJsonObject().get("data").getAsJsonObject();
+      Set<Map.Entry<String, JsonElement>> list = object.entrySet();
+      Iterator<Map.Entry<String, JsonElement>> iterator = list.iterator();
+
+      while (iterator.hasNext()) {
+        JsonElement element = iterator.next().getValue();
+        int key = element.getAsJsonObject().get("key").getAsInt();
+        String id = element.getAsJsonObject().get("id").getAsString();
+        String name = element.getAsJsonObject().get("name").getAsString();
+        champions.add(new Champion(key, id, name));
       }
+
+    } catch(IOException e) {
+      logger.error(e.getMessage());
+      return false;
     }
-    Ressources.setChampions(listChampion);
+
+    Ressources.setChampions(champions);
     return true;
-  }
-
-  private static void findFilesRecursively(File file, Collection<File> all, final String extension) {
-    //Liste des fichiers correspondant a l'extension souhaitee
-    final File[] children = file.listFiles(new FileFilter() {
-      public boolean accept(File f) {
-        return f.getName().endsWith(extension) ;
-      }}
-        );
-    if (children != null) {
-      //Pour chaque fichier recupere, on appelle a nouveau la methode
-      for (File child : children) {
-        all.add(child);
-        findFilesRecursively(child, all, extension);
-      }
-    }
   }
 
   public static synchronized void loadPlayerDataWeek() throws IOException {
@@ -208,7 +197,8 @@ public class Main {
 
       saveString.append(player.getName() + "\n");
       saveString.append(player.getDiscordUser().getId() + "\n");
-      saveString.append(player.getSummoner().getAccountId() + "\n\n");
+      saveString.append(player.getSummoner().getAccountId() + "\n");
+      saveString.append(player.isMentionnable() + "\n\n");
     }
 
     saveString.append("\n//Liste of teams\n");
@@ -290,12 +280,13 @@ public class Main {
           String discordName = reader.readLine();
           String discordID = reader.readLine();
           long accountId = Long.parseLong(reader.readLine());
+          boolean mentionable = Boolean.parseBoolean(reader.readLine());
 
           if(!isPlayersAlreadyCopied(discordID)) {
             User user = jda.getUserById(discordID);
             Summoner summoner = Ressources.getRiotApi().getSummonerByAccount(Platform.EUW, accountId);
 
-            playerList.add(new Player(discordName, user, summoner));
+            playerList.add(new Player(discordName, user, summoner, mentionable));
           }
 
         } else if (line.equals("--t")) {
