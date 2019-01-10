@@ -93,9 +93,8 @@ public class ContinuousPanelRefresh implements Runnable {
         }
       }
       
-      controlPannel.sendMessage(title.toString()).complete();
-      Message cardMessage = controlPannel.sendMessage(card.getCard()).complete();
-      messageToSend.get(i).setMessage(cardMessage);
+      messageToSend.get(i).setTitle(controlPannel.sendMessage(title.toString()).complete());
+      messageToSend.get(i).setMessage(controlPannel.sendMessage(card.getCard()).complete());
     }
     
     infoCards.addAll(messageToSend);
@@ -117,6 +116,7 @@ public class ContinuousPanelRefresh implements Runnable {
     for(int i = 0; i < cardsToRemove.size(); i++) {
       infoCards.remove(cardsToRemove.get(i));
       cardsToRemove.get(i).getMessage().delete().complete();
+      cardsToRemove.get(i).getTitle().delete().complete();
     }
   }
   

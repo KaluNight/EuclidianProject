@@ -4,6 +4,9 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +24,8 @@ import net.rithms.riot.api.endpoints.spectator.dto.CurrentGameParticipant;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 
 public class MessageBuilderRequest {
+
+  private static final DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("dd.MM.yyyy");
 
   private static Logger logger = LoggerFactory.getLogger(MessageBuilderRequest.class);
 
@@ -107,6 +112,16 @@ public class MessageBuilderRequest {
     message.addField("Équipe Rouge", redTeamString.toString(), true);
     message.addField("Grades", redTeamRankString.toString(), true);
 
+    double minutesOfGames = (match.getGameLength() + 180.0) / 60.0;
+    String[] stringMinutesSecondes = Double.toString(minutesOfGames).split("\\.");
+    int minutesGameLength = Integer.parseInt(stringMinutesSecondes[0]);
+    int secondesGameLength = (int) (Double.parseDouble("0." + stringMinutesSecondes[1]) * 60.0);
+
+    String gameLenght = minutesGameLength + ":" + secondesGameLength;
+    
+    message.setFooter("Date de création du message : " + DateTime.now().toString(dateFormatter)
+        + " | Durée actuel de la partie : " + gameLenght, null);
+    
     message.setColor(Color.GREEN);
 
     return message.build();
@@ -213,6 +228,15 @@ public class MessageBuilderRequest {
     message.addBlankField(false);
     message.addField("Équipe Rouge", redTeamString.toString(), true);
     message.addField("Grades", redTeamRankString.toString(), true);
+
+    double minutesOfGames = (currentGameInfo.getGameLength() + 180.0) / 60.0;
+    String[] stringMinutesSecondes = Double.toString(minutesOfGames).split("\\.");
+    int minutesGameLength = Integer.parseInt(stringMinutesSecondes[0]);
+    int secondesGameLength = (int) (Double.parseDouble("0." + stringMinutesSecondes[1]) * 60.0);
+
+    String gameLenght = minutesGameLength + ":" + secondesGameLength;
+    
+    message.setFooter("Date de création : " + DateTime.now().toString(dateFormatter) + " | Durée actuel de la partie : " + gameLenght, null);
 
     message.setColor(Color.GREEN);
 

@@ -11,6 +11,7 @@ public class InfoCard {
   
   private List<Player> players;
   private MessageEmbed card;
+  private Message title;
   private Message message;
   private DateTime creationTime = DateTime.now();
   
@@ -49,5 +50,13 @@ public class InfoCard {
 
   public void setCreationTime(DateTime creationTime) {
     this.creationTime = creationTime;
+  }
+
+  public Message getTitle() {
+    return title;
+  }
+
+  public void setTitle(Message title) {
+    this.title = title;
   }
 }
