@@ -108,7 +108,7 @@ public class ContinuousPanelRefresh implements Runnable {
     for(int i = 0; i < infoCards.size(); i++) {
       InfoCard card = infoCards.get(i);
       
-      if(card.getCreationTime().plusHours(1).isBeforeNow()) {
+      if(card.getCreationTime().plusMinutes(30).isBeforeNow()) {
         cardsToRemove.add(card);
       }
     }

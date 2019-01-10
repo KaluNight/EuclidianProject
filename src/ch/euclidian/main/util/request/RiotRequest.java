@@ -1,8 +1,6 @@
 package ch.euclidian.main.util.request;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import ch.euclidian.main.util.NameConversion;
