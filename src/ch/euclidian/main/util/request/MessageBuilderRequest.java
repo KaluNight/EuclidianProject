@@ -145,6 +145,8 @@ public class MessageBuilderRequest {
       }
     }
 
+    title.append(" : " + currentGameInfo.getGameQueueConfigId());
+    
     message.setTitle(title.toString());
 
     int blueTeamID = 0;

@@ -27,8 +27,19 @@ public class NameConversion {
     case 400: return "Normal Draft | Faille de l'invocateur";
     case 420: return "Classé Solo/Duo | Faille de l'invocateur";
     case 430: return "Normal Draft | Faille de l'invocateur";
-    case 440: return "Classé Flex | Faille de l'invacteur";
-    default: return "Mode inconnue";
+    case 440: return "Classé Flex | Faille de l'invocateur";
+    case 450: return "ARAM | Abîme Hurlant";
+    case 470: return "Classé 3v3 | Forêt torturée";
+    case 700: return "Clash | Faille de l'invocateur";
+    case 800:
+    case 810:
+    case 820: return "Coop vs IA | Forêt torturée";
+    case 830:
+    case 840:
+    case 850: return "Coop vs IA | Faille de l'invocateur";
+    case 900: return "ARURF | Faille de l'invocateur";
+    case 1200: return "Raid du Nexus | Faille de l'invocateur";
+    default: return "Mode temporaire";
     }
   }
 

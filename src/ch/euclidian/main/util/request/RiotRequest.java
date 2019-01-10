@@ -1,6 +1,8 @@
 package ch.euclidian.main.util.request;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import ch.euclidian.main.util.NameConversion;
@@ -44,9 +46,7 @@ public class RiotRequest {
       return "Pas en game";
     }
     
-    String gameStatus = NameConversion.convertGameModeToString(currentGameInfo.getGameMode());
-
-    gameStatus += " (" + NameConversion.convertGameTypeToString(currentGameInfo.getGameType()) + ") ";
+    String gameStatus = NameConversion.convertGameQueueIdToString(currentGameInfo.getGameQueueConfigId()) + " ";
 
     double minutesOfGames = (currentGameInfo.getGameLength() + 180.0) / 60.0;
     String[] stringMinutesSecondes = Double.toString(minutesOfGames).split("\\.");
