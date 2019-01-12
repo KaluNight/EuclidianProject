@@ -9,6 +9,13 @@ public class NameConversion {
 
   private NameConversion() {
   }
+  
+  public static String convertStringToTinyString(String stringToConvert) {
+    if(stringToConvert.length() > 6) {
+      return stringToConvert.substring(0, 4) + "..";
+    }
+    return stringToConvert;
+  }
 
   public static String convertGameModeToString(String stringToConvert) {
 

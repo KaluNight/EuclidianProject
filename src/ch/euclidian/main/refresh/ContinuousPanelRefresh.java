@@ -70,34 +70,9 @@ public class ContinuousPanelRefresh implements Runnable {
   private void manageInfoCards() {
     TextChannel controlPannel = Main.getGuild().getTextChannelById(ID_PANNEAU_DE_CONTROLE);
 
-    List<InfoCard> messageToSend = createInfoCards();
+    List<InfoCard> messageSended = createInfoCards(controlPannel);
     
-    for(int i = 0; i < messageToSend.size(); i++) {
-      InfoCard card = messageToSend.get(i);
-      List<Player> players = messageToSend.get(i).getPlayers();
-      
-      StringBuilder title = new StringBuilder();
-      title.append("Info sur la partie de");
-      
-      List<String> playersName = NameConversion.getListNameOfPlayers(players);
-
-      for(int j = 0; j < card.getPlayers().size(); j++) {
-        if(playersName.size() == 1) {
-          title.append(" " + playersName.get(j));
-        } else if(j + 1 == playersName.size()) {
-          title.append(" et de " + playersName.get(j));
-        } else if(j + 2 == playersName.size()) {
-          title.append(" " + playersName.get(j));
-        }else {
-          title.append(" " + playersName.get(j) + ",");
-        }
-      }
-      
-      messageToSend.get(i).setTitle(controlPannel.sendMessage(title.toString()).complete());
-      messageToSend.get(i).setMessage(controlPannel.sendMessage(card.getCard()).complete());
-    }
-    
-    infoCards.addAll(messageToSend);
+    infoCards.addAll(messageSended);
     
     deleteOlderInfoCards();
   }
@@ -120,7 +95,7 @@ public class ContinuousPanelRefresh implements Runnable {
     }
   }
   
-  private List<InfoCard> createInfoCards(){
+  private List<InfoCard> createInfoCards(TextChannel controlPannel){
 
     ArrayList<InfoCard> cards = new ArrayList<>();
     ArrayList<Player> playersAlreadyGenerated = new ArrayList<>();
@@ -134,24 +109,50 @@ public class ContinuousPanelRefresh implements Runnable {
         
         if(currentGameInfo != null && !gamesIdAlreadySended.contains(currentGameInfo.getGameId())) {
           List<Player> listOfPlayerInTheGame = checkIfOthersPlayersIsKnowInTheMatch(currentGameInfo);
+          InfoCard card = null;
 
           if(listOfPlayerInTheGame.size() == 1) {
             MessageEmbed messageCard = MessageBuilderRequest.createInfoCard1summoner(
                 player.getDiscordUser(), player.getSummoner(), currentGameInfo);
             if(messageCard != null) {
-              InfoCard card = new InfoCard(listOfPlayerInTheGame, messageCard);
-              cards.add(card);
+              card = new InfoCard(listOfPlayerInTheGame, messageCard);
             }
           }else if(listOfPlayerInTheGame.size() > 1) {
             MessageEmbed messageCard = MessageBuilderRequest.createInfoCardsMultipleSummoner(listOfPlayerInTheGame, currentGameInfo);
             
             if(messageCard != null) {
-              InfoCard card = new InfoCard(listOfPlayerInTheGame, messageCard);
-              cards.add(card);
+              card = new InfoCard(listOfPlayerInTheGame, messageCard);
             }
           }
+          
           playersAlreadyGenerated.addAll(listOfPlayerInTheGame);
           gamesIdAlreadySended.add(currentGameInfo.getGameId());
+          
+          if(card != null) {
+            List<Player> players = card.getPlayers();
+            
+            StringBuilder title = new StringBuilder();
+            title.append("Info sur la partie de");
+            
+            List<String> playersName = NameConversion.getListNameOfPlayers(players);
+
+            for(int j = 0; j < card.getPlayers().size(); j++) {
+              if(playersName.size() == 1) {
+                title.append(" " + playersName.get(j));
+              } else if(j + 1 == playersName.size()) {
+                title.append(" et de " + playersName.get(j));
+              } else if(j + 2 == playersName.size()) {
+                title.append(" " + playersName.get(j));
+              }else {
+                title.append(" " + playersName.get(j) + ",");
+              }
+            }
+            
+            card.setTitle(controlPannel.sendMessage(title.toString()).complete());
+            card.setMessage(controlPannel.sendMessage(card.getCard()).complete());
+            
+            cards.add(card);
+          }
         }
       }
     }

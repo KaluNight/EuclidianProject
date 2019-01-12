@@ -26,8 +26,10 @@ import net.rithms.riot.constant.Platform;
 public class RiotRequest {
 
   private static Logger logger = LoggerFactory.getLogger(RiotRequest.class);
-  
-  private static DecimalFormat df = new DecimalFormat("#.##");
+
+  private static DecimalFormat df = new DecimalFormat("###.##");
+
+  private static final int MAX_GAME_FOR_WINRATE = 20 - 1;
 
   private RiotRequest() {
   }
@@ -54,7 +56,7 @@ public class RiotRequest {
     return ligue;
   }
 
-  public static String getWinrateLastMonth(long summonerId, int championID) {
+  public static String getWinrateLast20Games(long summonerId) {
     DateTime actualTime = DateTime.now();
 
     Summoner summoner;
@@ -66,24 +68,30 @@ public class RiotRequest {
     }
 
     List<MatchReference> matchesReferences = new ArrayList<>();
-    
-    for(int i = 0; i < 4; i++) {
-      DateTime endTime = actualTime.minusWeeks(i);
-      DateTime beginTime = actualTime.minusWeeks(i + 1);
-      
-      MatchList matchList = null;
-      
-      try {
-        matchList =  Ressources.getRiotApi().getMatchListByAccountId
-            (Platform.EUW, summoner.getAccountId(), null, null, null, beginTime.getMillis(), endTime.getMillis(), -1, -1);
-      } catch (RiotApiException e) {
-        logger.warn("Impossible d'obtenir la list de match : {}", e.getMessage());
-      }
-      if(matchList != null) {
-        matchesReferences.addAll(matchList.getMatches());
-      }
+
+    DateTime beginTime = actualTime.minusWeeks(1);
+
+    MatchList matchList = null;
+
+    try {
+      matchList =  Ressources.getRiotApi().getMatchListByAccountId
+          (Platform.EUW, summoner.getAccountId(), null, null, null, beginTime.getMillis(), actualTime.getMillis(), -1, -1);
+    } catch (RiotApiException e) {
+      logger.warn("Impossible d'obtenir la list de match : {}", e.getMessage());
     }
     
+    if(matchList != null) {
+      matchesReferences.addAll(matchList.getMatches());
+    }
+
+    if(matchesReferences.size() > MAX_GAME_FOR_WINRATE) {
+      int size = matchesReferences.size(); 
+
+      for(int i = size - 1; i > MAX_GAME_FOR_WINRATE; i--) {
+        matchesReferences.remove(i);
+      }
+    }
+
     int nbrGames = 0;
     int nbrWin = 0;
 
@@ -97,17 +105,19 @@ public class RiotRequest {
         logger.warn("Match ungetable from api : {}", e.getMessage());
       }
 
-      Participant participant = match.getParticipantByAccountId(summoner.getAccountId());
+      if(match != null) {
+        Participant participant = match.getParticipantByAccountId(summoner.getAccountId());
 
-      if(participant.getTimeline().getCreepsPerMinDeltas() != null && participant.getChampionId() == championID) {
+        if(participant.getTimeline().getCreepsPerMinDeltas() != null) {
 
-        String result = match.getTeamByTeamId(participant.getTeamId()).getWin();
-        if(result.equalsIgnoreCase("Win") || result.equalsIgnoreCase("Fail")) {
-          nbrGames++;
-        }
+          String result = match.getTeamByTeamId(participant.getTeamId()).getWin();
+          if(result.equalsIgnoreCase("Win") || result.equalsIgnoreCase("Fail")) {
+            nbrGames++;
+          }
 
-        if(result.equalsIgnoreCase("Win")) {
-          nbrWin++;
+          if(result.equalsIgnoreCase("Win")) {
+            nbrWin++;
+          }
         }
       }
     }
@@ -115,10 +125,10 @@ public class RiotRequest {
     if(nbrGames == 0) {
       return "Première game de ce mois";
     }else if(nbrWin == 0) {
-      return "0% (" + df.format(nbrGames) + " parties)";
+      return "0% (" + nbrGames + " parties)";
     }
 
-    return (nbrWin / (double) nbrGames) * 100 + "% (" + nbrGames + " parties)";
+    return df.format((nbrWin / (double) nbrGames) * 100) + "% (" + nbrGames + " parties)";
   }
 
   public static String getActualGameStatus(CurrentGameInfo currentGameInfo) {
