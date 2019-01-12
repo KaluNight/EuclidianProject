@@ -1,18 +1,29 @@
 package ch.euclidian.main.util.request;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
+
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ch.euclidian.main.util.NameConversion;
 import ch.euclidian.main.util.Ressources;
 import net.rithms.riot.api.RiotApiException;
 import net.rithms.riot.api.endpoints.league.dto.LeaguePosition;
+import net.rithms.riot.api.endpoints.match.dto.Match;
+import net.rithms.riot.api.endpoints.match.dto.MatchList;
+import net.rithms.riot.api.endpoints.match.dto.MatchReference;
+import net.rithms.riot.api.endpoints.match.dto.Participant;
 import net.rithms.riot.api.endpoints.spectator.dto.CurrentGameInfo;
 import net.rithms.riot.constant.Platform;
 
 
 public class RiotRequest {
 
+  private static Logger logger = LoggerFactory.getLogger(RiotRequest.class);
+  
   private RiotRequest() {
   }
 
@@ -38,12 +49,56 @@ public class RiotRequest {
     return ligue;
   }
 
+  public static String getWinrateLastMonth(long accountId, int championID) {
+    DateTime actualTime = DateTime.now();
+
+    MatchList matchList;
+    try {
+      matchList =  Ressources.getRiotApi().getMatchListByAccountId
+          (Platform.EUW, accountId, null, null, null, actualTime.minusMonths(1).getMillis(), actualTime.getMillis(), -1, -1);
+    } catch (RiotApiException e) {
+      return "Aucune donnés";
+    }
+
+    List<MatchReference> matchesReferences = matchList.getMatches();
+    
+    int nbrGames = 0;
+    int nbrWin = 0;
+
+    for(int i = 0; i < matchList.getTotalGames(); i++) {
+      MatchReference matchReference = matchesReferences.get(i);
+
+      Match match = null;
+      try {
+        match = Ressources.getRiotApi().getMatch(Platform.EUW, matchReference.getGameId());
+      } catch (RiotApiException e) {
+        logger.warn("Match ungetable from api : {}", e.getMessage());
+      }
+      
+      Participant participant = match.getParticipantByAccountId(accountId);
+      
+      if(participant.getTimeline().getCreepsPerMinDeltas() != null && participant.getChampionId() == championID) {
+        
+        String result = match.getTeamByTeamId(participant.getTeamId()).getWin();
+        if(result.equalsIgnoreCase("Win") || result.equalsIgnoreCase("Fail")) {
+          nbrGames++;
+        }
+
+        if(result.equalsIgnoreCase("Win")) {
+          nbrWin++;
+        }
+      }
+    }
+
+    return (nbrWin / (double) nbrGames) * 100 + "%";
+  }
+
   public static String getActualGameStatus(CurrentGameInfo currentGameInfo) {
 
     if(currentGameInfo == null) {
       return "Pas en game";
     }
-    
+
     String gameStatus = NameConversion.convertGameQueueIdToString(currentGameInfo.getGameQueueConfigId()) + " ";
 
     double minutesOfGames = (currentGameInfo.getGameLength() + 180.0) / 60.0;

@@ -62,6 +62,7 @@ public class MessageBuilderRequest {
 
     StringBuilder blueTeamString = new StringBuilder();
     StringBuilder blueTeamRankString = new StringBuilder();
+    StringBuilder blueTeamWinRateLastMonth = new StringBuilder();
 
     for(int i = 0; i < blueTeam.size(); i++) {
       Champion champion = null;
@@ -80,8 +81,10 @@ public class MessageBuilderRequest {
       }else {
         blueTeamString.append(champion.getName() + " | " + blueTeam.get(i).getSummonerName() + "\n");
       }
-
+      
       blueTeamRankString.append(rank + "\n");
+      
+      blueTeamWinRateLastMonth.append(RiotRequest.getWinrateLastMonth() + "\n");
     }
 
     message.addField("Équipe Bleu", blueTeamString.toString(), true);
@@ -196,7 +199,6 @@ public class MessageBuilderRequest {
         blueTeamString.append(champion.getName() + " | " + blueTeam.get(i).getSummonerName() + "\n");
       }
 
-      blueTeamRankString.append(rank);
       blueTeamRankString.append(rank + "\n");
     }
 
