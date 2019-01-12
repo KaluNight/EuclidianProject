@@ -84,14 +84,16 @@ public class MessageBuilderRequest {
       
       blueTeamRankString.append(rank + "\n");
       
-      blueTeamWinRateLastMonth.append(RiotRequest.getWinrateLastMonth() + "\n");
+      blueTeamWinRateLastMonth.append(RiotRequest.getWinrateLastMonth(blueTeam.get(i).getSummonerId(), blueTeam.get(i).getChampionId()) + "\n");
     }
 
     message.addField("Équipe Bleu", blueTeamString.toString(), true);
     message.addField("Grades", blueTeamRankString.toString(), true);
+    message.addField("Winrate (avec le champion joué)", blueTeamWinRateLastMonth.toString(), true);
 
     StringBuilder redTeamString = new StringBuilder();
     StringBuilder redTeamRankString = new StringBuilder();
+    StringBuilder redTeamWinrateString = new StringBuilder();
 
     for(int i = 0; i < redTeam.size(); i++) {
       Champion champion = null;
@@ -111,10 +113,13 @@ public class MessageBuilderRequest {
         redTeamString.append(champion.getName() + " | " + redTeam.get(i).getSummonerName() + "\n");
       }
       redTeamRankString.append(rank + "\n");
+      
+      redTeamWinrateString.append(RiotRequest.getWinrateLastMonth(redTeam.get(i).getSummonerId(), redTeam.get(i).getChampionId()) + "\n");
     }
-    message.addBlankField(false);
+    
     message.addField("Équipe Rouge", redTeamString.toString(), true);
     message.addField("Grades", redTeamRankString.toString(), true);
+    message.addField("Winrate (avec le champion joué)", redTeamWinrateString.toString(), true);
 
     double minutesOfGames = (match.getGameLength() + 180.0) / 60.0;
     String[] stringMinutesSecondes = Double.toString(minutesOfGames).split("\\.");
@@ -180,6 +185,7 @@ public class MessageBuilderRequest {
 
     StringBuilder blueTeamString = new StringBuilder();
     StringBuilder blueTeamRankString = new StringBuilder();
+    StringBuilder blueTeamWinrateString = new StringBuilder();
 
     for(int i = 0; i < blueTeam.size(); i++) {
       Champion champion = null;
@@ -200,13 +206,18 @@ public class MessageBuilderRequest {
       }
 
       blueTeamRankString.append(rank + "\n");
+      
+      blueTeamWinrateString.append(
+          RiotRequest.getWinrateLastMonth(blueTeam.get(i).getSummonerId(), blueTeam.get(i).getChampionId()) + "\n");
     }
 
     message.addField("Équipe Bleu", blueTeamString.toString(), true);
     message.addField("Grades", blueTeamRankString.toString(), true);
+    message.addField("Winrate (avec le champion joué)", blueTeamWinrateString.toString(), true);
 
     StringBuilder redTeamString = new StringBuilder();
     StringBuilder redTeamRankString = new StringBuilder();
+    StringBuilder redTeamWinrateString = new StringBuilder();
 
     for(int i = 0; i < redTeam.size(); i++) {
       Champion champion = null;
@@ -228,11 +239,12 @@ public class MessageBuilderRequest {
 
       redTeamRankString.append(rank + "\n");
 
+      redTeamWinrateString.append(RiotRequest.getWinrateLastMonth(redTeam.get(i).getSummonerId(), redTeam.get(i).getChampionId()));
     }
 
-    message.addBlankField(false);
     message.addField("Équipe Rouge", redTeamString.toString(), true);
     message.addField("Grades", redTeamRankString.toString(), true);
+    message.addField("Winrate (avec le champion joué)", redTeamWinrateString.toString(), true);
 
     double minutesOfGames = (currentGameInfo.getGameLength() + 180.0) / 60.0;
     String[] stringMinutesSecondes = Double.toString(minutesOfGames).split("\\.");

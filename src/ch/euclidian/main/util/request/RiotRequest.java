@@ -17,6 +17,7 @@ import net.rithms.riot.api.endpoints.match.dto.MatchList;
 import net.rithms.riot.api.endpoints.match.dto.MatchReference;
 import net.rithms.riot.api.endpoints.match.dto.Participant;
 import net.rithms.riot.api.endpoints.spectator.dto.CurrentGameInfo;
+import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 import net.rithms.riot.constant.Platform;
 
 
@@ -49,14 +50,24 @@ public class RiotRequest {
     return ligue;
   }
 
-  public static String getWinrateLastMonth(long accountId, int championID) {
+  public static String getWinrateLastMonth(long summonerId, int championID) {
     DateTime actualTime = DateTime.now();
 
     MatchList matchList;
+    
+    Summoner summoner;
+    try {
+      summoner = Ressources.getRiotApi().getSummoner(Platform.EUW, summonerId);
+    }catch (RiotApiException e) {
+      logger.warn("Impossible d'obtenir le summoner : {}" , e.getMessage());
+      return "Aucune donnés";
+    }
+    
     try {
       matchList =  Ressources.getRiotApi().getMatchListByAccountId
-          (Platform.EUW, accountId, null, null, null, actualTime.minusMonths(1).getMillis(), actualTime.getMillis(), -1, -1);
+          (Platform.EUW, summoner.getAccountId(), null, null, null, actualTime.minusMonths(1).getMillis(), actualTime.getMillis(), -1, -1);
     } catch (RiotApiException e) {
+      logger.warn("Impossible d'obtenir la list de match : {}", e.getMessage());
       return "Aucune donnés";
     }
 
@@ -75,7 +86,7 @@ public class RiotRequest {
         logger.warn("Match ungetable from api : {}", e.getMessage());
       }
       
-      Participant participant = match.getParticipantByAccountId(accountId);
+      Participant participant = match.getParticipantByAccountId(summoner.getAccountId());
       
       if(participant.getTimeline().getCreepsPerMinDeltas() != null && participant.getChampionId() == championID) {
         
@@ -89,8 +100,14 @@ public class RiotRequest {
         }
       }
     }
-
-    return (nbrWin / (double) nbrGames) * 100 + "%";
+    
+    if(nbrGames == 0) {
+      return "Première game de ce mois";
+    }else if(nbrWin == 0) {
+      return "0% (" + nbrGames + " parties)";
+    }
+    
+    return (nbrWin / (double) nbrGames) * 100 + "% (" + nbrGames + " parties)";
   }
 
   public static String getActualGameStatus(CurrentGameInfo currentGameInfo) {
