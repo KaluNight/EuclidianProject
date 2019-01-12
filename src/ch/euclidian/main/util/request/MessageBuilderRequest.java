@@ -239,7 +239,7 @@ public class MessageBuilderRequest {
 
       redTeamRankString.append(rank + "\n");
 
-      redTeamWinrateString.append(RiotRequest.getWinrateLastMonth(redTeam.get(i).getSummonerId(), redTeam.get(i).getChampionId()));
+      redTeamWinrateString.append(RiotRequest.getWinrateLastMonth(redTeam.get(i).getSummonerId(), redTeam.get(i).getChampionId()) + "\n");
     }
 
     message.addField("Équipe Rouge", redTeamString.toString(), true);
