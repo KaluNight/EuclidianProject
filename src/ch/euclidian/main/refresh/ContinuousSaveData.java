@@ -6,20 +6,23 @@ import java.io.UnsupportedEncodingException;
 import ch.euclidian.main.Main;
 
 public class ContinuousSaveData implements Runnable {
-  
+
   private static boolean running;
-  
+
   @Override
   public void run() {
-    setRunning(true);
     try {
-      Main.saveDataTxt();
-    } catch (FileNotFoundException e) {
-      e.printStackTrace();
-    } catch (UnsupportedEncodingException e) {
-      e.printStackTrace();
+      setRunning(true);
+      try {
+        Main.saveDataTxt();
+      } catch (FileNotFoundException e) {
+        e.printStackTrace();
+      } catch (UnsupportedEncodingException e) {
+        e.printStackTrace();
+      }
+    } finally {
+      setRunning(false); 
     }
-    setRunning(false);
   }
 
   public static boolean isRunning() {

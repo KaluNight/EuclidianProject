@@ -51,96 +51,98 @@ public class ContinuousKeepData implements Runnable {
 
   @Override
   public void run() {
+    try {
+      setRunning(true);
 
-    setRunning(true);
+      //Reset ChampionDataCache
+      Ressources.resetChampionCache();
 
-    //Reset ChampionDataCache
-    Ressources.resetChampionCache();
-    
-    statsChannel.sendTyping().complete();
-    statsChannel.sendMessage("Je commence l'analyse de vos parties de la semaine, cela devrait me prendre quelques minutes").complete();
+      statsChannel.sendTyping().complete();
+      statsChannel.sendMessage("Je commence l'analyse de vos parties de la semaine, cela devrait me prendre quelques minutes").complete();
 
-    setMessagesToSend(new ArrayList<>());
+      setMessagesToSend(new ArrayList<>());
 
-    messagesToSend.add("__**Rapports Hebdomadaire**__");
+      messagesToSend.add("__**Rapports Hebdomadaire**__");
 
-    for(int i = 0; i < Main.getPlayerList().size(); i++) {      
-      Player player = Main.getPlayerList().get(i);
+      for(int i = 0; i < Main.getPlayerList().size(); i++) {      
+        Player player = Main.getPlayerList().get(i);
 
-      LogHelper.logSender("Construction du rapport de " + player.getName());
+        LogHelper.logSender("Construction du rapport de " + player.getName());
 
-      Summoner summoner = player.getSummoner();
+        Summoner summoner = player.getSummoner();
 
-      String name = "";
-      if(player.isMentionnable()) {
-        name = player.getDiscordUser().getAsMention();
-      }else {
-        name = player.getDiscordUser().getName();
-      }
-      
-      messagesToSend.add("**Rapport pour " + name + " sur le compte " + summoner.getName() + ".**");
+        String name = "";
+        if(player.isMentionnable()) {
+          name = player.getDiscordUser().getAsMention();
+        }else {
+          name = player.getDiscordUser().getName();
+        }
 
-      MatchList matchHistory = null;
-      try {
-        matchHistory = Ressources.getRiotApi().getMatchListByAccountId
-            (Platform.EUW, summoner.getAccountId(), null, null, null, weekDateStart.getMillis(), weekDateEnd.getMillis(), -1, -1);
-      } catch (RiotApiException e) {
-        logger.debug(player.getDiscordUser().getName() + " ne possede pas de games pour la période envoyé");
-      }
+        messagesToSend.add("**Rapport pour " + name + " sur le compte " + summoner.getName() + ".**");
 
-      if(matchHistory != null) {
+        MatchList matchHistory = null;
+        try {
+          matchHistory = Ressources.getRiotApi().getMatchListByAccountId
+              (Platform.EUW, summoner.getAccountId(), null, null, null, weekDateStart.getMillis(), weekDateEnd.getMillis(), -1, -1);
+        } catch (RiotApiException e) {
+          logger.debug(player.getDiscordUser().getName() + " ne possede pas de games pour la période envoyé");
+        }
 
-        PlayerDataOfTheWeek playerDataOfTheWeek = getDataFromTheHistory(matchHistory, player.getSummoner());
+        if(matchHistory != null) {
 
-        if(playerDataOfTheWeek != null) {
-          List<PlayerDataOfTheWeek> savedDatasPlayer = Main.getPlayerList().get(i).getListDataOfWeek(); //Check if copy
-          savedDatasPlayer.add(playerDataOfTheWeek);
-          Main.getPlayerList().get(i).setListDataOfWeek(savedDatasPlayer);
+          PlayerDataOfTheWeek playerDataOfTheWeek = getDataFromTheHistory(matchHistory, player.getSummoner());
 
-          List<ChangedStats> changedStats = generatingStats(player);
+          if(playerDataOfTheWeek != null) {
+            List<PlayerDataOfTheWeek> savedDatasPlayer = Main.getPlayerList().get(i).getListDataOfWeek(); //Check if copy
+            savedDatasPlayer.add(playerDataOfTheWeek);
+            Main.getPlayerList().get(i).setListDataOfWeek(savedDatasPlayer);
 
-          if(!changedStats.isEmpty()) {
-            sendReport(player, changedStats);
+            List<ChangedStats> changedStats = generatingStats(player);
+
+            if(!changedStats.isEmpty()) {
+              sendReport(player, changedStats);
+            }
+          }else {
+            messagesToSend.add("Vos données n'ont pas pu être analysé D:");
           }
         }else {
-          messagesToSend.add("Vos données n'ont pas pu être analysé D:");
+          messagesToSend.add("Vous n'avez fait aucune partie cette semaine, je ne peux donc rien analyser :c");
         }
-      }else {
-        messagesToSend.add("Vous n'avez fait aucune partie cette semaine, je ne peux donc rien analyser :c");
       }
-    }
 
-    LogHelper.logSender("Analyse terminé, les rapports sont sauvegardés ...");
+      LogHelper.logSender("Analyse terminé, les rapports sont sauvegardés ...");
 
-    try {
-      saveData();
-      LogHelper.logSender("Donnés sauvegardés ! Les rapports sont envoyés ...");
-    } catch(IOException e) {
-      LogHelper.logSender("Des logs on essayé d'être écrite alors que Witer était fermé ! "
-          + "Les données ne sont donc pas sauvegardés");
-    }
+      try {
+        saveData();
+        LogHelper.logSender("Donnés sauvegardés ! Les rapports sont envoyés ...");
+      } catch(IOException e) {
+        LogHelper.logSender("Des logs on essayé d'être écrite alors que Witer était fermé ! "
+            + "Les données ne sont donc pas sauvegardés");
+      }
 
-    statsChannel.sendTyping().complete();
-    statsChannel.sendMessage("Me revoilà !\nVoici vos rapports :D").complete();
-
-    for(int i = 0; i < messagesToSend.size(); i++) {
       statsChannel.sendTyping().complete();
-      statsChannel.sendMessage(messagesToSend.get(i)).complete();
+      statsChannel.sendMessage("Me revoilà !\nVoici vos rapports :D").complete();
+
+      for(int i = 0; i < messagesToSend.size(); i++) {
+        statsChannel.sendTyping().complete();
+        statsChannel.sendMessage(messagesToSend.get(i)).complete();
+      }
+
+      LogHelper.logSender("Tous les rapports ont été envoyé !");
+
+      setWeekDateEnd(weekDateEnd.plusWeeks(1));
+      setWeekDateStart(weekDateStart.plusWeeks(1));
+
+      statsChannel.sendTyping().complete();
+      statsChannel.sendMessage("Le prochain rapport que je ferai sera le **"
+          + weekDateEnd.getDayOfMonth() + "." + weekDateEnd.getMonthOfYear() + "." + weekDateEnd.getYear() + " à "
+          + weekDateEnd.getHourOfDay() + ":" + weekDateEnd.getMinuteOfHour() + "**.\nPassez une bonne journée !").complete();
+
+      setMessagesToSend(new ArrayList<>());
+
+    }finally {
+      setRunning(false);
     }
-
-    LogHelper.logSender("Tous les rapports ont été envoyé !");
-
-    setWeekDateEnd(weekDateEnd.plusWeeks(1));
-    setWeekDateStart(weekDateStart.plusWeeks(1));
-
-    statsChannel.sendTyping().complete();
-    statsChannel.sendMessage("Le prochain rapport que je ferai sera le **"
-        + weekDateEnd.getDayOfMonth() + "." + weekDateEnd.getMonthOfYear() + "." + weekDateEnd.getYear() + " à "
-        + weekDateEnd.getHourOfDay() + ":" + weekDateEnd.getMinuteOfHour() + "**.\nPassez une bonne journée !").complete();
-
-    setMessagesToSend(new ArrayList<>());
-
-    setRunning(false);
   }
 
   private void saveData() throws IOException {

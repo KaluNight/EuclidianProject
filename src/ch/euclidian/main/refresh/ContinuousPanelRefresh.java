@@ -31,7 +31,7 @@ public class ContinuousPanelRefresh implements Runnable {
   private static LocalDateTime nextRefreshPanel;
 
   private static HashMap<Long, CurrentGameInfo> currentGames = new HashMap<>();
-  
+
   private static List<Long> gamesIdAlreadySended = new ArrayList<>();
 
   private static List<InfoCard> infoCards = new ArrayList<>();
@@ -42,59 +42,61 @@ public class ContinuousPanelRefresh implements Runnable {
 
   @Override
   public void run() {
+    try {
+      setRunning(true);
 
-    setRunning(true);
+      if(messagePanel == null) {
 
-    if(messagePanel == null) {
+        List<Message> messages = Main.getGuild().getTextChannelById(ID_PANNEAU_DE_CONTROLE).getIterableHistory().complete();
 
-      List<Message> messages = Main.getGuild().getTextChannelById(ID_PANNEAU_DE_CONTROLE).getIterableHistory().complete();
+        for(int i = 0; i < messages.size(); i++) {
+          if(messages.get(i).getAuthor().equals(Main.getJda().getSelfUser())) {
+            setMessagePanel(messages.get(i));
+          }
+        }
 
-      for(int i = 0; i < messages.size(); i++) {
-        if(messages.get(i).getAuthor().equals(Main.getJda().getSelfUser())) {
-          setMessagePanel(messages.get(i));
+        if(messagePanel == null) {
+          setMessagePanel(Main.getGuild().getTextChannelById(ID_PANNEAU_DE_CONTROLE).sendMessage("__**Panneau de controle**__\n \n*En chargement*").complete());
         }
       }
 
-      if(messagePanel == null) {
-        setMessagePanel(Main.getGuild().getTextChannelById(ID_PANNEAU_DE_CONTROLE).sendMessage("__**Panneau de controle**__\n \n*En chargement*").complete());
-      }
+      messagePanel.editMessage(refreshPannel()).queue();
+
+      manageInfoCards();
+
+    } finally {
+      setRunning(false);
     }
-
-    messagePanel.editMessage(refreshPannel()).queue();
-
-    manageInfoCards();
-
-    setRunning(false);
   }
 
   private void manageInfoCards() {
     TextChannel controlPannel = Main.getGuild().getTextChannelById(ID_PANNEAU_DE_CONTROLE);
 
     List<InfoCard> messageSended = createInfoCards(controlPannel);
-    
+
     infoCards.addAll(messageSended);
-    
+
     deleteOlderInfoCards();
   }
-  
+
   private void deleteOlderInfoCards() {
     List<InfoCard> cardsToRemove = new ArrayList<>();
-    
+
     for(int i = 0; i < infoCards.size(); i++) {
       InfoCard card = infoCards.get(i);
-      
+
       if(card.getCreationTime().plusMinutes(30).isBeforeNow()) {
         cardsToRemove.add(card);
       }
     }
-    
+
     for(int i = 0; i < cardsToRemove.size(); i++) {
       infoCards.remove(cardsToRemove.get(i));
       cardsToRemove.get(i).getMessage().delete().complete();
       cardsToRemove.get(i).getTitle().delete().complete();
     }
   }
-  
+
   private List<InfoCard> createInfoCards(TextChannel controlPannel){
 
     ArrayList<InfoCard> cards = new ArrayList<>();
@@ -106,7 +108,7 @@ public class ContinuousPanelRefresh implements Runnable {
       if(!playersAlreadyGenerated.contains(player)) {
 
         CurrentGameInfo currentGameInfo = currentGames.get(player.getSummoner().getId());
-        
+
         if(currentGameInfo != null && !gamesIdAlreadySended.contains(currentGameInfo.getGameId())) {
           List<Player> listOfPlayerInTheGame = checkIfOthersPlayersIsKnowInTheMatch(currentGameInfo);
           InfoCard card = null;
@@ -119,21 +121,21 @@ public class ContinuousPanelRefresh implements Runnable {
             }
           }else if(listOfPlayerInTheGame.size() > 1) {
             MessageEmbed messageCard = MessageBuilderRequest.createInfoCardsMultipleSummoner(listOfPlayerInTheGame, currentGameInfo);
-            
+
             if(messageCard != null) {
               card = new InfoCard(listOfPlayerInTheGame, messageCard);
             }
           }
-          
+
           playersAlreadyGenerated.addAll(listOfPlayerInTheGame);
           gamesIdAlreadySended.add(currentGameInfo.getGameId());
-          
+
           if(card != null) {
             List<Player> players = card.getPlayers();
-            
+
             StringBuilder title = new StringBuilder();
             title.append("Info sur la partie de");
-            
+
             List<String> playersName = NameConversion.getListNameOfPlayers(players);
 
             for(int j = 0; j < card.getPlayers().size(); j++) {
@@ -147,10 +149,10 @@ public class ContinuousPanelRefresh implements Runnable {
                 title.append(" " + playersName.get(j) + ",");
               }
             }
-            
+
             card.setTitle(controlPannel.sendMessage(title.toString()).complete());
             card.setMessage(controlPannel.sendMessage(card.getCard()).complete());
-            
+
             cards.add(card);
           }
         }
@@ -188,9 +190,9 @@ public class ContinuousPanelRefresh implements Runnable {
       }
       currentGames.put(Main.getPlayerList().get(i).getSummoner().getId(), actualGame); //Can be null
     }
-    
+
     stringMessage.append("__**Panneau de contrôle**__\n \n");
-    
+
     for(int i = 0; i < teamList.size(); i++) {
 
       stringMessage.append("**Division " + teamList.get(i).getName() + "**\n \n");
@@ -201,7 +203,7 @@ public class ContinuousPanelRefresh implements Runnable {
         stringMessage.append(playersList.get(j).getSummoner().getName() + " (" + playersList.get(j).getDiscordUser().getAsMention() + ") : ");
 
         CurrentGameInfo actualGame = currentGames.get(playersList.get(j).getSummoner().getId());
-        
+
         if(actualGame == null) {
           stringMessage.append("Pas en game\n");
         }else {
