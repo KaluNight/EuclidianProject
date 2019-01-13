@@ -308,7 +308,13 @@ public class Main {
 
           ArrayList<Player> players = new ArrayList<Player>();
           for(int i = 0; i < numberOfPlayer; i++) {
-            players.add(getPlayersByDiscordId(reader.readLine()));
+            String id = reader.readLine();
+            Player player = getPlayersByDiscordId(id);
+            
+            if(player != null) {
+              players.add(player);
+            }
+
           }
 
           team.setPlayers(players);

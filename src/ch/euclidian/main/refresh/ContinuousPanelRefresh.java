@@ -64,7 +64,9 @@ public class ContinuousPanelRefresh implements Runnable {
 
       manageInfoCards();
 
-    } finally {
+    } catch (Exception e) {
+      logger.error(e.getMessage());
+    }finally {
       setRunning(false);
     }
   }
