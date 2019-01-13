@@ -108,7 +108,7 @@ public class RiotRequest {
       if(match != null) {
         Participant participant = match.getParticipantByAccountId(summoner.getAccountId());
 
-        if(participant.getTimeline().getCreepsPerMinDeltas() != null) {
+        if(participant != null && participant.getTimeline().getCreepsPerMinDeltas() != null) {
 
           String result = match.getTeamByTeamId(participant.getTeamId()).getWin();
           if(result.equalsIgnoreCase("Win") || result.equalsIgnoreCase("Fail")) {
