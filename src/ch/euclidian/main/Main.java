@@ -286,7 +286,9 @@ public class Main {
             User user = jda.getUserById(discordID);
             Summoner summoner = Ressources.getRiotApi().getSummonerByAccount(Platform.EUW, accountId);
 
-            playerList.add(new Player(discordName, user, summoner, mentionable));
+            if(user != null && summoner != null) {
+              playerList.add(new Player(discordName, user, summoner, mentionable));
+            }
           }
 
         } else if (line.equals("--t")) {
@@ -376,7 +378,6 @@ public class Main {
         return true;
       }
     }
-
     return false;
   }
 
