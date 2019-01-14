@@ -154,7 +154,8 @@ public class Main {
         int key = element.getAsJsonObject().get("key").getAsInt();
         String id = element.getAsJsonObject().get("id").getAsString();
         String name = element.getAsJsonObject().get("name").getAsString();
-        champions.add(new Champion(key, id, name));
+        File championLogo = new File("ressources/images/" + element.getAsJsonObject().get("image").getAsJsonObject().get("full").getAsString());
+        champions.add(new Champion(key, id, name, championLogo));
       }
 
     } catch(IOException e) {

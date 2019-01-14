@@ -1,14 +1,17 @@
 package ch.euclidian.main.model;
 
-public class Champion
-{
+import java.io.File;
+
+public class Champion {
   private int key;
   private String id;
   private String name;
+  private File championLogo;
 
-  public Champion(final int key, final String id, final String name) {
+  public Champion(final int key, final String id, final String name, File championLogo) {
     this.id = id;
     this.key = key;
+    this.name = name;
     this.name = name;
   }
 
@@ -34,5 +37,13 @@ public class Champion
 
   public void setName(final String name) {
     this.name = name;
+  }
+
+  public File getChampionLogo() {
+    return championLogo;
+  }
+
+  public void setChampionLogo(File championLogo) {
+    this.championLogo = championLogo;
   }
 }

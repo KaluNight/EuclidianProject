@@ -214,7 +214,7 @@ public class EventListener extends ListenerAdapter{
 
     boolean isAdmin = false;
 
-    isAdmin = isAdminByRoles(rolesOfSender, isAdmin);
+    isAdmin = isAdminByRoles(rolesOfSender);
 
     if(event.getTextChannel().getId().equals(ID_POSTULATION_CHANNEL) && message.charAt(0) != PREFIX && !isAdmin
         && !Main.getJda().getSelfUser().equals(event.getAuthor())){
@@ -391,7 +391,8 @@ public class EventListener extends ListenerAdapter{
     return roles;
   }
 
-  private boolean isAdminByRoles(List<Role> rolesOfSender, boolean isAdmin) {
+  private boolean isAdminByRoles(List<Role> rolesOfSender) {
+    boolean isAdmin = false;
     for(int i = 0; i < rolesOfSender.size(); i++) {
       if(rolesOfSender.get(i).getId().equals(ADMIN_ROLE_ID)) {
         isAdmin = true;
