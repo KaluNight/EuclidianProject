@@ -37,16 +37,20 @@ import ch.euclidian.main.util.Ressources;
 import ch.euclidian.main.util.SleeperRateLimitHandler;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.core.util.StatusPrinter;
-
+import net.dv8tion.jda.client.managers.EmoteManager;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.entities.Category;
+import net.dv8tion.jda.core.entities.Emote;
+import net.dv8tion.jda.core.entities.EntityBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.impl.EmoteImpl;
+import net.dv8tion.jda.core.entities.impl.GuildImpl;
 import net.dv8tion.jda.core.managers.GuildController;
 import net.rithms.riot.api.ApiConfig;
 import net.rithms.riot.api.RiotApi;
@@ -148,7 +152,7 @@ public class Main {
       JsonObject object = parser.parse(fr).getAsJsonObject().get("data").getAsJsonObject();
       Set<Map.Entry<String, JsonElement>> list = object.entrySet();
       Iterator<Map.Entry<String, JsonElement>> iterator = list.iterator();
-
+      
       while (iterator.hasNext()) {
         JsonElement element = iterator.next().getValue();
         int key = element.getAsJsonObject().get("key").getAsInt();

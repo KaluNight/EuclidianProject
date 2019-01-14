@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import ch.euclidian.main.util.NameConversion;
 import ch.euclidian.main.util.Ressources;
 import net.rithms.riot.api.RiotApiException;
+import net.rithms.riot.api.endpoints.champion_mastery.dto.ChampionMastery;
 import net.rithms.riot.api.endpoints.league.dto.LeaguePosition;
 import net.rithms.riot.api.endpoints.match.dto.Match;
 import net.rithms.riot.api.endpoints.match.dto.MatchList;
@@ -130,6 +131,102 @@ public class RiotRequest {
 
     return df.format((nbrWin / (double) nbrGames) * 100) + "% (" + nbrGames + " parties)";
   }
+  
+  public static String getMasterysScore(long summonerId, int championId) {
+    ChampionMastery mastery = null;
+    try {
+      mastery = Ressources.getRiotApi().getChampionMasteriesBySummonerByChampion(Platform.EUW, summonerId, championId);
+    } catch (RiotApiException e) {
+      logger.warn("Impossible d'obtenir le score de mastery : {}", e.getMessage());
+      return "?";
+    }
+    
+    long points = mastery.getChampionPoints();
+    if(points > 1000 && points < 1000000) {
+      return points / 1000 + "K";
+    }else if (points > 1000000) {
+      return points / 1000000 + "M";
+    }else {
+      return Long.toString(points);
+    }
+  }
+  
+  public static String getMood(long summonerId) {
+    DateTime actualTime = DateTime.now();
+
+    Summoner summoner;
+    try {
+      summoner = Ressources.getRiotApi().getSummoner(Platform.EUW, summonerId);
+    }catch (RiotApiException e) {
+      logger.warn("Impossible d'obtenir le summoner : {}" , e.getMessage());
+      return "Aucune donnés";
+    }
+
+    List<MatchReference> matchesReferences = new ArrayList<>();
+
+    DateTime beginTime = actualTime.minusHours(3);
+
+    MatchList matchList = null;
+
+    try {
+      matchList =  Ressources.getRiotApi().getMatchListByAccountId
+          (Platform.EUW, summoner.getAccountId(), null, null, null, beginTime.getMillis(), actualTime.getMillis(), -1, -1);
+    } catch (RiotApiException e) {
+      logger.warn("Impossible d'obtenir la list de match : {}", e.getMessage());
+    }
+    
+    if(matchList != null) {
+      matchesReferences.addAll(matchList.getMatches());
+    }
+    
+    int nbrGames = 0;
+    int nbrWin = 0;
+    
+    for(int i = 0; i < matchesReferences.size(); i++) {
+      MatchReference matchReference = matchesReferences.get(i);
+
+      Match match = null;
+      try {
+        match = Ressources.getRiotApi().getMatch(Platform.EUW, matchReference.getGameId());
+      } catch (RiotApiException e) {
+        logger.warn("Match ungetable from api : {}", e.getMessage());
+      }
+
+      if(match != null) {
+        Participant participant = match.getParticipantByAccountId(summoner.getAccountId());
+
+        if(participant != null && participant.getTimeline().getCreepsPerMinDeltas() != null) {
+
+          String result = match.getTeamByTeamId(participant.getTeamId()).getWin();
+          if(result.equalsIgnoreCase("Win") || result.equalsIgnoreCase("Fail")) {
+            nbrGames++;
+          }
+
+          if(result.equalsIgnoreCase("Win")) {
+            nbrWin++;
+          }
+        }
+      }
+    }
+    
+    if(nbrGames == 0) {
+      return "Inconnu";
+    }else if(nbrWin == 0 && nbrGames >= 3) {
+      return "Très mauvais";
+    }
+    
+    double winrate = (nbrWin / (double) nbrGames) * 100;
+  
+    if(winrate == 100 && nbrGames >= 2) {
+      return "Excellent";
+    } else if(winrate < 50) {
+      return "Mauvais";
+    } else if (winrate > 50) {
+      return "Bon";
+    }
+    
+    return "Inconnu";
+  }
 
   public static String getActualGameStatus(CurrentGameInfo currentGameInfo) {
 
@@ -149,3 +246,4 @@ public class RiotRequest {
     return gameStatus;
   }
 }
+  
