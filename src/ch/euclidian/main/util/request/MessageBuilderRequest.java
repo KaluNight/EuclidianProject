@@ -90,7 +90,7 @@ public class MessageBuilderRequest {
     
     message.addField("Équipe Bleu", blueTeamString.toString(), true);
     message.addField("Grades", blueTeamRankString.toString(), true);
-    message.addField("Maitrise | Mood", blueTeamWinRateLastMonth.toString(), true);
+    message.addField("Maitrise | *États d'esprit*", blueTeamWinRateLastMonth.toString(), true);
 
     StringBuilder redTeamString = new StringBuilder();
     StringBuilder redTeamRankString = new StringBuilder();
@@ -121,7 +121,7 @@ public class MessageBuilderRequest {
     
     message.addField("Équipe Rouge", redTeamString.toString(), true);
     message.addField("Grades", redTeamRankString.toString(), true);
-    message.addField("Maitrise | Mood", redTeamWinrateString.toString(), true);
+    message.addField("Maitrise | *États d'esprit*", redTeamWinrateString.toString(), true);
 
     double minutesOfGames = (match.getGameLength() + 180.0) / 60.0;
     String[] stringMinutesSecondes = Double.toString(minutesOfGames).split("\\.");
@@ -215,7 +215,7 @@ public class MessageBuilderRequest {
 
     message.addField("Équipe Bleu", blueTeamString.toString(), true);
     message.addField("Grades", blueTeamRankString.toString(), true);
-    message.addField("Maitrise | Mood", blueTeamWinrateString.toString(), true);
+    message.addField("Maitrise | *États d'esprit*", blueTeamWinrateString.toString(), true);
 
     StringBuilder redTeamString = new StringBuilder();
     StringBuilder redTeamRankString = new StringBuilder();
@@ -247,7 +247,7 @@ public class MessageBuilderRequest {
 
     message.addField("Équipe Rouge", redTeamString.toString(), true);
     message.addField("Grades", redTeamRankString.toString(), true);
-    message.addField("Maitrises | Mood", redTeamWinrateString.toString(), true);
+    message.addField("Maitrises | *États d'esprit*", redTeamWinrateString.toString(), true);
 
     double minutesOfGames = (currentGameInfo.getGameLength() + 180.0) / 60.0;
     String[] stringMinutesSecondes = Double.toString(minutesOfGames).split("\\.");

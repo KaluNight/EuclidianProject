@@ -4,6 +4,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +41,8 @@ public class ContinuousPanelRefresh implements Runnable {
   private static List<InfoCard> infoCards = new ArrayList<>();
 
   private static Message messagePanel;
+  
+  private static final DateTimeFormatter timeFormatter = DateTimeFormat.forPattern("HH:mm");
 
   private static Logger logger = LoggerFactory.getLogger(ContinuousPanelRefresh.class);
 
@@ -215,6 +221,9 @@ public class ContinuousPanelRefresh implements Runnable {
       }
       stringMessage.append(" \n");
     }
+    
+    stringMessage.append("\nDernier rafraichissement le : " + DateTime.now().plusHours(1).toString(timeFormatter) 
+        + " | *Rafraichi toutes les 3 minutes*");
 
     return stringMessage.toString();
   }
