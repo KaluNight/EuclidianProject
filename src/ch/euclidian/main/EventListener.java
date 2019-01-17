@@ -13,9 +13,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.euclidian.main.model.Team;
-import ch.euclidian.main.refresh.ContinuousTimeChecking;
+import ch.euclidian.main.refresh.event.ContinuousTimeChecking;
+import ch.euclidian.main.refresh.event.TwitchChannelEvent;
 import ch.euclidian.main.util.LogHelper;
 import ch.euclidian.main.util.Ressources;
+import me.philippheuer.twitch4j.TwitchClient;
+import me.philippheuer.twitch4j.TwitchClientBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
@@ -46,6 +49,8 @@ public class EventListener extends ListenerAdapter{
   private static final String ID_POSTULATION_CHANNEL = "497763778268495882";
 
   private static final String ID_REPORT_CHANNEL = "513422522637877266";
+  
+  private static final String TWITCH_CHANNEL_NAME = "kalunight";
 
   private static Message statusReportMessage;
 
@@ -57,7 +62,7 @@ public class EventListener extends ListenerAdapter{
     Main.setGuild(Main.getLogBot().getGuild());
     Main.setController(Main.getGuild().getController());
 
-    ArrayList<Permission> teamMemberPermissionList = new ArrayList<Permission>();
+    ArrayList<Permission> teamMemberPermissionList = new ArrayList<>();
 
     //Text Permission
     teamMemberPermissionList.add(Permission.MESSAGE_WRITE);
@@ -150,6 +155,22 @@ public class EventListener extends ListenerAdapter{
     TimerTask mainThread = new ContinuousTimeChecking();
     timerTask.schedule(mainThread, 0, 10000); //10 secondes
   }
+  
+  private void initTwitchClient() {
+    TwitchClient twitchClient = TwitchClientBuilder.init()
+        .withClientId(Ressources.getTwitchClientId())
+        .withClientSecret(Ressources.getTwitchClientSecret())
+        .withCredential(Ressources.getTwitchCredential())
+        .withAutoSaveConfiguration(true)
+        .build();
+    twitchClient.connect();
+    
+    twitchClient.getDispatcher().registerListener(new TwitchChannelEvent());
+
+    Ressources.setTwitchApi(twitchClient);
+    Ressources.setMessageInterface(twitchClient.getMessageInterface());
+    Ressources.getMessageInterface().joinChannel(TWITCH_CHANNEL_NAME);
+  }
 
   @Override
   public void onReady(ReadyEvent event) {
@@ -189,7 +210,11 @@ public class EventListener extends ListenerAdapter{
     }
 
     LogHelper.logSenderDirectly("Chargement des données des joueurs terminé !");
-
+    LogHelper.logSenderDirectly("Connection à l'api Twitch...");
+    
+    initTwitchClient();
+    
+    LogHelper.logSenderDirectly("Connection à l'api Twitch effectué !");
     LogHelper.logSenderDirectly("Démarrage des tâches continue...");
 
     setupContinousRefreshThread();
@@ -365,16 +390,26 @@ public class EventListener extends ListenerAdapter{
       } else if (command.equals("stop")) {
         statusReportMessage.editMessage("Status : Hors Ligne").complete();
         event.getTextChannel().sendTyping().complete();
+        
+        timerTask.cancel();
+        ContinuousTimeChecking.shutdownThreadPool();
         event.getTextChannel().sendMessage("Je suis down !").complete();
+        Main.getJda().shutdownNow();
+        
         try {
           Main.saveDataTxt();
         } catch (IOException e) {
-          System.out.println("Erreur Save");
+          logger.error("Erreur de sauvegarde : {}", e.getMessage());
         }
-        Main.getJda().shutdownNow();
-
-        ContinuousTimeChecking.shutdownThreadPool();
-        timerTask.cancel();
+        
+        try {
+          Ressources.getMessageInterface().leaveChannel(TWITCH_CHANNEL_NAME);
+        } catch (NullPointerException e) {
+          logger.warn("NullPointerException : {}", e.getMessage());
+        }
+        
+        Ressources.getTwitchApi().disconnect();
+        System.exit(0);
       }
     }
 

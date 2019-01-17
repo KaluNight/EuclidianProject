@@ -30,8 +30,8 @@ import ch.euclidian.main.model.Player;
 import ch.euclidian.main.model.PlayerDataOfTheWeek;
 import ch.euclidian.main.model.Postulation;
 import ch.euclidian.main.model.Team;
-import ch.euclidian.main.refresh.ContinuousKeepData;
-import ch.euclidian.main.refresh.ContinuousTimeChecking;
+import ch.euclidian.main.refresh.event.ContinuousKeepData;
+import ch.euclidian.main.refresh.event.ContinuousTimeChecking;
 import ch.euclidian.main.util.LogHelper;
 import ch.euclidian.main.util.Ressources;
 import ch.euclidian.main.util.SleeperRateLimitHandler;
@@ -97,12 +97,18 @@ public class Main {
 
     String discordTocken = "";
     String riotTocken = "";
+    String twitchClientID = "";
+    String twitchClientSecret = "";
+    String twitchCredential = "";
 
     if(args.length == 0) {
 
       try (BufferedReader reader = new BufferedReader(new FileReader(SECRET_FILE));){
         discordTocken = reader.readLine();
         riotTocken = reader.readLine();
+        twitchClientID = reader.readLine();
+        twitchClientSecret = reader.readLine();
+        twitchCredential = reader.readLine();
       }catch (Exception e) {
         logger.error(e.getMessage());
       }
@@ -112,8 +118,15 @@ public class Main {
     }else {
       discordTocken = args[0];
       riotTocken = args[1];
+      twitchClientID = args[2];
+      twitchClientSecret = args[3];
+      twitchCredential = args[4];
     }
 
+    Ressources.setTwitchClientId(twitchClientID);
+    Ressources.setTwitchClientSecret(twitchClientSecret);
+    Ressources.setTwitchCredential(twitchCredential);
+    
     try {
       jda = new JDABuilder(AccountType.BOT).setToken(discordTocken).build();
     } catch (IndexOutOfBoundsException e) {
@@ -408,6 +421,15 @@ public class Main {
   public static Player getPlayersByDiscordId(String id) {
     for(int i = 0; i < playerList.size(); i++) {
       if(playerList.get(i).getDiscordUser().getId().equals(id)) {
+        return playerList.get(i);
+      }
+    }
+    return null;
+  }
+  
+  public static Player getPlayerBySummonerName(String summonerName) {
+    for(int i = 0; i < playerList.size(); i++) {
+      if(playerList.get(i).getSummoner().getName().equals(summonerName)) {
         return playerList.get(i);
       }
     }

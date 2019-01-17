@@ -1,4 +1,4 @@
-package ch.euclidian.main.refresh;
+package ch.euclidian.main.refresh.event;
 
 import java.util.TimerTask;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -18,15 +18,15 @@ public class ContinuousTimeChecking extends TimerTask{
   private static DateTime nextTimeSaveData;
 
   private static DateTime nextTimeSendReport;
-  
+
   private static DateTime nextTimeStatusRefresh;
 
   private static int nbProcs = Runtime.getRuntime().availableProcessors();
 
-  private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(nbProcs, nbProcs, 1000,
+  private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(nbProcs, nbProcs, 30,
       TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
 
-  Logger logger = LoggerFactory.getLogger(getClass());
+  private static Logger logger = LoggerFactory.getLogger(ContinuousTimeChecking.class);
 
   @Override
   public void run() {
@@ -57,7 +57,7 @@ public class ContinuousTimeChecking extends TimerTask{
         ContinuousStatusRefresh.setStatus(BotStatus.SAVE_DATA);
       }
     }
-    
+
     if(nextTimeStatusRefresh.isBeforeNow()) {
       logger.info("Launch Status refresh");
       setNextTimeStatusRefresh(nextTimeStatusRefresh.plusSeconds(30));
@@ -90,9 +90,9 @@ public class ContinuousTimeChecking extends TimerTask{
   public static void setNextTimeSendReport(DateTime nextTimeSendReport) {
     ContinuousTimeChecking.nextTimeSendReport = nextTimeSendReport;
   }
-  
+
   public static void shutdownThreadPool() {
-    threadPoolExecutor.shutdown();
+    threadPoolExecutor.shutdownNow();
   }
 
   public static DateTime getNextTimeStatusRefresh() {

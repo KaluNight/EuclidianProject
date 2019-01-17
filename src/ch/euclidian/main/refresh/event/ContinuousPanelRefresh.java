@@ -1,4 +1,4 @@
-package ch.euclidian.main.refresh;
+package ch.euclidian.main.refresh.event;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
