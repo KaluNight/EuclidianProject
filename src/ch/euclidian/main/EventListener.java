@@ -483,6 +483,7 @@ public class EventListener extends ListenerAdapter{
       musicManager.player.stopTrack();
       musicManager.scheduler.deleteTheQueue();
       Ressources.getMusicBot().getAudioManager().closeAudioConnection();
+      Ressources.getMusicBot().setActualVoiceChannel(null);
       
       event.getChannel().sendMessage("J'ai quitté le channel et supprimé la playList").queue();
     }
