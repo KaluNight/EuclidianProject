@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.euclidian.main.model.Team;
+import ch.euclidian.main.music.BotMusicManager;
 import ch.euclidian.main.refresh.event.ContinuousTimeChecking;
 import ch.euclidian.main.refresh.event.TwitchChannelEvent;
 import ch.euclidian.main.util.LogHelper;
@@ -20,12 +21,15 @@ import ch.euclidian.main.util.Ressources;
 import me.philippheuer.twitch4j.TwitchClient;
 import me.philippheuer.twitch4j.TwitchClientBuilder;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Channel;
+import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.PrivateChannel;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
@@ -154,7 +158,7 @@ public class EventListener extends ListenerAdapter{
     TimerTask mainThread = new ContinuousTimeChecking();
     timerTask.schedule(mainThread, 0, 10000); //10 secondes
   }
-  
+
   private void initTwitchClient() {
     TwitchClient twitchClient = TwitchClientBuilder.init()
         .withClientId(Ressources.getTwitchClientId())
@@ -163,15 +167,22 @@ public class EventListener extends ListenerAdapter{
         .withAutoSaveConfiguration(true)
         .build();
     twitchClient.connect();
-    
+
     twitchClient.getDispatcher().registerListener(new TwitchChannelEvent());
 
     Ressources.setTwitchApi(twitchClient);
     Ressources.setMessageInterface(twitchClient.getMessageInterface());
     Ressources.setChannelEndpoint(twitchClient.getChannelEndpoint());
     Ressources.setStreamEndpoint(twitchClient.getStreamEndpoint());
-    
+
     Ressources.getMessageInterface().joinChannel(Ressources.TWITCH_CHANNEL_NAME);
+  }
+
+  private void initMusicBot() {
+    BotMusicManager musicBot = new BotMusicManager();
+    Main.getGuild().getAudioManager().setSendingHandler(musicBot.getMusicManager().getSendHandler());
+    musicBot.setAudioManager(Main.getGuild().getAudioManager());
+    Ressources.setMusicBot(musicBot);
   }
 
   @Override
@@ -212,10 +223,15 @@ public class EventListener extends ListenerAdapter{
     }
 
     LogHelper.logSenderDirectly("Chargement des données des joueurs terminé !");
+    LogHelper.logSenderDirectly("Démarrage de la partie musique Bot...");
+
+    initMusicBot();
+
+    LogHelper.logSenderDirectly("Démarrage de la partie musique Bot terminé !");
     LogHelper.logSenderDirectly("Connection à l'api Twitch...");
-    
+
     initTwitchClient();
-    
+
     LogHelper.logSenderDirectly("Connection à l'api Twitch effectué !");
     LogHelper.logSenderDirectly("Démarrage des tâches continue...");
 
@@ -384,7 +400,7 @@ public class EventListener extends ListenerAdapter{
           result = Ressources.getRiotApi().getSummonerByName(Platform.EUW, message.substring(13));
         } catch (RiotApiException e) {
           e.printStackTrace();
-          event.getTextChannel().sendMessage("Erreur d'app").queue();
+          event.getTextChannel().sendMessage("Erreur d'api").queue();
           return;
         }
         event.getTextChannel().sendMessage("Account Id de " + result.getName() + " : " + result.getAccountId()).queue();
@@ -392,24 +408,24 @@ public class EventListener extends ListenerAdapter{
       } else if (command.equals("stop")) {
         statusReportMessage.editMessage("Status : Hors Ligne").complete();
         event.getTextChannel().sendTyping().complete();
-        
+
         timerTask.cancel();
         ContinuousTimeChecking.shutdownThreadPool();
         event.getTextChannel().sendMessage("Je suis down !").complete();
         Main.getJda().shutdownNow();
-        
+
         try {
           Main.saveDataTxt();
         } catch (IOException e) {
           logger.error("Erreur de sauvegarde : {}", e.getMessage());
         }
-        
+
         try {
           Ressources.getMessageInterface().leaveChannel(Ressources.TWITCH_CHANNEL_NAME);
         } catch (NullPointerException e) {
           logger.warn("NullPointerException : {}", e.getMessage());
         }
-        
+
         Ressources.getTwitchApi().disconnect();
         System.exit(0);
       }
@@ -419,6 +435,43 @@ public class EventListener extends ListenerAdapter{
       event.getTextChannel().sendTyping().queue();
       String result = CommandManagement.registerCommand(message.substring(9), event.getAuthor(), true);
       event.getTextChannel().sendMessage(result).queue();
+    }else if(command.equals("play")) {
+      String[] stringSplit = message.split(" ");
+      if(stringSplit.length == 2) {
+        String url = stringSplit[1];
+        BotMusicManager botMusique = Ressources.getMusicBot();
+        VoiceChannel actualVoiceChannel = botMusique.getActualVoiceChannel();
+
+        if(actualVoiceChannel == null) {
+
+          List<Channel> channels = Main.getGuild().getChannels();
+
+          for(int i = 0; i < channels.size(); i++) {
+            if(channels.get(i).getType().equals(ChannelType.VOICE)) {
+              List<Member> inVoiceChannel = channels.get(i).getMembers();
+
+              for(Member member : inVoiceChannel) {
+                if(member.getUser().getId().equals(event.getAuthor().getId())) {
+                  actualVoiceChannel = Main.getGuild().getVoiceChannelById(channels.get(i).getId());
+                  break;
+                }
+              }
+              if(actualVoiceChannel != null) {
+                break;
+              }
+            }
+          }
+        }
+        if(actualVoiceChannel == null) {
+          event.getTextChannel().sendMessage("Veuillez rentrez dans un channel vocal pour que je puisse vous rejoindre").queue();
+        }else {
+          botMusique.setActualVoiceChannel(actualVoiceChannel);
+          botMusique.loadAndPlay(event.getTextChannel(), url);
+        }
+        
+      }else {
+        event.getTextChannel().sendMessage("Vous n'avez envoyé aucun URL avec le message !").queue();
+      }
     }
   }
 

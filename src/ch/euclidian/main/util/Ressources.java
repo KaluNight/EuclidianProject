@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.euclidian.main.model.Champion;
+import ch.euclidian.main.music.BotMusicManager;
 import me.philippheuer.twitch4j.TwitchClient;
 import me.philippheuer.twitch4j.endpoints.ChannelEndpoint;
 import me.philippheuer.twitch4j.endpoints.StreamEndpoint;
@@ -24,6 +25,8 @@ public class Ressources {
   private static ChannelEndpoint channelEndpoint;
 
   private static StreamEndpoint streamEndpoint;
+  
+  private static BotMusicManager musicBot;
   
   public static final String TWITCH_CHANNEL_NAME = "batailloneuclidien";
 
@@ -123,5 +126,13 @@ public class Ressources {
 
   public static void setStreamEndpoint(StreamEndpoint streamEndpoint) {
     Ressources.streamEndpoint = streamEndpoint;
+  }
+
+  public static BotMusicManager getMusicBot() {
+    return musicBot;
+  }
+
+  public static void setMusicBot(BotMusicManager musicBot) {
+    Ressources.musicBot = musicBot;
   }
 }
