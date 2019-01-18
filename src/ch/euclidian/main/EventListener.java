@@ -415,7 +415,7 @@ public class EventListener extends ListenerAdapter{
         musicManager.scheduler.deleteTheQueue();
         Ressources.getMusicBot().getAudioManager().closeAudioConnection();
         Ressources.getMusicBot().setActualVoiceChannel(null);
-        
+
         timerTask.cancel();
         ContinuousTimeChecking.shutdownThreadPool();
         event.getTextChannel().sendMessage("Je suis down !").complete();
@@ -476,7 +476,7 @@ public class EventListener extends ListenerAdapter{
           botMusique.setActualVoiceChannel(actualVoiceChannel);
           botMusique.loadAndPlay(event.getTextChannel(), url);
         }
-        
+
       }else {
         event.getTextChannel().sendMessage("Vous n'avez envoyé aucun URL avec le message,"
             + " je ne peux pas faire grand chose sans ¯\\_(ツ)_/¯").queue();
@@ -485,6 +485,10 @@ public class EventListener extends ListenerAdapter{
       event.getTextChannel().sendTyping().complete();
       String result = Ressources.getMusicBot().skipActualTrack();
       event.getTextChannel().sendMessage(result).queue();
+    }else if(command.equals("reset")) {
+      event.getTextChannel().sendTyping().complete();
+      Ressources.getMusicBot().clearQueue();
+      event.getTextChannel().sendMessage("J'ai supprimé les musiques qui était dans ma liste d'attente").queue();
     }else if(command.equals("leave")) {
       event.getTextChannel().sendTyping().complete();
       Ressources.getMusicBot().leaveVoiceChannel();

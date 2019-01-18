@@ -88,6 +88,10 @@ public class BotMusicManager {
     setActualVoiceChannel(null);
     setActualTextChannel(null);
   }
+  
+  public void clearQueue() {
+    musicManager.scheduler.deleteTheQueue();
+  }
 
   private void play(MusicManager musicManager, AudioTrack track) {
     audioManager.openAudioConnection(actualVoiceChannel);
