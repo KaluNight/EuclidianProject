@@ -5,6 +5,8 @@ import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 
+import ch.euclidian.main.util.Ressources;
+
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -58,6 +60,14 @@ public class TrackScheduler extends AudioEventAdapter {
     // Only start the next track if the end reason is suitable for it (FINISHED or LOAD_FAILED)
     if (endReason.mayStartNext) {
       nextTrack();
+      
+      if(player.getPlayingTrack() != null) {
+        Ressources.getMusicBot().getActualTextChannel()
+        .sendMessage("Vous écoutez maintenant \"" + player.getPlayingTrack().getInfo().title + "\"").queue();
+      }else {
+        Ressources.getMusicBot().getActualTextChannel()
+        .sendMessage("La dernière musique de la liste vient de se terminer. Je ne joue donc plus rien").queue();
+      }
     }
   }
 }
