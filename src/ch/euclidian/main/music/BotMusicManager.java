@@ -17,6 +17,7 @@ public class BotMusicManager {
   private AudioPlayerManager playerManager;
   private MusicManager musicManager;
   private VoiceChannel actualVoiceChannel;
+  private TextChannel actualTextChannel;
   private AudioManager audioManager;
 
   public BotMusicManager() {
@@ -27,7 +28,8 @@ public class BotMusicManager {
   }
 
   public void loadAndPlay(final TextChannel channel, final String trackUrl) {
-
+    setActualTextChannel(channel);
+    
     playerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
       @Override
       public void trackLoaded(AudioTrack track) {
@@ -40,13 +42,17 @@ public class BotMusicManager {
       public void playlistLoaded(AudioPlaylist playlist) {
         AudioTrack firstTrack = playlist.getSelectedTrack();
 
-        if (firstTrack == null) {
-          firstTrack = playlist.getTracks().get(0);
+        if(firstTrack != null) {
+          channel.sendMessage("Ajout à la liste de : " + firstTrack.getInfo().title + ")").queue();
+          play(musicManager, firstTrack);
+        }else {
+          for(AudioTrack track : playlist.getTracks()) {
+            musicManager.scheduler.queue(track);
+          }
+          channel.sendMessage("Ajout de la playlist \"" + playlist.getName() + "\" dans la liste").queue();
+
+          audioManager.openAudioConnection(actualVoiceChannel);
         }
-
-        channel.sendMessage("Ajout à la liste de la playlist : " + firstTrack.getInfo().title + " (Première musique " + playlist.getName() + ")").queue();
-
-        play(musicManager, firstTrack);
       }
 
       @Override
@@ -59,6 +65,28 @@ public class BotMusicManager {
         channel.sendMessage("Erreur dans le chargement de la musique : " + exception.getMessage()).queue();
       }
     });
+  }
+  
+  public String skipActualTrack() {
+    String oldTrack = "";
+    
+    oldTrack = musicManager.player.getPlayingTrack().getInfo().title;
+    musicManager.scheduler.nextTrack();
+    
+    if(musicManager.player.getPlayingTrack() == null) {
+      return "Musique \"" + oldTrack + "\" passé. Aucune musique suivante dans la liste";
+    }else {
+      String newTrack = musicManager.player.getPlayingTrack().getInfo().title;
+      return "Musique \"" + oldTrack + "\" passé. Vous écoutez maintenant \"" + newTrack + "\"";
+    }
+  }
+  
+  public void leaveVoiceChannel() {
+    musicManager.player.stopTrack();
+    musicManager.scheduler.deleteTheQueue();
+    audioManager.closeAudioConnection();
+    setActualVoiceChannel(null);
+    setActualTextChannel(null);
   }
 
   private void play(MusicManager musicManager, AudioTrack track) {
@@ -94,6 +122,14 @@ public class BotMusicManager {
 
   public void setAudioManager(AudioManager audioManager) {
     this.audioManager = audioManager;
+  }
+
+  public TextChannel getActualTextChannel() {
+    return actualTextChannel;
+  }
+
+  public void setActualTextChannel(TextChannel actualTextChannel) {
+    this.actualTextChannel = actualTextChannel;
   }
 
 }

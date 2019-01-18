@@ -410,6 +410,12 @@ public class EventListener extends ListenerAdapter{
         statusReportMessage.editMessage("Status : Hors Ligne").complete();
         event.getTextChannel().sendTyping().complete();
 
+        MusicManager musicManager = Ressources.getMusicBot().getMusicManager();
+        musicManager.player.stopTrack();
+        musicManager.scheduler.deleteTheQueue();
+        Ressources.getMusicBot().getAudioManager().closeAudioConnection();
+        Ressources.getMusicBot().setActualVoiceChannel(null);
+        
         timerTask.cancel();
         ContinuousTimeChecking.shutdownThreadPool();
         event.getTextChannel().sendMessage("Je suis down !").complete();
@@ -437,6 +443,7 @@ public class EventListener extends ListenerAdapter{
       String result = CommandManagement.registerCommand(message.substring(9), event.getAuthor(), true);
       event.getTextChannel().sendMessage(result).queue();
     }else if(command.equals("play")) {
+      event.getTextChannel().sendTyping().complete();
       String[] stringSplit = message.split(" ");
       if(stringSplit.length == 2) {
         String url = stringSplit[1];
@@ -475,17 +482,13 @@ public class EventListener extends ListenerAdapter{
             + " je ne peux pas faire grand chose sans ¯\\_(ツ)_/¯").queue();
       }
     }else if(command.equals("skip")) {
-      MusicManager musicManager = Ressources.getMusicBot().getMusicManager();
-      musicManager.scheduler.nextTrack();
-      event.getTextChannel().sendMessage("Musique passé !").queue();
+      event.getTextChannel().sendTyping().complete();
+      String result = Ressources.getMusicBot().skipActualTrack();
+      event.getTextChannel().sendMessage(result).queue();
     }else if(command.equals("leave")) {
-      MusicManager musicManager = Ressources.getMusicBot().getMusicManager();
-      musicManager.player.stopTrack();
-      musicManager.scheduler.deleteTheQueue();
-      Ressources.getMusicBot().getAudioManager().closeAudioConnection();
-      Ressources.getMusicBot().setActualVoiceChannel(null);
-      
-      event.getChannel().sendMessage("J'ai quitté le channel et supprimé la playList").queue();
+      event.getTextChannel().sendTyping().complete();
+      Ressources.getMusicBot().leaveVoiceChannel();
+      event.getChannel().sendMessage("J'ai quitté le channel et remis à zéro ma liste").queue();
     }
   }
 
