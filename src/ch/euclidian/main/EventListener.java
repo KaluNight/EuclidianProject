@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import ch.euclidian.main.model.Team;
 import ch.euclidian.main.music.BotMusicManager;
+import ch.euclidian.main.music.MusicManager;
 import ch.euclidian.main.refresh.event.ContinuousTimeChecking;
 import ch.euclidian.main.refresh.event.TwitchChannelEvent;
 import ch.euclidian.main.util.LogHelper;
@@ -470,8 +471,20 @@ public class EventListener extends ListenerAdapter{
         }
         
       }else {
-        event.getTextChannel().sendMessage("Vous n'avez envoyé aucun URL avec le message !").queue();
+        event.getTextChannel().sendMessage("Vous n'avez envoyé aucun URL avec le message,"
+            + " je ne peux pas faire grand chose sans ¯\\_(ツ)_/¯").queue();
       }
+    }else if(command.equals("skip")) {
+      MusicManager musicManager = Ressources.getMusicBot().getMusicManager();
+      musicManager.scheduler.nextTrack();
+      event.getTextChannel().sendMessage("Musique passé !").queue();
+    }else if(command.equals("leave")) {
+      MusicManager musicManager = Ressources.getMusicBot().getMusicManager();
+      musicManager.player.stopTrack();
+      musicManager.scheduler.deleteTheQueue();
+      Ressources.getMusicBot().getAudioManager().closeAudioConnection();
+      
+      event.getChannel().sendMessage("J'ai quitté le channel et supprimé la playList").queue();
     }
   }
 
