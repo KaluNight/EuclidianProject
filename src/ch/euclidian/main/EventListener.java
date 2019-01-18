@@ -386,7 +386,6 @@ public class EventListener extends ListenerAdapter{
         String result = CommandManagement.deleteCommand(message.substring(7));
         event.getTextChannel().sendMessage(result).queue();
 
-
       }else if(command.equalsIgnoreCase("clear")) {
 
         event.getTextChannel().sendTyping().complete();

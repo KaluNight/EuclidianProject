@@ -72,7 +72,9 @@ public class CommandManagement {
   public static String deleteCommand(String commande) {
     if(commande.substring(0, 4).equalsIgnoreCase("team")) {
       return deleteTeamCommand(commande);
-    }else if (commande.substring(0, 7).equalsIgnoreCase("reports")){
+    } else if(commande.substring(0, 14).equalsIgnoreCase("playerFromTeam")) {
+      return deletePlayerOfTeamCommand(commande.substring(14));
+    } else if (commande.substring(0, 7).equalsIgnoreCase("reports")){
       return deleteReportsCommand();
     }else {
       return "Erreur dans le choix de la suppression";
@@ -284,6 +286,29 @@ public class CommandManagement {
     LogHelper.logSender("Reports Supprimé");
 
     return "Les reports ont bien été supprimé";
+  }
+  
+  public static String deletePlayerOfTeamCommand(String command) {
+    String[] split = command.split(" ");
+    if(split.length == 2) {
+      Player player = Main.getPlayersByDiscordId(split[1]);
+      if(player != null) {
+        for(Team team : Main.getTeamList()) {
+          for(Player playerInTeam : team.getPlayers()) {
+            if(player.getDiscordUser().getId().equals(playerInTeam.getDiscordUser().getId())) {
+              team.getPlayers().remove(player);
+              return "Joueur supprimé de la team";
+            }
+          }
+        }
+        return "Id dans aucune équipe";
+        
+      }else {
+        return "Id discord incorrect";
+      }
+    }else {
+      return "Vous devez mettre l'id discord du joueur à supprimer";
+    }
   }
 
   //							Postulation Command
