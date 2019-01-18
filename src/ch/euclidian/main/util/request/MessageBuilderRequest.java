@@ -15,6 +15,8 @@ import ch.euclidian.main.model.Player;
 import ch.euclidian.main.model.Postulation;
 import ch.euclidian.main.util.NameConversion;
 import ch.euclidian.main.util.Ressources;
+import me.philippheuer.twitch4j.model.Channel;
+import me.philippheuer.twitch4j.model.Stream;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.MessageEmbed.Field;
@@ -27,6 +29,8 @@ import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 public class MessageBuilderRequest {
 
   private static final DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("HH:mm");
+  
+  private static final Color STREAM_COLOR = Color.getHSBColor(281, 85, 84);
 
   private static Logger logger = LoggerFactory.getLogger(MessageBuilderRequest.class);
 
@@ -81,13 +85,13 @@ public class MessageBuilderRequest {
       }else {
         blueTeamString.append(champion.getName() + " | " + NameConversion.convertStringToTinyString(blueTeam.get(i).getSummonerName()) + "\n");
       }
-      
+
       blueTeamRankString.append(rank + "\n");
-      
+
       blueTeamWinRateLastMonth.append(RiotRequest.getMasterysScore(blueTeam.get(i).getSummonerId(), blueTeam.get(i).getChampionId())
           + " | " + RiotRequest.getMood(blueTeam.get(i).getSummonerId()) + "\n");
     }
-    
+
     message.addField("Équipe Bleu", blueTeamString.toString(), true);
     message.addField("Grades", blueTeamRankString.toString(), true);
     message.addField("Maitrise | *États d'esprit*", blueTeamWinRateLastMonth.toString(), true);
@@ -114,11 +118,11 @@ public class MessageBuilderRequest {
         redTeamString.append(champion.getName() + " | " + NameConversion.convertStringToTinyString(redTeam.get(i).getSummonerName()) + "\n");
       }
       redTeamRankString.append(rank + "\n");
-      
+
       redTeamWinrateString.append(RiotRequest.getMasterysScore(redTeam.get(i).getSummonerId(), redTeam.get(i).getChampionId())
           + " | " + RiotRequest.getMood(redTeam.get(i).getSummonerId()) + "\n");
     }
-    
+
     message.addField("Équipe Rouge", redTeamString.toString(), true);
     message.addField("Grades", redTeamRankString.toString(), true);
     message.addField("Maitrise | *États d'esprit*", redTeamWinrateString.toString(), true);
@@ -127,14 +131,14 @@ public class MessageBuilderRequest {
     String[] stringMinutesSecondes = Double.toString(minutesOfGames).split("\\.");
     int minutesGameLength = Integer.parseInt(stringMinutesSecondes[0]);
     int secondesGameLength = (int) (Double.parseDouble("0." + stringMinutesSecondes[1]) * 60.0);
-    
+
     String gameLenght = String.format("%02d", minutesGameLength) + ":" + String.format("%02d",secondesGameLength);
-    
+
     message.setFooter("Heure de création du message : " + DateTime.now().plusHours(1).toString(dateFormatter)
         + " | Durée actuel de la partie : " + gameLenght, null);
 
     message.setColor(Color.GREEN);
-    
+
     return message.build();
   }
 
@@ -157,7 +161,7 @@ public class MessageBuilderRequest {
     }
 
     title.append(" : " + NameConversion.convertGameQueueIdToString(currentGameInfo.getGameQueueConfigId()));
-    
+
     message.setTitle(title.toString());
 
     int blueTeamID = 0;
@@ -208,7 +212,7 @@ public class MessageBuilderRequest {
       }
 
       blueTeamRankString.append(rank + "\n");
-      
+
       blueTeamWinrateString.append(RiotRequest.getMasterysScore(blueTeam.get(i).getSummonerId(), blueTeam.get(i).getChampionId())
           + " | " + RiotRequest.getMood(blueTeam.get(i).getSummonerId()) + "\n");
     }
@@ -255,7 +259,7 @@ public class MessageBuilderRequest {
     int secondesGameLength = (int) (Double.parseDouble("0." + stringMinutesSecondes[1]) * 60.0);
 
     String gameLenght = String.format("%02d", minutesGameLength) + ":" + String.format("%02d",secondesGameLength);
-    
+
     message.setFooter("Heure de création du message : " + DateTime.now().plusHours(1).toString(dateFormatter)
         + " | Durée actuel de la partie : " + gameLenght, null);
 
@@ -292,6 +296,28 @@ public class MessageBuilderRequest {
     message.addField(field);
 
     message.setColor(Color.GREEN);
+
+    return message.build();
+  }
+
+  public static MessageEmbed createInfoStreamMessage(Channel channel) {
+    Stream actualStream = Ressources.getStreamEndpoint().getByChannel(channel);
+
+    EmbedBuilder message = new EmbedBuilder();
+    message.setAuthor(channel.getDisplayName(), null, channel.getLogo());
+    message.setTitle(channel.getStatus(), "https://www.twitch.tv/batailloneuclidien");
+
+    Field field = new Field("Jeu", channel.getGame(), true);
+    message.addField(field);
+
+    field = new Field("Viewers", Integer.toString(actualStream.getViewers()), true);
+    message.addField(field);
+
+    message.setThumbnail(channel.getLogo());
+
+    //message.setImage(LINK_BANNER); TODO: When we have a banner, add it
+
+    message.setColor(STREAM_COLOR);
 
     return message.build();
   }

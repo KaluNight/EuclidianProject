@@ -1,4 +1,4 @@
-package ch.euclidian.main.refresh;
+package ch.euclidian.main.refresh.event;
 
 import java.util.TimerTask;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -18,31 +18,33 @@ public class ContinuousTimeChecking extends TimerTask{
   private static DateTime nextTimeSaveData;
 
   private static DateTime nextTimeSendReport;
-  
+
   private static DateTime nextTimeStatusRefresh;
+  
+  private static DateTime nextTimeCheckLive;
 
   private static int nbProcs = Runtime.getRuntime().availableProcessors();
 
-  private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(nbProcs, nbProcs, 1000,
+  private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(nbProcs, nbProcs, 30,
       TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
 
-  Logger logger = LoggerFactory.getLogger(getClass());
+  private static Logger logger = LoggerFactory.getLogger(ContinuousTimeChecking.class);
 
   @Override
   public void run() {
 
     if(nextTimeSendReport.isBeforeNow()) {
-      logger.info("Launch Report");
       setNextTimeSendReport(nextTimeSendReport.plusWeeks(1));
-      if(!ContinuousKeepData.isRunning()) { 
+      if(!ContinuousKeepData.isRunning()) {
+        logger.info("Launch Report");
         threadPoolExecutor.submit(new ContinuousKeepData());
         ContinuousStatusRefresh.setStatus(BotStatus.REPORT_CONSTRUCTION);
       }
     }
 
     if(nextTimePanelRefresh.isBeforeNow()) {
-      logger.info("Launch panel");
       setNextTimePanelRefresh(nextTimePanelRefresh.plusMinutes(3));
+      logger.info("Launch panel");
       if(!ContinuousPanelRefresh.isRunning()) {
         threadPoolExecutor.submit(new ContinuousPanelRefresh());
         ContinuousStatusRefresh.setStatus(BotStatus.PANEL_REFRESH);
@@ -50,19 +52,27 @@ public class ContinuousTimeChecking extends TimerTask{
     }
 
     if(nextTimeSaveData.isBeforeNow()) {
-      logger.info("Launch Save");
       setNextTimeSaveData(nextTimeSaveData.plusMinutes(10));
       if(!ContinuousSaveData.isRunning()) {
+        logger.info("Launch Save");
         threadPoolExecutor.submit(new ContinuousSaveData());
         ContinuousStatusRefresh.setStatus(BotStatus.SAVE_DATA);
       }
     }
-    
+
     if(nextTimeStatusRefresh.isBeforeNow()) {
-      logger.info("Launch Status refresh");
       setNextTimeStatusRefresh(nextTimeStatusRefresh.plusSeconds(30));
       if(!ContinuousStatusRefresh.isRunning()) {
+        logger.info("Launch Status refresh");
         threadPoolExecutor.submit(new ContinuousStatusRefresh());
+      }
+    }
+    
+    if(nextTimeCheckLive.isBeforeNow()) {
+      setNextTimeCheckLive(nextTimeCheckLive.plusMinutes(2));
+      if(!ContinuousStreamOnlineChecking.isRunning()) {
+        logger.info("Launch Stream Checking");
+        threadPoolExecutor.submit(new ContinuousStreamOnlineChecking());
       }
     }
   }
@@ -90,9 +100,9 @@ public class ContinuousTimeChecking extends TimerTask{
   public static void setNextTimeSendReport(DateTime nextTimeSendReport) {
     ContinuousTimeChecking.nextTimeSendReport = nextTimeSendReport;
   }
-  
+
   public static void shutdownThreadPool() {
-    threadPoolExecutor.shutdown();
+    threadPoolExecutor.shutdownNow();
   }
 
   public static DateTime getNextTimeStatusRefresh() {
@@ -101,6 +111,14 @@ public class ContinuousTimeChecking extends TimerTask{
 
   public static void setNextTimeStatusRefresh(DateTime nextTimeStatusRefresh) {
     ContinuousTimeChecking.nextTimeStatusRefresh = nextTimeStatusRefresh;
+  }
+
+  public static DateTime getNextTimeCheckLive() {
+    return nextTimeCheckLive;
+  }
+
+  public static void setNextTimeCheckLive(DateTime nextTimeCheckLive) {
+    ContinuousTimeChecking.nextTimeCheckLive = nextTimeCheckLive;
   }
 
 }

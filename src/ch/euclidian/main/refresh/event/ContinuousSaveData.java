@@ -1,4 +1,4 @@
-package ch.euclidian.main.refresh;
+package ch.euclidian.main.refresh.event;
 
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
