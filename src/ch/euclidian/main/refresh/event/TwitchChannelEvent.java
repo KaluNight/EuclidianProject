@@ -51,7 +51,6 @@ public class TwitchChannelEvent {
         Ressources.getMessageInterface().sendMessage(event.getChannel().getName(), "Le lien de notre Discord : https://discord.gg/BsxD9HD");
         LogHelper.logSender(event.getUser().getName() + " à demandé le discord de la team");
       }
-
     }
   }
 

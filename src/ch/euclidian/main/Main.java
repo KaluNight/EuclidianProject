@@ -145,7 +145,7 @@ public class Main {
     Ressources.setRiotApi(new RiotApi(config));
 
     jda.addEventListener(new EventListener());
-
+    
     // print internal state
     LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
     StatusPrinter.print(lc);

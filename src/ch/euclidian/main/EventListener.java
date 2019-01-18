@@ -49,8 +49,6 @@ public class EventListener extends ListenerAdapter{
   private static final String ID_POSTULATION_CHANNEL = "497763778268495882";
 
   private static final String ID_REPORT_CHANNEL = "513422522637877266";
-  
-  private static final String TWITCH_CHANNEL_NAME = "kalunight";
 
   private static Message statusReportMessage;
 
@@ -149,6 +147,7 @@ public class EventListener extends ListenerAdapter{
     ContinuousTimeChecking.setNextTimePanelRefresh(DateTime.now());
     ContinuousTimeChecking.setNextTimeStatusRefresh(DateTime.now());
     ContinuousTimeChecking.setNextTimeSaveData(DateTime.now().plusMinutes(10));
+    ContinuousTimeChecking.setNextTimeCheckLive(DateTime.now());
 
     setTimerTask(new Timer());
 
@@ -169,7 +168,10 @@ public class EventListener extends ListenerAdapter{
 
     Ressources.setTwitchApi(twitchClient);
     Ressources.setMessageInterface(twitchClient.getMessageInterface());
-    Ressources.getMessageInterface().joinChannel(TWITCH_CHANNEL_NAME);
+    Ressources.setChannelEndpoint(twitchClient.getChannelEndpoint());
+    Ressources.setStreamEndpoint(twitchClient.getStreamEndpoint());
+    
+    Ressources.getMessageInterface().joinChannel(Ressources.TWITCH_CHANNEL_NAME);
   }
 
   @Override
@@ -403,7 +405,7 @@ public class EventListener extends ListenerAdapter{
         }
         
         try {
-          Ressources.getMessageInterface().leaveChannel(TWITCH_CHANNEL_NAME);
+          Ressources.getMessageInterface().leaveChannel(Ressources.TWITCH_CHANNEL_NAME);
         } catch (NullPointerException e) {
           logger.warn("NullPointerException : {}", e.getMessage());
         }

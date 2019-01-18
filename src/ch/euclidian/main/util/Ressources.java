@@ -5,6 +5,8 @@ import java.util.List;
 
 import ch.euclidian.main.model.Champion;
 import me.philippheuer.twitch4j.TwitchClient;
+import me.philippheuer.twitch4j.endpoints.ChannelEndpoint;
+import me.philippheuer.twitch4j.endpoints.StreamEndpoint;
 import me.philippheuer.twitch4j.message.MessageInterface;
 import net.rithms.riot.api.RiotApi;
 import net.rithms.riot.api.RiotApiException;
@@ -18,6 +20,12 @@ public class Ressources {
   private static TwitchClient twitchApi;
   
   private static MessageInterface messageInterface;
+  
+  private static ChannelEndpoint channelEndpoint;
+
+  private static StreamEndpoint streamEndpoint;
+  
+  public static final String TWITCH_CHANNEL_NAME = "batailloneuclidien";
 
   private static RiotApi riotApi;
 
@@ -99,5 +107,21 @@ public class Ressources {
 
   public static void setMessageInterface(MessageInterface messageInterface) {
     Ressources.messageInterface = messageInterface;
+  }
+
+  public static ChannelEndpoint getChannelEndpoint() {
+    return channelEndpoint;
+  }
+
+  public static void setChannelEndpoint(ChannelEndpoint channelEndpoint) {
+    Ressources.channelEndpoint = channelEndpoint;
+  }
+
+  public static StreamEndpoint getStreamEndpoint() {
+    return streamEndpoint;
+  }
+
+  public static void setStreamEndpoint(StreamEndpoint streamEndpoint) {
+    Ressources.streamEndpoint = streamEndpoint;
   }
 }
