@@ -222,7 +222,7 @@ public class ContinuousPanelRefresh implements Runnable {
       stringMessage.append(" \n");
     }
     
-    stringMessage.append("\nDernier rafraichissement le : " + DateTime.now().plusHours(1).toString(timeFormatter) 
+    stringMessage.append("\nDernier rafraichissement à " + DateTime.now().plusHours(1).toString(timeFormatter) 
         + " | *Rafraichi toutes les 3 minutes*");
 
     return stringMessage.toString();
