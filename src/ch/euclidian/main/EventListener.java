@@ -21,6 +21,7 @@ import ch.euclidian.main.util.LogHelper;
 import ch.euclidian.main.util.Ressources;
 import me.philippheuer.twitch4j.TwitchClient;
 import me.philippheuer.twitch4j.TwitchClientBuilder;
+import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.ChannelType;
@@ -240,6 +241,7 @@ public class EventListener extends ListenerAdapter{
 
     LogHelper.logSenderDirectly("Démarrage des tâches continues terminés !");
 
+    Main.getJda().getPresence().setStatus(OnlineStatus.ONLINE);
     LogHelper.logSenderDirectly("Démarrage terminés !");
   }
 
