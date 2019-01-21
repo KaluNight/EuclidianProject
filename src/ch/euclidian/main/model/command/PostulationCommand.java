@@ -11,9 +11,7 @@ import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import ch.euclidian.main.Main;
 import ch.euclidian.main.model.Player;
 import ch.euclidian.main.util.Ressources;
-import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -28,8 +26,10 @@ public class PostulationCommand extends Command{
 
   private final EventWaiter waiter;
   private Summoner summoner;
+  private User user;
   private List<Role> listRole;
   private List<Message> messages;
+  private static final List<User> userInRegistration = new ArrayList<>();
 
   public PostulationCommand(EventWaiter waiter) {
     this.waiter = waiter;
@@ -41,7 +41,24 @@ public class PostulationCommand extends Command{
   @Override
   protected void execute(CommandEvent event) {
     messages = new ArrayList<>();
-
+    
+    Player player = Main.getPlayersByDiscordId(event.getAuthor().getId());
+    
+    if(player == null) {
+      messages.add(event.getEvent().getTextChannel().sendMessage("Vous êtes déjà enregistré !").complete());
+      endRegistration();
+      return;
+    }
+    
+    if(userInRegistration.contains(event.getAuthor())) {
+      messages.add(event.getEvent().getTextChannel().sendMessage("Vous avez déjà lancer une procédure d'enregistrement !").complete());
+      endRegistration();
+      return;
+    }else {
+      userInRegistration.add(event.getAuthor());
+      user = event.getAuthor();
+    }
+    
     messages.add(event.getMessage());
 
     messages.add(event.getTextChannel().sendMessage("Bien ! Tous d'abord, donnez moi votre pseudo LoL").complete());
@@ -164,7 +181,7 @@ public class PostulationCommand extends Command{
   }
 
   private void timeRegistration(MessageReceivedEvent event) {
-
+    
   }
 
   private void endRegistrationTime(MessageReceivedEvent event) {
@@ -180,6 +197,8 @@ public class PostulationCommand extends Command{
     for(Message message : messages) {
       message.delete().queue();
     }
+    
+    userInRegistration.remove(user);
   }
 
 }
