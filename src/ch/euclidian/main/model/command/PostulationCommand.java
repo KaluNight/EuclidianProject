@@ -53,7 +53,17 @@ public class PostulationCommand extends Command{
   protected void execute(CommandEvent event) {
 
     if(messages.get(event.getAuthor()) == null) {
+      
       messages.put(event.getAuthor(), new ArrayList<>());
+      
+      if(Main.getPostulationIndexByMember(event.getMember()) != -1) {
+       addMessageToList(event.getAuthor(), event.getTextChannel().sendMessage("Vous avez déjà créer votre postulation !"
+           + " Vous pourrez signaler des modifications lors de l'entretien").complete());
+       addMessageToList(event.getAuthor(), event.getMessage());
+       
+       endRegistrationWithoutUserDelete(event.getAuthor());
+       return;
+      }
       
       addMessageToList(event.getAuthor(), event.getMessage());
 
