@@ -38,15 +38,6 @@ public class CommandManagement {
     return "Erreur dans le choix de l'affichage";
   }
 
-  public static String postulationCommand(String commande, User user) {
-    if(commande.substring(0, 6).equalsIgnoreCase("accept")) {
-      int index = Integer.parseInt(commande.split(" ")[1]) - 1;
-      return postulationAcceptCommand(index, user);
-    }else {
-      return "Erreur dans le choix de l'action a faire";
-    }
-  }
-
   public static String registerCommand(String commande, User user, boolean selfCreated) {
     if(commande.substring(0, 6).equalsIgnoreCase("player")) {
       return registerPlayerCommand(commande, user, selfCreated); //TODO: do a version for "player new"
@@ -72,7 +63,9 @@ public class CommandManagement {
   public static String deleteCommand(String commande) {
     if(commande.substring(0, 4).equalsIgnoreCase("team")) {
       return deleteTeamCommand(commande);
-    }else if (commande.substring(0, 7).equalsIgnoreCase("reports")){
+    } else if(commande.substring(0, 14).equalsIgnoreCase("playerFromTeam")) {
+      return deletePlayerOfTeamCommand(commande.substring(14));
+    } else if (commande.substring(0, 7).equalsIgnoreCase("reports")){
       return deleteReportsCommand();
     }else {
       return "Erreur dans le choix de la suppression";
@@ -285,6 +278,29 @@ public class CommandManagement {
 
     return "Les reports ont bien été supprimé";
   }
+  
+  public static String deletePlayerOfTeamCommand(String command) {
+    String[] split = command.split(" ");
+    if(split.length == 2) {
+      Player player = Main.getPlayersByDiscordId(split[1]);
+      if(player != null) {
+        for(Team team : Main.getTeamList()) {
+          for(Player playerInTeam : team.getPlayers()) {
+            if(player.getDiscordUser().getId().equals(playerInTeam.getDiscordUser().getId())) {
+              team.getPlayers().remove(player);
+              return "Joueur supprimé de la team";
+            }
+          }
+        }
+        return "Id dans aucune équipe";
+        
+      }else {
+        return "Id discord incorrect";
+      }
+    }else {
+      return "Vous devez mettre l'id discord du joueur à supprimer";
+    }
+  }
 
   //							Postulation Command
   //-------------------------------------------------------------------------
@@ -365,7 +381,7 @@ public class CommandManagement {
     }
   }
 
-  private static String postulationAcceptCommand(int accepted, User user) {
+  public static String postulationAcceptCommand(int accepted, User user) {
     Postulation postulation;
     try {
       postulation = Main.getPostulationsList().get(accepted);

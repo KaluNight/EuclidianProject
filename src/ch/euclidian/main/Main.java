@@ -24,12 +24,15 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-
+import com.jagrosh.jdautilities.command.CommandClientBuilder;
+import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import ch.euclidian.main.model.Champion;
 import ch.euclidian.main.model.Player;
 import ch.euclidian.main.model.PlayerDataOfTheWeek;
 import ch.euclidian.main.model.Postulation;
 import ch.euclidian.main.model.Team;
+import ch.euclidian.main.model.command.PingCommand;
+import ch.euclidian.main.model.command.PostulationCommand;
 import ch.euclidian.main.refresh.event.ContinuousKeepData;
 import ch.euclidian.main.refresh.event.ContinuousTimeChecking;
 import ch.euclidian.main.util.LogHelper;
@@ -40,7 +43,9 @@ import ch.qos.logback.core.util.StatusPrinter;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
+import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Category;
+import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
@@ -126,9 +131,35 @@ public class Main {
     Ressources.setTwitchClientId(twitchClientID);
     Ressources.setTwitchClientSecret(twitchClientSecret);
     Ressources.setTwitchCredential(twitchCredential);
-    
+
+    EventWaiter waiter = new EventWaiter();
+
+    CommandClientBuilder client = new CommandClientBuilder();
+
+    client.setPrefix(">");
+
+    client.setEmojis("\uD83D\uDE03", "\uD83D\uDE2E", "\uD83D\uDE26");
+
+    client.setOwnerId("228541163966038016");
+
+    client.setHelpConsumer(null); //Set a command
+
+    client.setGame(Game.playing("Démarrage ..."));
+
+    client.addCommands(
+        new PingCommand(),
+        new PostulationCommand(waiter)
+
+        );
+
     try {
-      jda = new JDABuilder(AccountType.BOT).setToken(discordTocken).build();
+      jda = new JDABuilder(AccountType.BOT)
+          .setToken(discordTocken)
+          .setStatus(OnlineStatus.DO_NOT_DISTURB)
+          .addEventListener(waiter)
+          .addEventListener(client.build())
+          .addEventListener(new EventListener())
+          .build();
     } catch (IndexOutOfBoundsException e) {
       logger.error("You must provide a token.");
       return;
@@ -144,8 +175,6 @@ public class Main {
     config.setRateLimitHandler(defaultLimite);
     Ressources.setRiotApi(new RiotApi(config));
 
-    jda.addEventListener(new EventListener());
-    
     // print internal state
     LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
     StatusPrinter.print(lc);
@@ -160,7 +189,7 @@ public class Main {
       JsonObject object = parser.parse(fr).getAsJsonObject().get("data").getAsJsonObject();
       Set<Map.Entry<String, JsonElement>> list = object.entrySet();
       Iterator<Map.Entry<String, JsonElement>> iterator = list.iterator();
-      
+
       while (iterator.hasNext()) {
         JsonElement element = iterator.next().getValue();
         int key = element.getAsJsonObject().get("key").getAsInt();
@@ -248,6 +277,7 @@ public class Main {
       }
 
       saveString.append(postulation.getHoraires());
+      saveString.append("\n--end");
 
       saveString.append("\n");
     }
@@ -323,7 +353,7 @@ public class Main {
           for(int i = 0; i < numberOfPlayer; i++) {
             String id = reader.readLine();
             Player player = getPlayersByDiscordId(id);
-            
+
             if(player != null) {
               players.add(player);
             }
@@ -362,9 +392,30 @@ public class Main {
               roles.add(guild.getRoleById(roleId));
             }
 
-            String horaires = reader.readLine();
+            StringBuilder horaires = new StringBuilder();
 
-            Postulation postulation = new Postulation(member, summoner, roles, horaires);
+            String actualLine = reader.readLine();
+            String nextLine = reader.readLine();
+
+            int i = 0;
+
+            while(true) {
+              if(i != 0) {
+                actualLine = nextLine;
+                nextLine = reader.readLine();
+              }
+              i++;
+
+              if(actualLine.equals("--end")) {
+                break;
+              } else if(nextLine.equals("--end")) {
+                horaires.append(actualLine);
+              } else {
+                horaires.append(actualLine + "\n");
+              }
+            }
+
+            Postulation postulation = new Postulation(member, summoner, roles, horaires.toString());
             postulationsList.add(postulation);
           }
 
@@ -426,7 +477,7 @@ public class Main {
     }
     return null;
   }
-  
+
   public static Player getPlayerBySummonerName(String summonerName) {
     for(int i = 0; i < playerList.size(); i++) {
       if(playerList.get(i).getSummoner().getName().equals(summonerName)) {

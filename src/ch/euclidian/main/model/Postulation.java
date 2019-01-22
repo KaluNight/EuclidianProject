@@ -1,6 +1,6 @@
 package ch.euclidian.main.model;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
@@ -10,10 +10,10 @@ public class Postulation {
 
   private Member member;
   private Summoner summoner;
-  private ArrayList<Role> roles;
+  private List<Role> roles;
   private String horaires;
 
-  public Postulation(Member member, Summoner summoner, ArrayList<Role> roles, String horaires) {
+  public Postulation(Member member, Summoner summoner, List<Role> roles, String horaires) {
     this.member = member;
     this.summoner = summoner;
     this.roles = roles;
@@ -54,11 +54,11 @@ public class Postulation {
     this.summoner = summoner;
   }
 
-  public ArrayList<Role> getRoles() {
+  public List<Role> getRoles() {
     return roles;
   }
 
-  public void setRoles(ArrayList<Role> roles) {
+  public void setRoles(List<Role> roles) {
     this.roles = roles;
   }
 
