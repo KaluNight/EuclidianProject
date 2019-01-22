@@ -38,15 +38,6 @@ public class CommandManagement {
     return "Erreur dans le choix de l'affichage";
   }
 
-  public static String postulationCommand(String commande, User user) {
-    if(commande.substring(0, 6).equalsIgnoreCase("accept")) {
-      int index = Integer.parseInt(commande.split(" ")[1]) - 1;
-      return postulationAcceptCommand(index, user);
-    }else {
-      return "Erreur dans le choix de l'action a faire";
-    }
-  }
-
   public static String registerCommand(String commande, User user, boolean selfCreated) {
     if(commande.substring(0, 6).equalsIgnoreCase("player")) {
       return registerPlayerCommand(commande, user, selfCreated); //TODO: do a version for "player new"
@@ -390,7 +381,7 @@ public class CommandManagement {
     }
   }
 
-  private static String postulationAcceptCommand(int accepted, User user) {
+  public static String postulationAcceptCommand(int accepted, User user) {
     Postulation postulation;
     try {
       postulation = Main.getPostulationsList().get(accepted);

@@ -277,7 +277,7 @@ public class MessageBuilderRequest {
     message.setTitle("Postulation numéro " + postulationNbr + " de " + postulation.getMember().getUser().getName());
 
     String rank = RiotRequest.getSoloqRank(postulation.getSummoner().getId());
-    Field field = new Field("**Pseudo & Rang Soloq**", postulation.getSummoner().getName() + " - " + rank, true);
+    Field field = new Field("**Pseudo & Rang Soloq**", postulation.getSummoner().getName() + " - " + rank, false);
     message.addField(field);
 
     String role = "";
@@ -289,10 +289,10 @@ public class MessageBuilderRequest {
       }
     }
 
-    field = new Field("**Postes**", role, true);
+    field = new Field("**Postes**", role, false);
     message.addField(field);
 
-    field = new Field("**Horaires**", postulation.getHoraires(), true);
+    field = new Field("**Horaires**", postulation.getHoraires(), false);
     message.addField(field);
 
     message.setColor(Color.GREEN);

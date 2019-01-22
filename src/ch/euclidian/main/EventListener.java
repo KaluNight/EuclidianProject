@@ -6,13 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
-
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.euclidian.main.model.Team;
+import ch.euclidian.main.model.command.PostulationCommand;
 import ch.euclidian.main.music.BotMusicManager;
 import ch.euclidian.main.music.MusicManager;
 import ch.euclidian.main.refresh.event.ContinuousTimeChecking;
@@ -262,7 +261,8 @@ public class EventListener extends ListenerAdapter{
 
     isAdmin = isAdminByRoles(rolesOfSender);
 
-    if(event.getTextChannel().getId().equals(ID_POSTULATION_CHANNEL) && message.charAt(0) != PREFIX && !isAdmin
+    if(event.getTextChannel().getId().equals(ID_POSTULATION_CHANNEL) 
+        && !PostulationCommand.getUserInRegistration().contains(event.getAuthor()) && !isAdmin
         && !Main.getJda().getSelfUser().equals(event.getAuthor())){
       event.getMessage().delete().queue();
 
@@ -289,29 +289,6 @@ public class EventListener extends ListenerAdapter{
     }
 
     message = message.substring(1);
-
-    if(event.getTextChannel().getName().equals("postulation")) {
-      String[] postulation = message.split("\n");
-      if(postulation[0].equals("Postulation")) {
-        event.getTextChannel().sendTyping().complete();
-        String result = CommandManagement.postulationCommand(postulation, event.getMember());
-        Message messageSend = event.getTextChannel().sendMessage(result).complete();
-
-        PrivateChannel pc = event.getAuthor().openPrivateChannel().complete();
-
-        pc.sendMessage("~Copie du Message~\n" + result).complete();
-
-        event.getMessage().delete().queueAfter(10, TimeUnit.SECONDS);
-        messageSend.delete().queueAfter(10, TimeUnit.SECONDS);
-      }else {
-        if(!isAdmin) {
-          event.getTextChannel().sendTyping().complete();
-          Message messageResponse = event.getTextChannel().sendMessage("Les demandes de Postulation doivent commencer par \"Postulation\".").complete();
-          event.getMessage().delete().queueAfter(5, TimeUnit.SECONDS);
-          messageResponse.delete().queueAfter(5, TimeUnit.SECONDS);
-        }
-      }
-    }
 
     String command = message.split(" ")[0];
 
@@ -376,16 +353,16 @@ public class EventListener extends ListenerAdapter{
         }
         return;
 
-      } else if (command.equalsIgnoreCase("postulation")){
-
-        event.getTextChannel().sendTyping().complete();
-        String result = CommandManagement.postulationCommand(message.substring(12), event.getAuthor());
-        event.getTextChannel().sendMessage(result).queue();
-
       } else if (command.equalsIgnoreCase("delete")) {
 
         event.getTextChannel().sendTyping().complete();
         String result = CommandManagement.deleteCommand(message.substring(7));
+        event.getTextChannel().sendMessage(result).queue();
+
+      }else if (command.equalsIgnoreCase("accept")){
+
+        event.getTextChannel().sendTyping().complete();
+        String result = CommandManagement.postulationAcceptCommand(Integer.parseInt(message.substring(7)), event.getAuthor());
         event.getTextChannel().sendMessage(result).queue();
 
       }else if(command.equalsIgnoreCase("clear")) {
