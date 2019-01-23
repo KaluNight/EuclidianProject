@@ -12,7 +12,6 @@ public class Champion {
     this.id = id;
     this.key = key;
     this.name = name;
-    this.name = name;
   }
 
   public int getKey() {

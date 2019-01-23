@@ -38,14 +38,6 @@ public class CommandManagement {
     return "Erreur dans le choix de l'affichage";
   }
 
-  public static String registerCommand(String commande, User user, boolean selfCreated) {
-    if(commande.substring(0, 6).equalsIgnoreCase("player")) {
-      return registerPlayerCommand(commande, user, selfCreated); //TODO: do a version for "player new"
-    }else {
-      return "Erreur dans le choix de l'enregistrement. Note : Vous devez écrire \"register player (VotrePseudo)\" pour vous enregistrer";
-    }
-  }
-
   public static String addCommand(String commande, User user) {
     if(commande.substring(0, 4).equalsIgnoreCase("team")) {
       return addTeamCommand(commande.substring(5));
@@ -127,59 +119,6 @@ public class CommandManagement {
     LogHelper.logSender("Reports envoyés");
 
     return listReport;
-  }
-
-  //						    Register Command
-  //-----------------------------------------------------------------------
-
-  private static String registerPlayerCommand(String commande, User user, boolean selfCreated) {
-
-    String summonerName;
-
-    try {
-      String[] info = commande.split("\\(");
-      info = info[1].split("\\)");
-      summonerName = info[0];
-
-      for(int i = 0; i < Main.getPlayerList().size(); i++) {
-        if(Main.getPlayerList().get(i).getSummoner().getName().equals(summonerName)) {
-          return "Ce compte est déjà enregistré";
-        }
-      }
-
-    }catch(ArrayIndexOutOfBoundsException e) {
-      return "Erreur dans l'enregistrement. Note : Vous devez écrire \"register player (VotrePseudo)\" pour vous enregistrer";
-    }
-
-
-    Member member = Main.getGuild().getMemberById(user.getId());
-
-    for(int i = 0; i < member.getRoles().size(); i++) {
-      if(member.getRoles().get(i).equals(Main.getRegisteredRole())) {
-        return "Vous êtes déjà enregistée !";
-      }
-    }
-
-    Summoner summoner = null;
-    try {
-      summoner = Ressources.getRiotApi().getSummonerByName(Platform.EUW, summonerName);
-    } catch (RiotApiException e) {
-      e.printStackTrace();
-
-      return "Un problème avec l'api est survenu";
-    } catch (IllegalArgumentException e) {
-      return "Aucun compte à ce nom. Vérfier le pseudo écrit";
-    }
-
-    Player player = new Player(user.getName(), user, summoner, selfCreated);
-
-    Main.getPlayerList().add(player);
-
-    Main.getController().addRolesToMember(member, Main.getRegisteredRole()).queue();
-
-    LogHelper.logSender(user.getName() + " c'est enregistré en tant que joueur");
-
-    return "Vous avez bien été enregistré !";
   }
 
   //							Add Command

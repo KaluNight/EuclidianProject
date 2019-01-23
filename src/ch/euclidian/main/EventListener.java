@@ -338,21 +338,6 @@ public class EventListener extends ListenerAdapter{
           event.getTextChannel().sendMessage(result).queue();
         }
 
-      } else if(command.equalsIgnoreCase("register") && message.contains("new")) {
-
-        List<Member> members = event.getMessage().getMentionedMembers();
-
-        if(members.size() == 1) {
-          event.getTextChannel().sendTyping().queue();
-          String result = CommandManagement.registerCommand(message.substring(9), members.get(0).getUser(), false);
-          event.getTextChannel().sendMessage(result).queue();
-
-        }else {
-          event.getTextChannel().sendMessage("Merci d'envoyer la commande dans ce format pour enregistrer quelqu'un : "
-              + "\">register new PseudoLol MentionDuJoueur\"").queue();
-        }
-        return;
-
       } else if (command.equalsIgnoreCase("delete")) {
 
         event.getTextChannel().sendTyping().complete();
@@ -416,11 +401,8 @@ public class EventListener extends ListenerAdapter{
       }
     }
 
-    if (command.equalsIgnoreCase("register")) {
-      event.getTextChannel().sendTyping().queue();
-      String result = CommandManagement.registerCommand(message.substring(9), event.getAuthor(), true);
-      event.getTextChannel().sendMessage(result).queue();
-    }else if(command.equals("play")) {
+
+    if(command.equals("play")) {
       event.getTextChannel().sendTyping().complete();
       String[] stringSplit = message.split(" ");
       if(stringSplit.length == 2) {

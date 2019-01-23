@@ -33,6 +33,7 @@ import ch.euclidian.main.model.Postulation;
 import ch.euclidian.main.model.Team;
 import ch.euclidian.main.model.command.PingCommand;
 import ch.euclidian.main.model.command.PostulationCommand;
+import ch.euclidian.main.model.command.RegisterPlayerCommand;
 import ch.euclidian.main.refresh.event.ContinuousKeepData;
 import ch.euclidian.main.refresh.event.ContinuousTimeChecking;
 import ch.euclidian.main.util.LogHelper;
@@ -142,14 +143,14 @@ public class Main {
 
     client.setOwnerId("228541163966038016");
 
-    client.setHelpConsumer(null); //Set a command
+    client.setHelpConsumer(null); //TODO: Set a command
 
     client.setGame(Game.playing("Démarrage ..."));
 
     client.addCommands(
         new PingCommand(),
-        new PostulationCommand(waiter)
-
+        new PostulationCommand(waiter),
+        new RegisterPlayerCommand()
         );
 
     try {
