@@ -35,6 +35,7 @@ public class RegisterPlayerCommand extends Command {
       for(int i = 0; i < Main.getPlayerList().size(); i++) {
         if(Main.getPlayerList().get(i).getSummoner().getName().equals(pseudo)) {
           event.reply("Ce compte est déjà enregistré");
+          return;
         }
       }
 
@@ -48,6 +49,7 @@ public class RegisterPlayerCommand extends Command {
     for(int i = 0; i < member.getRoles().size(); i++) {
       if(member.getRoles().get(i).equals(Main.getRegisteredRole())) {
         event.reply("Vous êtes déjà enregistée !");
+        return;
       }
     }
 
@@ -58,8 +60,10 @@ public class RegisterPlayerCommand extends Command {
       logger.error(e.getMessage());
 
       event.reply("Un problème avec l'api est survenu");
+      return;
     } catch (IllegalArgumentException e) {
       event.reply("Aucun compte à ce nom. Vérfier le pseudo écrit");
+      return;
     }
 
     Player player = new Player(event.getAuthor().getName(), event.getAuthor(), summoner, true);
