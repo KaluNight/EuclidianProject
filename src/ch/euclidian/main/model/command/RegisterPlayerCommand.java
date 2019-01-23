@@ -43,7 +43,6 @@ public class RegisterPlayerCommand extends Command {
       event.reply("Erreur dans l'enregistrement. Note : Vous devez écrire \"register player (VotrePseudo)\" pour vous enregistrer");
     }
 
-
     Member member = event.getMember();
 
     for(int i = 0; i < member.getRoles().size(); i++) {
@@ -74,6 +73,7 @@ public class RegisterPlayerCommand extends Command {
 
     LogHelper.logSender(event.getAuthor().getName() + " c'est enregistré en tant que joueur");
 
+    event.reply("Vous avez été enregistré !");
   }
 
 }

@@ -31,6 +31,7 @@ import ch.euclidian.main.model.Player;
 import ch.euclidian.main.model.PlayerDataOfTheWeek;
 import ch.euclidian.main.model.Postulation;
 import ch.euclidian.main.model.Team;
+import ch.euclidian.main.model.command.AddPlayerToTeamCommand;
 import ch.euclidian.main.model.command.PingCommand;
 import ch.euclidian.main.model.command.PostulationCommand;
 import ch.euclidian.main.model.command.RegisterPlayerCommand;
@@ -150,7 +151,8 @@ public class Main {
     client.addCommands(
         new PingCommand(),
         new PostulationCommand(waiter),
-        new RegisterPlayerCommand()
+        new RegisterPlayerCommand(),
+        new AddPlayerToTeamCommand()
         );
 
     try {
