@@ -32,7 +32,7 @@ public class AddPlayerToTeamCommand extends Command {
     
     while(m.find()) {
       pseudoDiscord = m.group(1);    
-      break;
+        break;
     }
     
     while (m.find()) { 
@@ -49,18 +49,10 @@ public class AddPlayerToTeamCommand extends Command {
     }
 
     Team teamToUse = Main.getTeamByName(team);
-    Team teamBase = teamToUse;
-
-    teamToUse.getPlayers().add(player);
-
-    Main.getPlayerList().add(player);
 
     Member member = Main.getGuild().getMember(user);
 
     Main.getController().addRolesToMember(member, teamToUse.getRole()).queue();
-
-    Main.getTeamList().remove(teamBase);
-    Main.getTeamList().add(teamToUse);
 
     LogHelper.logSender(player.getName() + " à été ajouté à l'équipe " + team);
 
