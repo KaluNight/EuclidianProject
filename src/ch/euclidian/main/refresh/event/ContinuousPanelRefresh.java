@@ -252,4 +252,12 @@ public class ContinuousPanelRefresh implements Runnable {
     ContinuousPanelRefresh.running = running;
   }
 
+  public static List<InfoCard> getInfoCards() {
+    return infoCards;
+  }
+
+  public static void setInfoCards(List<InfoCard> infoCards) {
+    ContinuousPanelRefresh.infoCards = infoCards;
+  }
+
 }
