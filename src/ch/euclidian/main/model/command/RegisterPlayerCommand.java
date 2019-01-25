@@ -23,6 +23,7 @@ public class RegisterPlayerCommand extends Command {
     this.name = "register";
     this.arguments = "VotrePseudoLoL";
     this.help = "Permet de vous enregistrer en tant que joueur";
+    this.guildOnly = true;
   }
   
   @Override

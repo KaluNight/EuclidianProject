@@ -23,15 +23,11 @@ import me.philippheuer.twitch4j.TwitchClient;
 import me.philippheuer.twitch4j.TwitchClientBuilder;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Channel;
-import net.dv8tion.jda.core.entities.ChannelType;
-import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.PrivateChannel;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
@@ -405,60 +401,6 @@ public class EventListener extends ListenerAdapter{
         Ressources.getTwitchApi().disconnect();
         System.exit(0);
       }
-    }
-
-
-    if(command.equals("play")) {
-      event.getTextChannel().sendTyping().complete();
-      String[] stringSplit = message.split(" ");
-      if(stringSplit.length == 2) {
-        String url = stringSplit[1];
-        BotMusicManager botMusique = Ressources.getMusicBot();
-        VoiceChannel actualVoiceChannel = botMusique.getActualVoiceChannel();
-
-        if(actualVoiceChannel == null) {
-
-          List<Channel> channels = Main.getGuild().getChannels();
-
-          for(int i = 0; i < channels.size(); i++) {
-            if(channels.get(i).getType().equals(ChannelType.VOICE)) {
-              List<Member> inVoiceChannel = channels.get(i).getMembers();
-
-              for(Member member : inVoiceChannel) {
-                if(member.getUser().getId().equals(event.getAuthor().getId())) {
-                  actualVoiceChannel = Main.getGuild().getVoiceChannelById(channels.get(i).getId());
-                  break;
-                }
-              }
-              if(actualVoiceChannel != null) {
-                break;
-              }
-            }
-          }
-        }
-        if(actualVoiceChannel == null) {
-          event.getTextChannel().sendMessage("Veuillez rentrez dans un channel vocal pour que je puisse vous rejoindre").queue();
-        }else {
-          botMusique.setActualVoiceChannel(actualVoiceChannel);
-          botMusique.loadAndPlay(event.getTextChannel(), url);
-        }
-
-      }else {
-        event.getTextChannel().sendMessage("Vous n'avez envoyé aucun URL avec le message,"
-            + " je ne peux pas faire grand chose sans ¯\\_(ツ)_/¯").queue();
-      }
-    }else if(command.equals("skip")) {
-      event.getTextChannel().sendTyping().complete();
-      String result = Ressources.getMusicBot().skipActualTrack();
-      event.getTextChannel().sendMessage(result).queue();
-    }else if(command.equals("reset")) {
-      event.getTextChannel().sendTyping().complete();
-      Ressources.getMusicBot().clearQueue();
-      event.getTextChannel().sendMessage("J'ai supprimé les musiques qui était dans ma liste d'attente").queue();
-    }else if(command.equals("leave")) {
-      event.getTextChannel().sendTyping().complete();
-      Ressources.getMusicBot().leaveVoiceChannel();
-      event.getChannel().sendMessage("J'ai quitté le channel et remis à zéro ma liste").queue();
     }
   }
 

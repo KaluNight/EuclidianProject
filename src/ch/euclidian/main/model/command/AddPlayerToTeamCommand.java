@@ -21,25 +21,25 @@ public class AddPlayerToTeamCommand extends Command {
     this.help = "Ajoute un joueur à une équipe";
     this.ownerCommand = true;
   }
-  
+
   @Override
   protected void execute(CommandEvent event) {
-    
+
     Matcher m = Pattern.compile("\\(([^)]+)\\)").matcher(event.getArgs());
-    
+
     String pseudoDiscord = "";
     String team = "";
-    
+
     while(m.find()) {
       pseudoDiscord = m.group(1);    
-        break;
+      break;
     }
-    
+
     while (m.find()) { 
       team = m.group(1);
       break;
     }
-    
+
     User user = Main.getJda().getUsersByName(pseudoDiscord, true).get(0);
     Player player = Main.getPlayersByDiscordId(user.getId());
 
@@ -57,7 +57,7 @@ public class AddPlayerToTeamCommand extends Command {
     LogHelper.logSender(player.getName() + " à été ajouté à l'équipe " + team);
 
     event.reply("Le joueur a bien été ajouté à l'équipe");
-    
+
   }
 
 }

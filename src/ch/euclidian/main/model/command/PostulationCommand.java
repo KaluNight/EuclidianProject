@@ -49,6 +49,7 @@ public class PostulationCommand extends Command{
     this.name = "postulation";
     this.aliases = new String[]{"post"};
     this.help = "Lance une procédure de postulation";
+    this.guildOnly = true;
   }
 
   @Override
