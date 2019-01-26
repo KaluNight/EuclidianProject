@@ -55,6 +55,12 @@ public class AddPlayerToTeamCommand extends Command {
 
     Team teamToUse = Main.getTeamByName(team);
 
+    if(teamToUse == null) {
+      event.reply("L'équipe sélectionner n'existe pas !");
+      return;
+    }
+    
+    teamToUse.getPlayers().add(player);
     Main.getController().addRolesToMember(member, teamToUse.getRole()).queue();
 
     LogHelper.logSender(player.getName() + " à été ajouté à l'équipe " + team);
