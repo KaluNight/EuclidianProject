@@ -1,5 +1,6 @@
 package ch.euclidian.main.model.command;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,7 +18,7 @@ public class AddPlayerToTeamCommand extends Command {
 
   public AddPlayerToTeamCommand() {
     this.name = "addPlayerToTeam";
-    this.arguments = "(Pseudo Discord) (Nom Team)";
+    this.arguments = "(Mention Discord) (Nom Team)";
     this.help = "Ajoute un joueur à une équipe";
     this.ownerCommand = true;
   }
@@ -27,30 +28,32 @@ public class AddPlayerToTeamCommand extends Command {
 
     Matcher m = Pattern.compile("\\(([^)]+)\\)").matcher(event.getArgs());
 
-    String pseudoDiscord = "";
     String team = "";
-
-    while(m.find()) {
-      pseudoDiscord = m.group(1);    
-      break;
-    }
 
     while (m.find()) { 
       team = m.group(1);
-      break;
     }
 
-    User user = Main.getJda().getUsersByName(pseudoDiscord, true).get(0);
+    List<Member> mentionned = event.getMessage().getMentionedMembers();
+    User user;
+    Member member;
+    
+    if(mentionned.isEmpty()) {
+      event.reply("Vous n'avez mentionné aucun joueur !");
+      return;
+    }else {
+      member = mentionned.get(0);
+      user = member.getUser();
+    }
+    
     Player player = Main.getPlayersByDiscordId(user.getId());
 
     if(player == null) {
-      event.reply(pseudoDiscord + " n'est pas enregistrée en tant que joueur");
+      event.reply(member.getNickname() + " n'est pas enregistrée en tant que joueur");
       return;
     }
 
     Team teamToUse = Main.getTeamByName(team);
-
-    Member member = Main.getGuild().getMember(user);
 
     Main.getController().addRolesToMember(member, teamToUse.getRole()).queue();
 

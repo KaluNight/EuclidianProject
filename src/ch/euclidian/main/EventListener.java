@@ -360,7 +360,7 @@ public class EventListener extends ListenerAdapter{
         try {
           result = Ressources.getRiotApi().getSummonerByName(Platform.EUW, message.substring(13));
         } catch (RiotApiException e) {
-          e.printStackTrace();
+          logger.error(e.toString());
           event.getTextChannel().sendMessage("Erreur d'api").queue();
           return;
         }

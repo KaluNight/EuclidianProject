@@ -13,11 +13,12 @@ public class InfoCard {
   private MessageEmbed card;
   private Message title;
   private Message message;
-  private DateTime creationTime = DateTime.now();
+  private DateTime creationTime;
   
   public InfoCard(List<Player> players, MessageEmbed card) {
     this.players = players;
     this.card = card;
+    this.creationTime = DateTime.now();
   }
   
   public List<Player> getPlayers() {
