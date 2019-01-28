@@ -16,7 +16,7 @@ import ch.euclidian.main.refresh.event.ContinuousTimeChecking;
 import ch.euclidian.main.util.Ressources;
 
 public class ShutDownCommand extends Command{
-  
+
   private static final Logger logger = LoggerFactory.getLogger(ShutDownCommand.class);
 
   public ShutDownCommand() {
@@ -25,7 +25,7 @@ public class ShutDownCommand extends Command{
     this.hidden = true;
     this.ownerCommand = true;
   }
-  
+
   @Override
   protected void execute(CommandEvent event) {
     EventListener.getStatusReportMessage().editMessage("Status : Hors Ligne").complete();
@@ -62,7 +62,5 @@ public class ShutDownCommand extends Command{
     Ressources.getTwitchApi().disconnect();
     System.exit(0);
   }
-  }
 
-  
 }

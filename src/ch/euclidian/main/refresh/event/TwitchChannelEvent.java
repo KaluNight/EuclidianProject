@@ -1,8 +1,5 @@
 package ch.euclidian.main.refresh.event;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ch.euclidian.main.Main;
 import ch.euclidian.main.model.Player;
 import ch.euclidian.main.util.LogHelper;
@@ -16,11 +13,8 @@ import me.philippheuer.twitch4j.events.event.channel.SubscriptionEvent;
 import me.philippheuer.twitch4j.events.event.irc.ChannelMessageEvent;
 import me.philippheuer.twitch4j.events.event.irc.UserBanEvent;
 import me.philippheuer.twitch4j.events.event.irc.UserTimeoutEvent;
-import net.rithms.riot.api.RiotApiException;
 
 public class TwitchChannelEvent {
-
-  private static Logger logger = LoggerFactory.getLogger(TwitchChannelEvent.class);
 
   @EventSubscriber
   public void onChannelMessage(ChannelMessageEvent event) {
@@ -36,13 +30,9 @@ public class TwitchChannelEvent {
         String pseudo = command.split(" ")[1];
 
         if(player != null) {
-          try {
-            String returnMessage = pseudo + " est actuellement " + RiotRequest.getSoloqRank(player.getSummoner().getId());
-            Ressources.getMessageInterface().sendMessage(event.getChannel().getName(), returnMessage);
-            LogHelper.logSender("Requête SoloQ pour " + pseudo + " effectuer par : " + event.getUser().getName());
-          } catch(RiotApiException e) {
-            logger.info("Impossible to get SoloQ Rank : {}", e.getMessage());
-          }
+          String returnMessage = pseudo + " est actuellement " + RiotRequest.getSoloqRank(player.getSummoner().getId());
+          Ressources.getMessageInterface().sendMessage(event.getChannel().getName(), returnMessage);
+          LogHelper.logSender("Requête SoloQ pour " + pseudo + " effectuer par : " + event.getUser().getName());
         }
       }
 
@@ -96,13 +86,13 @@ public class TwitchChannelEvent {
   public void onUserDonation(DonationEvent event) {
     String message = event.getUser().getName() + " a fait un don de "
         + event.getAmount() + " " + event.getCurrency().getDisplayName() + " ! Merci pour ton soutient <3";
-    
+
     Ressources.getMessageInterface().sendMessage(event.getChannel().getName(), message);
-    
+
     LogHelper.logSender(event.getUser().getName() + " a fait un don de "
         + event.getAmount() + " " + event.getCurrency().getDisplayName() + " venant de " + event.getSource());
   }
-  
+
   @EventSubscriber
   public void onUserTimeout(UserTimeoutEvent event) {
     LogHelper.logSender(event.getUser() + "vient de se faire ban temporairement pendant " + event.getDuration() + " secondes");

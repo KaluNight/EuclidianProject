@@ -7,9 +7,6 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ch.euclidian.main.model.Champion;
 import ch.euclidian.main.model.Player;
 import ch.euclidian.main.model.Postulation;
