@@ -29,10 +29,8 @@ import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 public class MessageBuilderRequest {
 
   private static final DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("HH:mm");
-  
-  private static final Color STREAM_COLOR = Color.getHSBColor(281, 85, 84);
 
-  private static Logger logger = LoggerFactory.getLogger(MessageBuilderRequest.class);
+  private static final Color STREAM_COLOR = Color.getHSBColor(281, 85, 84);
 
   private MessageBuilderRequest() {
   }
@@ -72,13 +70,7 @@ public class MessageBuilderRequest {
       Champion champion = null;
       champion = Ressources.getChampionDataById(blueTeam.get(i).getChampionId());
 
-      String rank = null;
-      try {
-        rank = RiotRequest.getSoloqRank(blueTeam.get(i).getSummonerId());
-      } catch (RiotApiException e) {
-        logger.error(e.getMessage());
-        return null;
-      }
+      String rank = RiotRequest.getSoloqRank(blueTeam.get(i).getSummonerId());
 
       if(summoner.getName().equals(blueTeam.get(i).getSummonerName())) {
         blueTeamString.append(champion.getName() + " | __**" + NameConversion.convertStringToTinyString(blueTeam.get(i).getSummonerName()) + "**__" + "\n");
@@ -104,13 +96,7 @@ public class MessageBuilderRequest {
       Champion champion = null;
       champion = Ressources.getChampionDataById(redTeam.get(i).getChampionId());
 
-      String rank = null;
-      try {
-        rank = RiotRequest.getSoloqRank(redTeam.get(i).getSummonerId());
-      } catch (RiotApiException e) {
-        logger.error(e.getMessage());
-        return null;
-      }
+      String rank = RiotRequest.getSoloqRank(redTeam.get(i).getSummonerId());
 
       if(summoner.getName().equals(redTeam.get(i).getSummonerName())) {
         redTeamString.append(champion.getName() + " | __**" + NameConversion.convertStringToTinyString(redTeam.get(i).getSummonerName()) + "**__" + "\n");
@@ -197,16 +183,10 @@ public class MessageBuilderRequest {
       Champion champion = null;
       champion = Ressources.getChampionDataById(blueTeam.get(i).getChampionId());
 
-      String rank = null;
-      try {
-        rank = RiotRequest.getSoloqRank(blueTeam.get(i).getSummonerId());
-      } catch (RiotApiException e) {
-        logger.error(e.getMessage());
-        return null;
-      }
+      String rank = RiotRequest.getSoloqRank(blueTeam.get(i).getSummonerId());
 
       if(listIdPlayers.contains(blueTeam.get(i).getSummonerId())) {
-        blueTeamString.append(champion.getName() + " | __" + NameConversion.convertStringToTinyString(blueTeam.get(i).getSummonerName()) + "__" + "\n");
+        blueTeamString.append(champion.getName() + " | __**" + NameConversion.convertStringToTinyString(blueTeam.get(i).getSummonerName()) + "**__" + "\n");
       }else {
         blueTeamString.append(champion.getName() + " | " + NameConversion.convertStringToTinyString(blueTeam.get(i).getSummonerName()) + "\n");
       }
@@ -229,16 +209,10 @@ public class MessageBuilderRequest {
       Champion champion = null;
       champion = Ressources.getChampionDataById(redTeam.get(i).getChampionId());
 
-      String rank = null;
-      try {
-        rank = RiotRequest.getSoloqRank(redTeam.get(i).getSummonerId());
-      } catch (RiotApiException e) {
-        logger.error(e.getMessage());
-        return null;
-      }
-
+      String rank = RiotRequest.getSoloqRank(redTeam.get(i).getSummonerId());
+        
       if(listIdPlayers.contains(redTeam.get(i).getSummonerId())) {
-        redTeamString.append(champion.getName() + " | __" + NameConversion.convertStringToTinyString(redTeam.get(i).getSummonerName()) + "__" + "\n");
+        redTeamString.append(champion.getName() + " | __**" + NameConversion.convertStringToTinyString(redTeam.get(i).getSummonerName()) + "**__" + "\n");
       }else {
         redTeamString.append(champion.getName() + " | " + NameConversion.convertStringToTinyString(redTeam.get(i).getSummonerName()) + "\n");
       }
@@ -315,7 +289,7 @@ public class MessageBuilderRequest {
 
     message.setThumbnail(channel.getLogo());
 
-    //message.setImage(LINK_BANNER); TODO: When we have a banner, add it
+    message.setImage(actualStream.getPreview().getLarge()); //TODO: When we have a banner, add it
 
     message.setColor(STREAM_COLOR);
 

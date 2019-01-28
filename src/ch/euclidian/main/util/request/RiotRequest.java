@@ -26,19 +26,25 @@ import net.rithms.riot.constant.Platform;
 
 public class RiotRequest {
 
-  private static Logger logger = LoggerFactory.getLogger(RiotRequest.class);
+  private static final Logger logger = LoggerFactory.getLogger(RiotRequest.class);
 
-  private static DecimalFormat df = new DecimalFormat("###.##");
+  private static final DecimalFormat df = new DecimalFormat("###.##");
 
   private static final int MAX_GAME_FOR_WINRATE = 20 - 1;
 
   private RiotRequest() {
   }
 
-  public static String getSoloqRank(long summonerID) throws RiotApiException {
+  public static String getSoloqRank(long summonerID) {
 
-    Set<LeaguePosition> listLeague = Ressources.getRiotApi().getLeaguePositionsBySummonerId(Platform.EUW, summonerID);
-
+    Set<LeaguePosition> listLeague;
+    try {
+      listLeague = Ressources.getRiotApi().getLeaguePositionsBySummonerId(Platform.EUW, summonerID);
+    } catch (RiotApiException e) {
+      logger.warn("Impossible d'obtenir le rank de la personne : {}", e.getMessage(), e);
+      return "Inconnu";
+    }
+    
     Iterator<LeaguePosition> gettableList = listLeague.iterator();
 
     String ligue = "Unranked";
