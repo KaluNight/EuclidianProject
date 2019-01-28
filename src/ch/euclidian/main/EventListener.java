@@ -13,8 +13,6 @@ import org.slf4j.LoggerFactory;
 import ch.euclidian.main.model.Team;
 import ch.euclidian.main.model.command.PostulationCommand;
 import ch.euclidian.main.music.BotMusicManager;
-import ch.euclidian.main.music.MusicManager;
-import ch.euclidian.main.refresh.event.ContinuousPanelRefresh;
 import ch.euclidian.main.refresh.event.ContinuousTimeChecking;
 import ch.euclidian.main.refresh.event.TwitchChannelEvent;
 import ch.euclidian.main.util.LogHelper;
@@ -366,40 +364,6 @@ public class EventListener extends ListenerAdapter{
         }
         event.getTextChannel().sendMessage("Account Id de " + result.getName() + " : " + result.getAccountId()).queue();
 
-      } else if (command.equals("stop")) {
-        statusReportMessage.editMessage("Status : Hors Ligne").complete();
-        event.getTextChannel().sendTyping().complete();
-
-        for(int i = 0; i < ContinuousPanelRefresh.getInfoCards().size(); i++) {
-          ContinuousPanelRefresh.getInfoCards().get(i).getMessage().delete().complete();
-          ContinuousPanelRefresh.getInfoCards().get(i).getTitle().delete().complete();
-        }
-
-        MusicManager musicManager = Ressources.getMusicBot().getMusicManager();
-        musicManager.player.stopTrack();
-        musicManager.scheduler.deleteTheQueue();
-        Ressources.getMusicBot().getAudioManager().closeAudioConnection();
-        Ressources.getMusicBot().setActualVoiceChannel(null);
-
-        timerTask.cancel();
-        ContinuousTimeChecking.shutdownThreadPool();
-        event.getTextChannel().sendMessage("Je suis down !").complete();
-        Main.getJda().shutdownNow();
-
-        try {
-          Main.saveDataTxt();
-        } catch (IOException e) {
-          logger.error("Erreur de sauvegarde : {}", e.getMessage());
-        }
-
-        try {
-          Ressources.getMessageInterface().leaveChannel(Ressources.TWITCH_CHANNEL_NAME);
-        } catch (NullPointerException e) {
-          logger.warn("NullPointerException : {}", e.getMessage());
-        }
-
-        Ressources.getTwitchApi().disconnect();
-        System.exit(0);
       }
     }
   }
@@ -434,5 +398,9 @@ public class EventListener extends ListenerAdapter{
 
   public static void setStatusReportMessage(Message statusReportMessage) {
     EventListener.statusReportMessage = statusReportMessage;
+  }
+
+  public static Message getStatusReportMessage() {
+    return statusReportMessage;
   }
 }

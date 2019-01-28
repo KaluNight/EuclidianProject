@@ -35,6 +35,11 @@ import ch.euclidian.main.model.command.AddPlayerToTeamCommand;
 import ch.euclidian.main.model.command.PingCommand;
 import ch.euclidian.main.model.command.PostulationCommand;
 import ch.euclidian.main.model.command.RegisterPlayerCommand;
+import ch.euclidian.main.model.command.ShutDownCommand;
+import ch.euclidian.main.model.command.music.LeaveCommand;
+import ch.euclidian.main.model.command.music.PlayCommand;
+import ch.euclidian.main.model.command.music.ResetCommand;
+import ch.euclidian.main.model.command.music.SkipCommand;
 import ch.euclidian.main.refresh.event.ContinuousKeepData;
 import ch.euclidian.main.refresh.event.ContinuousTimeChecking;
 import ch.euclidian.main.util.LogHelper;
@@ -152,7 +157,12 @@ public class Main {
         new PingCommand(),
         new PostulationCommand(waiter),
         new RegisterPlayerCommand(),
-        new AddPlayerToTeamCommand()
+        new AddPlayerToTeamCommand(),
+        new LeaveCommand(),
+        new PlayCommand(),
+        new ResetCommand(),
+        new SkipCommand(),
+        new ShutDownCommand()
         );
 
     try {

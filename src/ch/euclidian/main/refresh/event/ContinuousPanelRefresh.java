@@ -41,7 +41,7 @@ public class ContinuousPanelRefresh implements Runnable {
   private static List<InfoCard> infoCards = new ArrayList<>();
 
   private static Message messagePanel;
-  
+
   private static final DateTimeFormatter timeFormatter = DateTimeFormat.forPattern("HH:mm");
 
   private static Logger logger = LoggerFactory.getLogger(ContinuousPanelRefresh.class);
@@ -99,9 +99,13 @@ public class ContinuousPanelRefresh implements Runnable {
     }
 
     for(int i = 0; i < cardsToRemove.size(); i++) {
-      infoCards.remove(cardsToRemove.get(i));
-      cardsToRemove.get(i).getMessage().delete().complete();
-      cardsToRemove.get(i).getTitle().delete().complete();
+      try {      
+        cardsToRemove.get(i).getMessage().delete().complete();
+        cardsToRemove.get(i).getTitle().delete().complete();
+        infoCards.remove(cardsToRemove.get(i));
+      }catch (Exception e) {
+        logger.warn("Impossible de delete message : {}", e.getMessage(), e);
+      }
     }
   }
 
@@ -221,7 +225,7 @@ public class ContinuousPanelRefresh implements Runnable {
       }
       stringMessage.append(" \n");
     }
-    
+
     stringMessage.append("\nDernier rafraichissement à " + DateTime.now().plusHours(1).toString(timeFormatter) 
         + " | *Rafraichi toutes les 3 minutes*");
 
