@@ -344,7 +344,7 @@ public class Main {
         if(line.equals("--p")) {
           String discordName = reader.readLine();
           String discordID = reader.readLine();
-          long accountId = Long.parseLong(reader.readLine());
+          String accountId = reader.readLine();
           boolean mentionable = Boolean.parseBoolean(reader.readLine());
 
           if(!isPlayersAlreadyCopied(discordID)) {
@@ -404,7 +404,7 @@ public class Main {
 
           if(member != null) {
 
-            Summoner summoner = Ressources.getRiotApi().getSummonerByAccount(Platform.EUW, Long.parseLong(reader.readLine()));
+            Summoner summoner = Ressources.getRiotApi().getSummonerByAccount(Platform.EUW, reader.readLine());
 
             ArrayList<Role> roles = new ArrayList<>();
 

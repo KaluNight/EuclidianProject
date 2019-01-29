@@ -165,7 +165,7 @@ public class MessageBuilderRequest {
       }
     }
 
-    ArrayList<Long> listIdPlayers = new ArrayList<>();
+    ArrayList<String> listIdPlayers = new ArrayList<>();
 
     for(int i = 0; i < players.size(); i++) {
       listIdPlayers.add(players.get(i).getSummoner().getId());

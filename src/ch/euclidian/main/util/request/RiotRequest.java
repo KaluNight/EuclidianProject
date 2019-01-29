@@ -35,7 +35,7 @@ public class RiotRequest {
   private RiotRequest() {
   }
 
-  public static String getSoloqRank(long summonerID) {
+  public static String getSoloqRank(String summonerID) {
 
     Set<LeaguePosition> listLeague;
     try {
@@ -63,7 +63,7 @@ public class RiotRequest {
     return ligue;
   }
 
-  public static String getWinrateLast20Games(long summonerId) {
+  public static String getWinrateLast20Games(String summonerId) {
     DateTime actualTime = DateTime.now();
 
     Summoner summoner;
@@ -138,7 +138,7 @@ public class RiotRequest {
     return df.format((nbrWin / (double) nbrGames) * 100) + "% (" + nbrGames + " parties)";
   }
   
-  public static String getMasterysScore(long summonerId, int championId) {
+  public static String getMasterysScore(String summonerId, int championId) {
     ChampionMastery mastery = null;
     try {
       mastery = Ressources.getRiotApi().getChampionMasteriesBySummonerByChampion(Platform.EUW, summonerId, championId);
@@ -157,7 +157,7 @@ public class RiotRequest {
     }
   }
   
-  public static String getMood(long summonerId) {
+  public static String getMood(String summonerId) {
     DateTime actualTime = DateTime.now();
 
     Summoner summoner;
