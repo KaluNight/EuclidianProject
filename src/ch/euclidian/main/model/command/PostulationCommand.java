@@ -5,9 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
@@ -41,8 +38,6 @@ public class PostulationCommand extends Command{
   private static final HashMap<User, List<Message>> messages = new HashMap<>();
   private static final HashMap<User, Postulation> postulations = new HashMap<>();
   private static final List<User> userInRegistration = new ArrayList<>();
-
-  private static final Logger logger = LoggerFactory.getLogger(PostulationCommand.class);
 
   public PostulationCommand(EventWaiter waiter) {
     this.waiter = waiter;
@@ -235,17 +230,7 @@ public class PostulationCommand extends Command{
     postulations.put(event.getAuthor(), new Postulation(event.getMember(), summoner, listRole.get(event.getAuthor()), dispo));
 
     MessageEmbed embended;
-    try {
-      embended = MessageBuilderRequest.createShowPostulation(postulations.get(event.getAuthor()), 1);
-    } catch(RiotApiException e) {
-      logger.warn("L'api Riot a eu un problème : {}", e.getMessage());
-      addMessageToList(event.getAuthor(), event.getTextChannel()
-          .sendMessage("L'api Riot a subis un problème, merci de recommencer la procédure."
-              + " Si le problèmes persiste, merci de contacter un admin").complete());
-
-      endRegistration(event);
-      return;
-    }
+    embended = MessageBuilderRequest.createShowPostulation(postulations.get(event.getAuthor()), 1);
 
     Message validationMessage = builder.build();
 

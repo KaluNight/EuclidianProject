@@ -18,7 +18,6 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.MessageEmbed.Field;
 import net.dv8tion.jda.core.entities.User;
-import net.rithms.riot.api.RiotApiException;
 import net.rithms.riot.api.endpoints.spectator.dto.CurrentGameInfo;
 import net.rithms.riot.api.endpoints.spectator.dto.CurrentGameParticipant;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
@@ -239,7 +238,7 @@ public class MessageBuilderRequest {
     return message.build();
   }
 
-  public static MessageEmbed createShowPostulation(Postulation postulation, int postulationNbr) throws RiotApiException {
+  public static MessageEmbed createShowPostulation(Postulation postulation, int postulationNbr) {
 
     EmbedBuilder message = new EmbedBuilder();
 

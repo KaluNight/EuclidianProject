@@ -30,10 +30,6 @@ public class CommandManagement {
   //							Main Command Section
   //-------------------------------------------------------------------------
 
-  public static String showCommand(String commande, User user) {
-    return "Erreur dans le choix de l'affichage";
-  }
-
   public static String deleteCommand(String commande) {
     if(commande.substring(0, 4).equalsIgnoreCase("team")) {
       return deleteTeamCommand(commande);

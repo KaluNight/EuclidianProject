@@ -35,7 +35,9 @@ import ch.euclidian.main.model.command.AddPlayerToTeamCommand;
 import ch.euclidian.main.model.command.PingCommand;
 import ch.euclidian.main.model.command.PostulationCommand;
 import ch.euclidian.main.model.command.RegisterPlayerCommand;
+import ch.euclidian.main.model.command.ShowCommand;
 import ch.euclidian.main.model.command.ShutDownCommand;
+import ch.euclidian.main.model.command.create.CreateTeamCommand;
 import ch.euclidian.main.model.command.music.LeaveCommand;
 import ch.euclidian.main.model.command.music.PlayCommand;
 import ch.euclidian.main.model.command.music.ResetCommand;
@@ -154,15 +156,22 @@ public class Main {
     client.setGame(Game.playing("Démarrage ..."));
 
     client.addCommands(
+        //General Command
         new PingCommand(),
+        new ShutDownCommand(),
+        
+        //Guild Command
         new PostulationCommand(waiter),
         new RegisterPlayerCommand(),
+        new CreateTeamCommand(),
         new AddPlayerToTeamCommand(),
+        new ShowCommand(),
+        
+        //Music Command
         new LeaveCommand(),
         new PlayCommand(),
         new ResetCommand(),
-        new SkipCommand(),
-        new ShutDownCommand()
+        new SkipCommand()
         );
 
     try {

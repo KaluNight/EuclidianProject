@@ -22,7 +22,6 @@ import me.philippheuer.twitch4j.TwitchClientBuilder;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.PrivateChannel;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -289,46 +288,7 @@ public class EventListener extends ListenerAdapter{
 
     if(isAdmin) {
 
-      if (command.equalsIgnoreCase("show")) {
-
-        event.getTextChannel().sendTyping().complete();
-
-        if(message.split(" ")[1].equalsIgnoreCase("postulations") || message.split(" ")[1].equalsIgnoreCase("postulation")) {
-
-          ArrayList<MessageEmbed> listEmbended = null;
-          try {
-            listEmbended = new ArrayList<>(CommandManagement.showPostulationsCommand(command));
-          } catch (RiotApiException e) {
-            e.printStackTrace();
-            event.getTextChannel().sendMessage("Erreur api").queue();
-            return;
-          }
-
-          for(int i = 0; i < listEmbended.size(); i++) {
-            event.getTextChannel().sendMessage(listEmbended.get(i)).queue();
-          }
-
-          if(listEmbended.isEmpty()) {
-            event.getTextChannel().sendMessage("Aucune Postulation dans la liste").queue();
-          }
-
-        } else if(message.split(" ")[1].equalsIgnoreCase("reports") || message.split(" ")[1].equalsIgnoreCase("report")) {
-          event.getChannel().sendTyping().complete();
-          ArrayList<String> listReport = new ArrayList<>(CommandManagement.showReportsCommand());
-          for(int i = 0; i < listReport.size(); i++) {
-            event.getChannel().sendMessage(listReport.get(i)).queue();
-          }
-
-          if(listReport.isEmpty()) {
-            event.getChannel().sendMessage("Aucun message a afficher").queue();
-          }
-
-        } else {
-          String result = CommandManagement.showCommand(command, event.getAuthor());
-          event.getTextChannel().sendMessage(result).queue();
-        }
-
-      } else if (command.equalsIgnoreCase("delete")) {
+      if (command.equalsIgnoreCase("delete")) {
 
         event.getTextChannel().sendTyping().complete();
         String result = CommandManagement.deleteCommand(message.substring(7));
