@@ -234,7 +234,7 @@ public class Main {
       } catch(JsonSyntaxException | JsonIOException e) {
         LogHelper.logSender("Le fichier de sauvegarde de " + Main.getPlayerList().get(i).getName() + " est corrompu !");
       } catch(FileNotFoundException e) {
-        LogHelper.logSender(Main.getPlayerList().get(i).getName() + " ne possède pas de sauvegarde de donnés");
+        logger.info((Main.getPlayerList().get(i).getName() + " ne possède pas de sauvegarde de donnés"));
       }
     }
   }

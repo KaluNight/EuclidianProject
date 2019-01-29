@@ -205,7 +205,7 @@ public class EventListener extends ListenerAdapter{
       LogHelper.logSenderDirectly("Une erreur est survenu lors du chargement des sauvegardes détaillés !");
     } catch (RiotApiException e) {
       logger.error(e.getMessage());
-      LogHelper.logSenderDirectly("Une erreur est survenu lors du chargement des sauvegardes détaillés !");
+      LogHelper.logSenderDirectly("Une erreur venant de l'api Riot est survenu lors du chargement des sauvegardes détaillés !");
     }
 
     LogHelper.logSenderDirectly("Chargement des sauvegardes détaillés terminé !");
@@ -248,7 +248,7 @@ public class EventListener extends ListenerAdapter{
     try {
       rolesOfSender = initializeRolesFromSender(event);
     }catch (NullPointerException e) {
-      logger.info("L'envoyeur ne fait plus parti du serveur");
+      logger.info("L'envoyeur ne fait plus/pas parti du serveur");
       return;
     }
 
@@ -289,12 +289,7 @@ public class EventListener extends ListenerAdapter{
 
     if(isAdmin) {
 
-      if (command.equalsIgnoreCase("Add")){
-        event.getTextChannel().sendTyping().complete();
-        String result = CommandManagement.addCommand(message.substring(4), event.getAuthor());
-        event.getTextChannel().sendMessage(result).queue();
-
-      } else if (command.equalsIgnoreCase("show")) {
+      if (command.equalsIgnoreCase("show")) {
 
         event.getTextChannel().sendTyping().complete();
 

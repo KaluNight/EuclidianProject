@@ -1,6 +1,5 @@
 package ch.euclidian.main;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -11,8 +10,6 @@ import ch.euclidian.main.model.Team;
 import ch.euclidian.main.util.LogHelper;
 import ch.euclidian.main.util.Ressources;
 import ch.euclidian.main.util.request.MessageBuilderRequest;
-import net.dv8tion.jda.core.entities.Category;
-import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
@@ -20,7 +17,6 @@ import net.dv8tion.jda.core.entities.PrivateChannel;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.requests.restaction.RoleAction;
 import net.rithms.riot.api.RiotApiException;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 import net.rithms.riot.constant.Platform;
@@ -36,14 +32,6 @@ public class CommandManagement {
 
   public static String showCommand(String commande, User user) {
     return "Erreur dans le choix de l'affichage";
-  }
-
-  public static String addCommand(String commande, User user) {
-    if(commande.substring(0, 4).equalsIgnoreCase("team")) {
-      return addTeamCommand(commande.substring(5));
-    }else {
-      return "Erreur dans le choix de l'ajout";
-    }
   }
 
   public static String deleteCommand(String commande) {
@@ -113,44 +101,6 @@ public class CommandManagement {
     LogHelper.logSender("Reports envoyés");
 
     return listReport;
-  }
-
-  //							Add Command
-  //-------------------------------------------------------------------------
-
-  private static String addTeamCommand(String commande) {
-    RoleAction role = Main.getController().createRole();
-    role.setName("Division " + commande);
-    role.setColor(Color.RED);
-    role.setMentionable(true);
-    role.setPermissions(Team.getPermissionsList());
-
-    Role teamRole = role.complete();
-    Role everyone = Main.getGuild().getPublicRole();
-
-    Channel section = Main.getController().createCategory("Section " + commande).complete();
-    section.createPermissionOverride(teamRole).setAllow(Team.getPermissionsList()).queue();
-    section.createPermissionOverride(everyone).setDeny(Team.getPermissionsList()).queue();
-
-    String sectionId = section.getId();
-
-    Category category = Main.getGuild().getCategoryById(sectionId);
-
-    category.createTextChannel("annonce-" + commande).queue();
-    category.createTextChannel("general-" + commande).queue();
-    category.createTextChannel("liste-de-pick").queue();
-    category.createTextChannel("annonce-absence").queue();
-    category.createVoiceChannel("Général " + commande).queue();
-
-    ArrayList<Team> teamList = new ArrayList<>();
-    teamList.addAll(Main.getTeamList());
-    teamList.add(new Team(commande, category, teamRole));
-
-    Main.setTeamList(teamList);
-
-    LogHelper.logSender("Equipe " + commande + " créé");
-
-    return "Equipe " + commande + " créé !";
   }
 
 
