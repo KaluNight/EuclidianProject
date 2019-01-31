@@ -65,7 +65,7 @@ public class MessageBuilderRequest {
       Champion champion = null;
       champion = Ressources.getChampionDataById(blueTeam.get(i).getChampionId());
 
-      String rank = RiotRequest.getSoloqRank(blueTeam.get(i).getSummonerId());
+      String rank = RiotRequest.getSoloqRank(blueTeam.get(i).getSummonerId()).toString();
 
       if(summoner.getName().equals(blueTeam.get(i).getSummonerName())) {
         blueTeamString.append(
@@ -93,7 +93,7 @@ public class MessageBuilderRequest {
       Champion champion = null;
       champion = Ressources.getChampionDataById(redTeam.get(i).getChampionId());
 
-      String rank = RiotRequest.getSoloqRank(redTeam.get(i).getSummonerId());
+      String rank = RiotRequest.getSoloqRank(redTeam.get(i).getSummonerId()).toString();
 
       if(summoner.getName().equals(redTeam.get(i).getSummonerName())) {
         redTeamString.append(
@@ -182,7 +182,7 @@ public class MessageBuilderRequest {
       Champion champion = null;
       champion = Ressources.getChampionDataById(blueTeam.get(i).getChampionId());
 
-      String rank = RiotRequest.getSoloqRank(blueTeam.get(i).getSummonerId());
+      String rank = RiotRequest.getSoloqRank(blueTeam.get(i).getSummonerId()).toString();
 
       if(listIdPlayers.contains(blueTeam.get(i).getSummonerId())) {
         blueTeamString.append(
@@ -210,7 +210,7 @@ public class MessageBuilderRequest {
       Champion champion = null;
       champion = Ressources.getChampionDataById(redTeam.get(i).getChampionId());
 
-      String rank = RiotRequest.getSoloqRank(redTeam.get(i).getSummonerId());
+      String rank = RiotRequest.getSoloqRank(redTeam.get(i).getSummonerId()).toString();
 
       if(listIdPlayers.contains(redTeam.get(i).getSummonerId())) {
         redTeamString.append(
@@ -253,7 +253,7 @@ public class MessageBuilderRequest {
 
     message.setTitle("Postulation numéro " + postulationNbr + " de " + postulation.getMember().getUser().getName());
 
-    String rank = RiotRequest.getSoloqRank(postulation.getSummoner().getId());
+    String rank = RiotRequest.getSoloqRank(postulation.getSummoner().getId()).toString();
     Field field = new Field("**Pseudo & Rang Soloq**", postulation.getSummoner().getName() + " - " + rank, false);
     message.addField(field);
 
