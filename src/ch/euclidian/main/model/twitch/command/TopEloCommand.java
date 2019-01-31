@@ -13,7 +13,6 @@ import me.philippheuer.twitch4j.message.commands.CommandPermission;
 public class TopEloCommand extends Command {
 
   public TopEloCommand() {
-    // Command Configuration
     setCommand("topelo");
     setCommandAliases(new String[] {"bestelo", "topelos"});
     setCategory("general");
