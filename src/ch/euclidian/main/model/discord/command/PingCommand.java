@@ -1,4 +1,4 @@
-package ch.euclidian.main.model.command;
+package ch.euclidian.main.model.discord.command;
 
 import java.time.temporal.ChronoUnit;
 

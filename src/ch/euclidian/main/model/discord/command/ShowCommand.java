@@ -1,4 +1,4 @@
-package ch.euclidian.main.model.command;
+package ch.euclidian.main.model.discord.command;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;

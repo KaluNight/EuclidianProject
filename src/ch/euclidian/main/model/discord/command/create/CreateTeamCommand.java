@@ -1,4 +1,4 @@
-package ch.euclidian.main.model.command.create;
+package ch.euclidian.main.model.discord.command.create;
 
 import java.awt.Color;
 import java.util.ArrayList;

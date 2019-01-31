@@ -1,4 +1,4 @@
-package ch.euclidian.main.model.command.music;
+package ch.euclidian.main.model.discord.command.music;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;

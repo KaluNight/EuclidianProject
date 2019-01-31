@@ -179,7 +179,7 @@ public class ContinuousPanelRefresh implements Runnable {
 
     for(int i = 0; i < Main.getPlayerList().size(); i++) {
       for(int j = 0; j < currentGameInfo.getParticipants().size(); j++) {
-        if(currentGameInfo.getParticipants().get(j).getSummonerId() == Main.getPlayerList().get(i).getSummoner().getId()) {
+        if(currentGameInfo.getParticipants().get(j).getSummonerId().equals(Main.getPlayerList().get(i).getSummoner().getId())) {
           listOfPlayers.add(Main.getPlayerList().get(i));
         }
       }
@@ -209,7 +209,7 @@ public class ContinuousPanelRefresh implements Runnable {
 
       stringMessage.append("**Division " + teamList.get(i).getName() + "**\n \n");
 
-      ArrayList<Player> playersList = teamList.get(i).getPlayers();
+      List<Player> playersList = teamList.get(i).getPlayers();
 
       for(int j = 0; j < playersList.size(); j++) {
         stringMessage.append(playersList.get(j).getSummoner().getName() + " (" + playersList.get(j).getDiscordUser().getAsMention() + ") : ");

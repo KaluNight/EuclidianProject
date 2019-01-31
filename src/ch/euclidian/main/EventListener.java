@@ -11,7 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.euclidian.main.model.Team;
-import ch.euclidian.main.model.command.PostulationCommand;
+import ch.euclidian.main.model.discord.command.PostulationCommand;
+import ch.euclidian.main.model.twitch.command.TopEloCommand;
 import ch.euclidian.main.music.BotMusicManager;
 import ch.euclidian.main.refresh.event.ContinuousTimeChecking;
 import ch.euclidian.main.refresh.event.TwitchChannelEvent;
@@ -164,6 +165,7 @@ public class EventListener extends ListenerAdapter{
     twitchClient.connect();
 
     twitchClient.getDispatcher().registerListener(new TwitchChannelEvent());
+    twitchClient.getCommandHandler().registerCommand(TopEloCommand.class);
 
     Ressources.setTwitchApi(twitchClient);
     Ressources.setMessageInterface(twitchClient.getMessageInterface());
