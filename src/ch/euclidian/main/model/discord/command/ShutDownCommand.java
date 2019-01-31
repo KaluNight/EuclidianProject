@@ -1,13 +1,10 @@
 package ch.euclidian.main.model.discord.command;
 
 import java.io.IOException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-
 import ch.euclidian.main.EventListener;
 import ch.euclidian.main.Main;
 import ch.euclidian.main.music.MusicManager;
@@ -15,7 +12,7 @@ import ch.euclidian.main.refresh.event.ContinuousPanelRefresh;
 import ch.euclidian.main.refresh.event.ContinuousTimeChecking;
 import ch.euclidian.main.util.Ressources;
 
-public class ShutDownCommand extends Command{
+public class ShutDownCommand extends Command {
 
   private static final Logger logger = LoggerFactory.getLogger(ShutDownCommand.class);
 
@@ -49,13 +46,13 @@ public class ShutDownCommand extends Command{
 
     try {
       Main.saveDataTxt();
-    } catch (IOException e) {
+    } catch(IOException e) {
       logger.error("Erreur de sauvegarde : {}", e.getMessage());
     }
 
     try {
       Ressources.getMessageInterface().leaveChannel(Ressources.TWITCH_CHANNEL_NAME);
-    } catch (NullPointerException e) {
+    } catch(NullPointerException e) {
       logger.warn("NullPointerException : {}", e.getMessage());
     }
 

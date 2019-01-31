@@ -2,10 +2,8 @@ package ch.euclidian.main.model.discord.command;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-
 import ch.euclidian.main.Main;
 import ch.euclidian.main.model.Player;
 import ch.euclidian.main.util.LogHelper;
@@ -16,7 +14,7 @@ import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 import net.rithms.riot.constant.Platform;
 
 public class RegisterPlayerCommand extends Command {
-  
+
   private static final Logger logger = LoggerFactory.getLogger(RegisterPlayerCommand.class);
 
   public RegisterPlayerCommand() {
@@ -25,14 +23,14 @@ public class RegisterPlayerCommand extends Command {
     this.help = "Permet de vous enregistrer en tant que joueur";
     this.guildOnly = true;
   }
-  
+
   @Override
   protected void execute(CommandEvent event) {
     String pseudo = null;
 
     try {
       pseudo = event.getArgs();
-      
+
       for(int i = 0; i < Main.getPlayerList().size(); i++) {
         if(Main.getPlayerList().get(i).getSummoner().getName().equals(pseudo)) {
           event.reply("Ce compte est déjà enregistré");
@@ -40,7 +38,7 @@ public class RegisterPlayerCommand extends Command {
         }
       }
 
-    }catch(ArrayIndexOutOfBoundsException e) {
+    } catch(ArrayIndexOutOfBoundsException e) {
       event.reply("Erreur dans l'enregistrement. Note : Vous devez écrire \"register player (VotrePseudo)\" pour vous enregistrer");
     }
 
@@ -56,12 +54,12 @@ public class RegisterPlayerCommand extends Command {
     Summoner summoner = null;
     try {
       summoner = Ressources.getRiotApi().getSummonerByName(Platform.EUW, pseudo);
-    } catch (RiotApiException e) {
+    } catch(RiotApiException e) {
       logger.error(e.getMessage());
 
       event.reply("Un problème avec l'api est survenu");
       return;
-    } catch (IllegalArgumentException e) {
+    } catch(IllegalArgumentException e) {
       event.reply("Aucun compte à ce nom. Vérfier le pseudo écrit");
       return;
     }

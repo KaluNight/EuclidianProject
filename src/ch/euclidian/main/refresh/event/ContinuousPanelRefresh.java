@@ -4,13 +4,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ch.euclidian.main.Main;
 import ch.euclidian.main.model.InfoCard;
 import ch.euclidian.main.model.Player;
@@ -62,7 +60,8 @@ public class ContinuousPanelRefresh implements Runnable {
         }
 
         if(messagePanel == null) {
-          setMessagePanel(Main.getGuild().getTextChannelById(ID_PANNEAU_DE_CONTROLE).sendMessage("__**Panneau de controle**__\n \n*En chargement*").complete());
+          setMessagePanel(Main.getGuild().getTextChannelById(ID_PANNEAU_DE_CONTROLE)
+              .sendMessage("__**Panneau de controle**__\n \n*En chargement*").complete());
         }
       }
 
@@ -70,9 +69,9 @@ public class ContinuousPanelRefresh implements Runnable {
 
       manageInfoCards();
 
-    } catch (Exception e) {
+    } catch(Exception e) {
       logger.error(e.getMessage());
-    }finally {
+    } finally {
       setRunning(false);
     }
   }
@@ -99,17 +98,17 @@ public class ContinuousPanelRefresh implements Runnable {
     }
 
     for(int i = 0; i < cardsToRemove.size(); i++) {
-      try {      
+      try {
         cardsToRemove.get(i).getMessage().delete().complete();
         cardsToRemove.get(i).getTitle().delete().complete();
         infoCards.remove(cardsToRemove.get(i));
-      }catch (Exception e) {
+      } catch(Exception e) {
         logger.warn("Impossible de delete message : {}", e.getMessage(), e);
       }
     }
   }
 
-  private List<InfoCard> createInfoCards(TextChannel controlPannel){
+  private List<InfoCard> createInfoCards(TextChannel controlPannel) {
 
     ArrayList<InfoCard> cards = new ArrayList<>();
     ArrayList<Player> playersAlreadyGenerated = new ArrayList<>();
@@ -126,12 +125,12 @@ public class ContinuousPanelRefresh implements Runnable {
           InfoCard card = null;
 
           if(listOfPlayerInTheGame.size() == 1) {
-            MessageEmbed messageCard = MessageBuilderRequest.createInfoCard1summoner(
-                player.getDiscordUser(), player.getSummoner(), currentGameInfo);
+            MessageEmbed messageCard =
+                MessageBuilderRequest.createInfoCard1summoner(player.getDiscordUser(), player.getSummoner(), currentGameInfo);
             if(messageCard != null) {
               card = new InfoCard(listOfPlayerInTheGame, messageCard);
             }
-          }else if(listOfPlayerInTheGame.size() > 1) {
+          } else if(listOfPlayerInTheGame.size() > 1) {
             MessageEmbed messageCard = MessageBuilderRequest.createInfoCardsMultipleSummoner(listOfPlayerInTheGame, currentGameInfo);
 
             if(messageCard != null) {
@@ -157,7 +156,7 @@ public class ContinuousPanelRefresh implements Runnable {
                 title.append(" et de " + playersName.get(j));
               } else if(j + 2 == playersName.size()) {
                 title.append(" " + playersName.get(j));
-              }else {
+              } else {
                 title.append(" " + playersName.get(j) + ",");
               }
             }
@@ -173,7 +172,7 @@ public class ContinuousPanelRefresh implements Runnable {
     return cards;
   }
 
-  private List<Player> checkIfOthersPlayersIsKnowInTheMatch(CurrentGameInfo currentGameInfo){
+  private List<Player> checkIfOthersPlayersIsKnowInTheMatch(CurrentGameInfo currentGameInfo) {
 
     ArrayList<Player> listOfPlayers = new ArrayList<>();
 
@@ -197,10 +196,10 @@ public class ContinuousPanelRefresh implements Runnable {
 
       try {
         actualGame = Ressources.getRiotApi().getActiveGameBySummoner(Platform.EUW, Main.getPlayerList().get(i).getSummoner().getId());
-      } catch (RiotApiException e) {
+      } catch(RiotApiException e) {
         logger.info(e.getMessage());
       }
-      currentGames.put(Main.getPlayerList().get(i).getSummoner().getId(), actualGame); //Can be null
+      currentGames.put(Main.getPlayerList().get(i).getSummoner().getId(), actualGame); // Can be null
     }
 
     stringMessage.append("__**Panneau de contrôle**__\n \n");
@@ -212,13 +211,14 @@ public class ContinuousPanelRefresh implements Runnable {
       List<Player> playersList = teamList.get(i).getPlayers();
 
       for(int j = 0; j < playersList.size(); j++) {
-        stringMessage.append(playersList.get(j).getSummoner().getName() + " (" + playersList.get(j).getDiscordUser().getAsMention() + ") : ");
+        stringMessage
+            .append(playersList.get(j).getSummoner().getName() + " (" + playersList.get(j).getDiscordUser().getAsMention() + ") : ");
 
         CurrentGameInfo actualGame = currentGames.get(playersList.get(j).getSummoner().getId());
 
         if(actualGame == null) {
           stringMessage.append("Pas en game\n");
-        }else {
+        } else {
           stringMessage.append(RiotRequest.getActualGameStatus(actualGame) + "\n");
         }
 
@@ -226,8 +226,8 @@ public class ContinuousPanelRefresh implements Runnable {
       stringMessage.append(" \n");
     }
 
-    stringMessage.append("\nDernier rafraichissement à " + DateTime.now().plusHours(1).toString(timeFormatter) 
-        + " | *Rafraichi toutes les 3 minutes*");
+    stringMessage.append(
+        "\nDernier rafraichissement à " + DateTime.now().plusHours(1).toString(timeFormatter) + " | *Rafraichi toutes les 3 minutes*");
 
     return stringMessage.toString();
   }

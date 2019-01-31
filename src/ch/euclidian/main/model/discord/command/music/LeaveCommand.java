@@ -2,7 +2,6 @@ package ch.euclidian.main.model.discord.command.music;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-
 import ch.euclidian.main.util.Ressources;
 
 public class LeaveCommand extends Command {
@@ -12,7 +11,7 @@ public class LeaveCommand extends Command {
     this.help = "Supprimer la liste de musique et fait quitter le bot du channel";
     this.guildOnly = true;
   }
-  
+
   @Override
   protected void execute(CommandEvent event) {
     event.getTextChannel().sendTyping().complete();

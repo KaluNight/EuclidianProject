@@ -15,7 +15,7 @@ public class TopEloCommand extends Command {
   public TopEloCommand() {
     // Command Configuration
     setCommand("topelo");
-    setCommandAliases(new String[]{"bestelo", "topelos"});
+    setCommandAliases(new String[] {"bestelo", "topelos"});
     setCategory("general");
     setDescription("Montre les rangs de chaques membres d'équipe");
     getRequiredPermissions().add(CommandPermission.EVERYONE);
@@ -31,7 +31,7 @@ public class TopEloCommand extends Command {
     LogHelper.logSender(messageEvent.getUser().getDisplayName() + " à demandé l'elo des membres du bataillon");
   }
 
-  private String getRankOfAllTeamMembers(){
+  private String getRankOfAllTeamMembers() {
 
     StringBuilder builder = new StringBuilder();
 
@@ -40,7 +40,7 @@ public class TopEloCommand extends Command {
       for(int j = 0; j < players.size(); j++) {
         builder.append(players.get(j).getDiscordUser().getName() + " : " + RiotRequest.getSoloqRank(players.get(j).getSummoner().getId()));
 
-        builder.append(" | "); 
+        builder.append(" | ");
       }
     }
 

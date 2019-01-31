@@ -2,7 +2,6 @@ package ch.euclidian.main.util;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import ch.euclidian.main.model.Champion;
 import ch.euclidian.main.music.BotMusicManager;
 import me.philippheuer.twitch4j.TwitchClient;
@@ -13,35 +12,35 @@ import net.rithms.riot.api.RiotApi;
 import net.rithms.riot.api.RiotApiException;
 
 public class Ressources {
-  
+
   private static String twitchClientId;
   private static String twitchClientSecret;
   private static String twitchCredential;
-  
+
   private static TwitchClient twitchApi;
-  
+
   private static MessageInterface messageInterface;
-  
+
   private static ChannelEndpoint channelEndpoint;
 
   private static StreamEndpoint streamEndpoint;
-  
+
   private static BotMusicManager musicBot;
-  
+
   public static final String TWITCH_CHANNEL_NAME = "batailloneuclidien";
 
   private static RiotApi riotApi;
 
   private static List<Champion> championsData = new ArrayList<>();
 
-  private Ressources() {
-  }
+  private Ressources() {}
 
   /**
    * Return the champion data by the id, if the champion is not in the list, return null
+   * 
    * @param id of the Champion
    * @return Champion object or null if id is incorrect
-   * @throws RiotApiException 
+   * @throws RiotApiException
    */
   public static Champion getChampionDataById(int id) {
     for(int i = 0; i < championsData.size(); i++) {
@@ -55,7 +54,7 @@ public class Ressources {
   public static void resetChampionCache() {
     championsData = new ArrayList<>();
   }
-  
+
   public static RiotApi getRiotApi() {
     return riotApi;
   }

@@ -10,10 +10,8 @@ import org.joda.time.Duration;
 import org.joda.time.Minutes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import ch.euclidian.main.Main;
 import ch.euclidian.main.model.ChangedStats;
 import ch.euclidian.main.model.KDA;
@@ -47,14 +45,14 @@ public class ContinuousKeepData implements Runnable {
 
   private static final Logger logger = LoggerFactory.getLogger(ContinuousKeepData.class);
 
-  //IDEA: Do a treatment of data each end of day (?) for prevent chaine lose after 3 lose ?
+  // IDEA: Do a treatment of data each end of day (?) for prevent chaine lose after 3 lose ?
 
   @Override
   public void run() {
     try {
       setRunning(true);
 
-      //Reset ChampionDataCache
+      // Reset ChampionDataCache
       Ressources.resetChampionCache();
 
       statsChannel.sendTyping().complete();
@@ -64,7 +62,7 @@ public class ContinuousKeepData implements Runnable {
 
       messagesToSend.add("__**Rapports Hebdomadaire**__");
 
-      for(int i = 0; i < Main.getPlayerList().size(); i++) {      
+      for(int i = 0; i < Main.getPlayerList().size(); i++) {
         Player player = Main.getPlayerList().get(i);
 
         LogHelper.logSender("Construction du rapport de " + player.getName());
@@ -74,7 +72,7 @@ public class ContinuousKeepData implements Runnable {
         String name = "";
         if(player.isMentionnable()) {
           name = player.getDiscordUser().getAsMention();
-        }else {
+        } else {
           name = player.getDiscordUser().getName();
         }
 
@@ -82,9 +80,9 @@ public class ContinuousKeepData implements Runnable {
 
         MatchList matchHistory = null;
         try {
-          matchHistory = Ressources.getRiotApi().getMatchListByAccountId
-              (Platform.EUW, summoner.getAccountId(), null, null, null, weekDateStart.getMillis(), weekDateEnd.getMillis(), -1, -1);
-        } catch (RiotApiException e) {
+          matchHistory = Ressources.getRiotApi().getMatchListByAccountId(Platform.EUW, summoner.getAccountId(), null, null, null,
+              weekDateStart.getMillis(), weekDateEnd.getMillis(), -1, -1);
+        } catch(RiotApiException e) {
           logger.debug(player.getDiscordUser().getName() + " ne possede pas de games pour la période envoyé");
         }
 
@@ -93,7 +91,7 @@ public class ContinuousKeepData implements Runnable {
           PlayerDataOfTheWeek playerDataOfTheWeek = getDataFromTheHistory(matchHistory, player.getSummoner());
 
           if(playerDataOfTheWeek != null) {
-            List<PlayerDataOfTheWeek> savedDatasPlayer = Main.getPlayerList().get(i).getListDataOfWeek(); //Check if copy
+            List<PlayerDataOfTheWeek> savedDatasPlayer = Main.getPlayerList().get(i).getListDataOfWeek(); // Check if copy
             savedDatasPlayer.add(playerDataOfTheWeek);
             Main.getPlayerList().get(i).setListDataOfWeek(savedDatasPlayer);
 
@@ -102,10 +100,10 @@ public class ContinuousKeepData implements Runnable {
             if(!changedStats.isEmpty()) {
               sendReport(player, changedStats);
             }
-          }else {
+          } else {
             messagesToSend.add("Vos données n'ont pas pu être analysé D:");
           }
-        }else {
+        } else {
           messagesToSend.add("Vous n'avez fait aucune partie cette semaine, je ne peux donc rien analyser :c");
         }
       }
@@ -116,8 +114,7 @@ public class ContinuousKeepData implements Runnable {
         saveData();
         LogHelper.logSender("Donnés sauvegardés ! Les rapports sont envoyés ...");
       } catch(IOException e) {
-        LogHelper.logSender("Des logs on essayé d'être écrite alors que Witer était fermé ! "
-            + "Les données ne sont donc pas sauvegardés");
+        LogHelper.logSender("Des logs on essayé d'être écrite alors que Witer était fermé ! " + "Les données ne sont donc pas sauvegardés");
       }
 
       statsChannel.sendTyping().complete();
@@ -134,13 +131,13 @@ public class ContinuousKeepData implements Runnable {
       setWeekDateStart(weekDateStart.plusWeeks(1));
 
       statsChannel.sendTyping().complete();
-      statsChannel.sendMessage("Le prochain rapport que je ferai sera le **"
-          + weekDateEnd.getDayOfMonth() + "." + weekDateEnd.getMonthOfYear() + "." + weekDateEnd.getYear() + " à "
-          + weekDateEnd.getHourOfDay() + ":" + weekDateEnd.getMinuteOfHour() + "**.\nPassez une bonne journée !").complete();
+      statsChannel.sendMessage("Le prochain rapport que je ferai sera le **" + weekDateEnd.getDayOfMonth() + "."
+          + weekDateEnd.getMonthOfYear() + "." + weekDateEnd.getYear() + " à " + weekDateEnd.getHourOfDay() + ":"
+          + weekDateEnd.getMinuteOfHour() + "**.\nPassez une bonne journée !").complete();
 
       setMessagesToSend(new ArrayList<>());
 
-    }finally {
+    } finally {
       setRunning(false);
     }
   }
@@ -157,7 +154,7 @@ public class ContinuousKeepData implements Runnable {
         gson.toJson(dataPlayer, writer);
       } catch(IOException e) {
         LogHelper.logSender(Main.getPlayerList().get(i).getDiscordUser().getName() + " n'a pas pu être enregistré");
-      }finally {
+      } finally {
         if(writer != null) {
           writer.close();
         }
@@ -167,27 +164,28 @@ public class ContinuousKeepData implements Runnable {
 
   private void sendReport(Player player, List<ChangedStats> changedStats) {
 
-    for (int i = 0; i < changedStats.size(); i++) {
+    for(int i = 0; i < changedStats.size(); i++) {
       ChangedStats stats = changedStats.get(i);
       messagesToSend.add("**" + stats.getType().toString() + "**\n" + stats.toString());
     }
   }
 
   private List<ChangedStats> generatingStats(Player player) {
-    //TODO: check value different value with ChangedStats
+    // TODO: check value different value with ChangedStats
     if(player.getListDataOfWeek().size() == 1) {
       messagesToSend.add("C'est la première fois que vos donnés sont analysé, vous aurez un rapport la semaine prochaine.");
       return new ArrayList<>();
-    }else if(player.getListDataOfWeek().isEmpty()) {
+    } else if(player.getListDataOfWeek().isEmpty()) {
       messagesToSend.add("Vos données n'ont pas pu être analysé normalement, un dev va s'occuper de votre cas :x");
       return new ArrayList<>();
-    }else {
+    } else {
       PlayerDataOfTheWeek lastWeek = player.getListDataOfWeek().get(player.getListDataOfWeek().size() - 1);
       PlayerDataOfTheWeek thisWeek = player.getListDataOfWeek().get(player.getListDataOfWeek().size() - 2);
 
       ArrayList<ChangedStats> listOfChangedStats = new ArrayList<>();
 
-      listOfChangedStats.add(new ChangedStats(StatsType.DURATION, lastWeek.getAverageDurationOfTheWeek(), thisWeek.getAverageDurationOfTheWeek()));
+      listOfChangedStats
+          .add(new ChangedStats(StatsType.DURATION, lastWeek.getAverageDurationOfTheWeek(), thisWeek.getAverageDurationOfTheWeek()));
       listOfChangedStats.add(new ChangedStats(StatsType.CREEP_AT_10, lastWeek.getAverageCreepsAt10(), thisWeek.getAverageCreepsAt10()));
       listOfChangedStats.add(new ChangedStats(StatsType.CREEP_AT_20, lastWeek.getAverageCreepsAt20(), thisWeek.getAverageCreepsAt20()));
       listOfChangedStats.add(new ChangedStats(StatsType.CREEP_AT_30, lastWeek.getAverageCreepsAt30(), thisWeek.getAverageCreepsAt30()));
@@ -217,7 +215,7 @@ public class ContinuousKeepData implements Runnable {
       Match match = null;
       try {
         match = Ressources.getRiotApi().getMatch(Platform.EUW, matchReference.getGameId());
-      } catch (RiotApiException e) {
+      } catch(RiotApiException e) {
         logger.error(e.getMessage());
         return null;
       }

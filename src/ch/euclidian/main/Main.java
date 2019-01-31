@@ -12,11 +12,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonIOException;
@@ -74,11 +72,11 @@ public class Main {
 
   private static final File SECRET_FILE = new File("secret.txt");
 
-  //------------------------------
+  // ------------------------------
 
   private static JDA jda;
 
-  //-------------------------------
+  // -------------------------------
 
   private static ArrayList<Team> teamList = new ArrayList<>();
 
@@ -94,13 +92,13 @@ public class Main {
 
   private static ArrayList<Role> rolePosition;
 
-  //-------------------------------
+  // -------------------------------
 
   private static Guild guild;
 
   private static GuildController controller;
 
-  //-------------------------------
+  // -------------------------------
 
   private static TextChannel logBot;
 
@@ -117,19 +115,19 @@ public class Main {
 
     if(args.length == 0) {
 
-      try (BufferedReader reader = new BufferedReader(new FileReader(SECRET_FILE));){
+      try(BufferedReader reader = new BufferedReader(new FileReader(SECRET_FILE));) {
         discordTocken = reader.readLine();
         riotTocken = reader.readLine();
         twitchClientID = reader.readLine();
         twitchClientSecret = reader.readLine();
         twitchCredential = reader.readLine();
-      }catch (Exception e) {
+      } catch(Exception e) {
         logger.error(e.getMessage());
       }
 
       SAVE_TXT_FILE = new File("save.txt");
 
-    }else {
+    } else {
       discordTocken = args[0];
       riotTocken = args[1];
       twitchClientID = args[2];
@@ -151,41 +149,28 @@ public class Main {
 
     client.setOwnerId("228541163966038016");
 
-    client.setHelpConsumer(null); //TODO: Set a command
+    client.setHelpConsumer(null); // TODO: Set a command
 
     client.setGame(Game.playing("Démarrage ..."));
 
     client.addCommands(
-        //General Command
-        new PingCommand(),
-        new ShutDownCommand(),
-        
-        //Guild Command
-        new PostulationCommand(waiter),
-        new RegisterPlayerCommand(),
-        new CreateTeamCommand(),
-        new AddPlayerToTeamCommand(),
+        // General Command
+        new PingCommand(), new ShutDownCommand(),
+
+        // Guild Command
+        new PostulationCommand(waiter), new RegisterPlayerCommand(), new CreateTeamCommand(), new AddPlayerToTeamCommand(),
         new ShowCommand(),
-        
-        //Music Command
-        new LeaveCommand(),
-        new PlayCommand(),
-        new ResetCommand(),
-        new SkipCommand()
-        );
+
+        // Music Command
+        new LeaveCommand(), new PlayCommand(), new ResetCommand(), new SkipCommand());
 
     try {
-      jda = new JDABuilder(AccountType.BOT)
-          .setToken(discordTocken)
-          .setStatus(OnlineStatus.DO_NOT_DISTURB)
-          .addEventListener(waiter)
-          .addEventListener(client.build())
-          .addEventListener(new EventListener())
-          .build();
-    } catch (IndexOutOfBoundsException e) {
+      jda = new JDABuilder(AccountType.BOT).setToken(discordTocken).setStatus(OnlineStatus.DO_NOT_DISTURB).addEventListener(waiter)
+          .addEventListener(client.build()).addEventListener(new EventListener()).build();
+    } catch(IndexOutOfBoundsException e) {
       logger.error("You must provide a token.");
       return;
-    } catch (Exception e) {
+    } catch(Exception e) {
       logger.error(e.getMessage());
       return;
     }
@@ -206,18 +191,19 @@ public class Main {
     JsonParser parser = new JsonParser();
     List<Champion> champions = new ArrayList<>();
 
-    try (FileReader fr = new FileReader("ressources/champion.json")){
+    try(FileReader fr = new FileReader("ressources/champion.json")) {
 
       JsonObject object = parser.parse(fr).getAsJsonObject().get("data").getAsJsonObject();
       Set<Map.Entry<String, JsonElement>> list = object.entrySet();
       Iterator<Map.Entry<String, JsonElement>> iterator = list.iterator();
 
-      while (iterator.hasNext()) {
+      while(iterator.hasNext()) {
         JsonElement element = iterator.next().getValue();
         int key = element.getAsJsonObject().get("key").getAsInt();
         String id = element.getAsJsonObject().get("id").getAsString();
         String name = element.getAsJsonObject().get("name").getAsString();
-        File championLogo = new File("ressources/images/" + element.getAsJsonObject().get("image").getAsJsonObject().get("full").getAsString());
+        File championLogo =
+            new File("ressources/images/" + element.getAsJsonObject().get("image").getAsJsonObject().get("full").getAsString());
         champions.add(new Champion(key, id, name, championLogo));
       }
 
@@ -234,10 +220,10 @@ public class Main {
     Gson gson = new Gson();
 
     for(int i = 0; i < Main.getPlayerList().size(); i++) {
-      try (FileReader fr = new FileReader(
-          ContinuousKeepData.FOLDER_DATA_PLAYERS + Main.getPlayerList().get(i).getDiscordUser().getId() + ".json");){
+      try(FileReader fr =
+          new FileReader(ContinuousKeepData.FOLDER_DATA_PLAYERS + Main.getPlayerList().get(i).getDiscordUser().getId() + ".json");) {
 
-        List<PlayerDataOfTheWeek> playerData = gson.fromJson(fr, new TypeToken<List<PlayerDataOfTheWeek>>(){}.getType());
+        List<PlayerDataOfTheWeek> playerData = gson.fromJson(fr, new TypeToken<List<PlayerDataOfTheWeek>>() {}.getType());
 
         Main.getPlayerList().get(i).setListDataOfWeek(playerData);
       } catch(JsonSyntaxException | JsonIOException e) {
@@ -323,7 +309,7 @@ public class Main {
     PrintWriter writer = null;
 
     try {
-      writer = new PrintWriter(SAVE_TXT_FILE ,"UTF-8");
+      writer = new PrintWriter(SAVE_TXT_FILE, "UTF-8");
       writer.write(saveString.toString());
     } finally {
       if(writer != null) {
@@ -356,7 +342,7 @@ public class Main {
             }
           }
 
-        } else if (line.equals("--t")) {
+        } else if(line.equals("--t")) {
 
           String teamName = reader.readLine();
 
@@ -385,7 +371,7 @@ public class Main {
           team.setPlayers(players);
           teamList.add(team);
 
-        } else if (line.equals("--st")){
+        } else if(line.equals("--st")) {
 
           String idChannel = reader.readLine();
           ContinuousKeepData.setStatsChannel(guild.getTextChannelById(idChannel));
@@ -441,7 +427,7 @@ public class Main {
             postulationsList.add(postulation);
           }
 
-        } else if (line.equals("--r")) {
+        } else if(line.equals("--r")) {
 
           StringBuilder stringBuilder = new StringBuilder();
 

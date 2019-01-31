@@ -25,14 +25,15 @@ public class TwitchChannelEvent {
     String message = "";
 
     // New Sub
-    if (event.getMonths() <= 1) {
+    if(event.getMonths() <= 1) {
       message = event.getUser().getDisplayName() + " vient de s'abonner à la chaîne ! Merci <3";
       LogHelper.logSender(event.getUser().getName() + " c'est sub à la chaîne");
     }
 
     // Resub
-    if (event.getMonths() > 1) {
-      message = "Cela fait " + event.getMonths() + " mois que " + event.getUser().getName() + " est abonné à la chaîne ! Merci pour ton soutien <3";
+    if(event.getMonths() > 1) {
+      message = "Cela fait " + event.getMonths() + " mois que " + event.getUser().getName()
+          + " est abonné à la chaîne ! Merci pour ton soutien <3";
       LogHelper.logSender(event.getUser().getName() + " c'est resub pour un total de " + event.getMonths());
     }
 
@@ -52,13 +53,13 @@ public class TwitchChannelEvent {
 
   @EventSubscriber
   public void onUserDonation(DonationEvent event) {
-    String message = event.getUser().getName() + " a fait un don de "
-        + event.getAmount() + " " + event.getCurrency().getDisplayName() + " ! Merci pour ton soutient <3";
+    String message = event.getUser().getName() + " a fait un don de " + event.getAmount() + " " + event.getCurrency().getDisplayName()
+        + " ! Merci pour ton soutient <3";
 
     Ressources.getMessageInterface().sendMessage(event.getChannel().getName(), message);
 
-    LogHelper.logSender(event.getUser().getName() + " a fait un don de "
-        + event.getAmount() + " " + event.getCurrency().getDisplayName() + " venant de " + event.getSource());
+    LogHelper.logSender(event.getUser().getName() + " a fait un don de " + event.getAmount() + " " + event.getCurrency().getDisplayName()
+        + " venant de " + event.getSource());
   }
 
   @EventSubscriber

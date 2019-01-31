@@ -3,10 +3,8 @@ package ch.euclidian.main.model.discord.command;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-
 import ch.euclidian.main.Main;
 import ch.euclidian.main.model.Player;
 import ch.euclidian.main.model.Team;
@@ -30,22 +28,22 @@ public class AddPlayerToTeamCommand extends Command {
 
     String team = "";
 
-    while (m.find()) { 
+    while(m.find()) {
       team = m.group(1);
     }
 
     List<Member> mentionned = event.getMessage().getMentionedMembers();
     User user;
     Member member;
-    
+
     if(mentionned.isEmpty()) {
       event.reply("Vous n'avez mentionné aucun joueur !");
       return;
-    }else {
+    } else {
       member = mentionned.get(0);
       user = member.getUser();
     }
-    
+
     Player player = Main.getPlayersByDiscordId(user.getId());
 
     if(player == null) {
@@ -59,7 +57,7 @@ public class AddPlayerToTeamCommand extends Command {
       event.reply("L'équipe sélectionner n'existe pas !");
       return;
     }
-    
+
     teamToUse.getPlayers().add(player);
     Main.getController().addRolesToMember(member, teamToUse.getRole()).queue();
 

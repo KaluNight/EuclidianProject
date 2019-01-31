@@ -2,11 +2,10 @@ package ch.euclidian.main.model.discord.command;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-
 import ch.euclidian.main.Main;
 import ch.euclidian.main.util.request.MessageBuilderRequest;
 
-public class ShowCommand extends Command{
+public class ShowCommand extends Command {
 
   public ShowCommand() {
     this.name = "show";
@@ -18,7 +17,7 @@ public class ShowCommand extends Command{
   @Override
   protected void execute(CommandEvent event) {
     boolean oneMessageAsBeenSended = false;
-    
+
     event.getChannel().sendTyping().complete();
     if(event.getArgs().equalsIgnoreCase("postulation")) {
       for(int i = 0; i < Main.getPostulationsList().size(); i++) {
@@ -28,7 +27,7 @@ public class ShowCommand extends Command{
       if(!oneMessageAsBeenSended) {
         event.reply("Aucune postulation existante");
       }
-    }else if(event.getArgs().equalsIgnoreCase("report")) {
+    } else if(event.getArgs().equalsIgnoreCase("report")) {
       for(String report : Main.getReportList()) {
         event.reply(report);
         oneMessageAsBeenSended = true;
@@ -36,7 +35,7 @@ public class ShowCommand extends Command{
       if(!oneMessageAsBeenSended) {
         event.reply("Aucune report existant");
       }
-    }else {
+    } else {
       event.reply("Impossible d'afficher \"" + event.getArgs() + "\" !");
     }
   }

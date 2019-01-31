@@ -34,7 +34,7 @@ import net.rithms.riot.api.RiotApiException;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 import net.rithms.riot.constant.Platform;
 
-public class EventListener extends ListenerAdapter{
+public class EventListener extends ListenerAdapter {
 
   private static final char PREFIX = '>';
 
@@ -62,7 +62,7 @@ public class EventListener extends ListenerAdapter{
 
     ArrayList<Permission> teamMemberPermissionList = new ArrayList<>();
 
-    //Text Permission
+    // Text Permission
     teamMemberPermissionList.add(Permission.MESSAGE_WRITE);
     teamMemberPermissionList.add(Permission.MESSAGE_READ);
     teamMemberPermissionList.add(Permission.MESSAGE_EMBED_LINKS);
@@ -71,7 +71,7 @@ public class EventListener extends ListenerAdapter{
     teamMemberPermissionList.add(Permission.MESSAGE_EXT_EMOJI);
     teamMemberPermissionList.add(Permission.MESSAGE_ADD_REACTION);
 
-    //Voice permission
+    // Voice permission
     teamMemberPermissionList.add(Permission.VOICE_CONNECT);
     teamMemberPermissionList.add(Permission.VOICE_USE_VAD);
     teamMemberPermissionList.add(Permission.VOICE_SPEAK);
@@ -88,7 +88,7 @@ public class EventListener extends ListenerAdapter{
 
         Role usableRole = role.complete();
         Main.setRegisteredRole(usableRole);
-      } catch (Exception e) {
+      } catch(Exception e) {
         LogHelper.logSenderDirectly("Unknow Error : " + e.getMessage());
         logger.error(e.getMessage());
       }
@@ -106,11 +106,11 @@ public class EventListener extends ListenerAdapter{
         role.setPermissions(Team.getPermissionsList());
 
         role.complete();
-      } catch (Exception e) {
+      } catch(Exception e) {
         LogHelper.logSenderDirectly("Unknow Error : " + e.getMessage());
         logger.error(e.getMessage());
       }
-    }else {
+    } else {
       Main.setPostulantRole(Main.getGuild().getRolesByName(POSTULANT_PLAYER_ROLE_NAME, true).get(0));
     }
 
@@ -152,28 +152,25 @@ public class EventListener extends ListenerAdapter{
     setTimerTask(new Timer());
 
     TimerTask mainThread = new ContinuousTimeChecking();
-    timerTask.schedule(mainThread, 0, 10000); //10 secondes
+    timerTask.schedule(mainThread, 0, 10000); // 10 secondes
   }
 
   private void initTwitchClient() {
-    TwitchClient twitchClient = TwitchClientBuilder.init()
-        .withClientId(Ressources.getTwitchClientId())
-        .withClientSecret(Ressources.getTwitchClientSecret())
-        .withCredential(Ressources.getTwitchCredential())
-        .withAutoSaveConfiguration(true)
-        .build();
+    TwitchClient twitchClient =
+        TwitchClientBuilder.init().withClientId(Ressources.getTwitchClientId()).withClientSecret(Ressources.getTwitchClientSecret())
+            .withCredential(Ressources.getTwitchCredential()).withAutoSaveConfiguration(true).build();
     twitchClient.connect();
-    
+
     twitchClient.getDispatcher().registerListener(new TwitchChannelEvent());
-    
+
     twitchClient.getCommandHandler().registerCommand(TopEloCommand.class);
     twitchClient.getCommandHandler().registerCommand(LinkDiscordCommand.class);
-    
+
     Ressources.setTwitchApi(twitchClient);
     Ressources.setMessageInterface(twitchClient.getMessageInterface());
     Ressources.setChannelEndpoint(twitchClient.getChannelEndpoint());
     Ressources.setStreamEndpoint(twitchClient.getStreamEndpoint());
-    
+
     Ressources.getMessageInterface().joinChannel(Ressources.TWITCH_CHANNEL_NAME);
   }
 
@@ -195,7 +192,7 @@ public class EventListener extends ListenerAdapter{
     LogHelper.logSenderDirectly("Chargement des champions ...");
     if(Main.loadChampions()) {
       LogHelper.logSenderDirectly("Chargement des champions terminé !");
-    }else {
+    } else {
       LogHelper.logSenderDirectly("Une erreur est survenu lors du chargement des champions, les infos cards ne s'afficheront pas !");
     }
 
@@ -203,10 +200,10 @@ public class EventListener extends ListenerAdapter{
 
     try {
       Main.loadDataTxt();
-    } catch (IOException e) {
+    } catch(IOException e) {
       logger.error(e.getMessage());
       LogHelper.logSenderDirectly("Une erreur est survenu lors du chargement des sauvegardes détaillés !");
-    } catch (RiotApiException e) {
+    } catch(RiotApiException e) {
       logger.error(e.getMessage());
       LogHelper.logSenderDirectly("Une erreur venant de l'api Riot est survenu lors du chargement des sauvegardes détaillés !");
     }
@@ -216,7 +213,7 @@ public class EventListener extends ListenerAdapter{
 
     try {
       Main.loadPlayerDataWeek();
-    }catch (IOException e) {
+    } catch(IOException e) {
       logger.error(e.getMessage());
       LogHelper.logSenderDirectly("Une erreur est survenu lors du chagements des données joueurs !");
     }
@@ -250,7 +247,7 @@ public class EventListener extends ListenerAdapter{
 
     try {
       rolesOfSender = initializeRolesFromSender(event);
-    }catch (NullPointerException e) {
+    } catch(NullPointerException e) {
       logger.info("L'envoyeur ne fait plus/pas parti du serveur");
       return;
     }
@@ -259,15 +256,16 @@ public class EventListener extends ListenerAdapter{
 
     isAdmin = isAdminByRoles(rolesOfSender);
 
-    if(event.getTextChannel().getId().equals(ID_POSTULATION_CHANNEL) 
+    if(event.getTextChannel().getId().equals(ID_POSTULATION_CHANNEL)
         && !PostulationCommand.getUserInRegistration().contains(event.getAuthor()) && !isAdmin
-        && !Main.getJda().getSelfUser().equals(event.getAuthor())){
+        && !Main.getJda().getSelfUser().equals(event.getAuthor())) {
       event.getMessage().delete().queue();
 
       PrivateChannel privateChannel = event.getAuthor().openPrivateChannel().complete();
       privateChannel.sendTyping().queue();
-      privateChannel.sendMessage("On envoie uniquement des demandes de Postulation sur ce channel ! "
-          + "(Note : Une postulation commence par \">postulation\")").queue();
+      privateChannel.sendMessage(
+          "On envoie uniquement des demandes de Postulation sur ce channel ! " + "(Note : Une postulation commence par \">postulation\")")
+          .queue();
 
     }
 
@@ -282,7 +280,7 @@ public class EventListener extends ListenerAdapter{
       privateChannel.sendMessage("Ton message a été envoyé, nous te répondrons dans les plus brefs délais !").queue();
     }
 
-    if (message.length() == 0 || message.charAt(0) != PREFIX) {
+    if(message.length() == 0 || message.charAt(0) != PREFIX) {
       return;
     }
 
@@ -292,19 +290,19 @@ public class EventListener extends ListenerAdapter{
 
     if(isAdmin) {
 
-      if (command.equalsIgnoreCase("delete")) {
+      if(command.equalsIgnoreCase("delete")) {
 
         event.getTextChannel().sendTyping().complete();
         String result = CommandManagement.deleteCommand(message.substring(7));
         event.getTextChannel().sendMessage(result).queue();
 
-      }else if (command.equalsIgnoreCase("accept")){
+      } else if(command.equalsIgnoreCase("accept")) {
 
         event.getTextChannel().sendTyping().complete();
         String result = CommandManagement.postulationAcceptCommand(Integer.parseInt(message.substring(7)), event.getAuthor());
         event.getTextChannel().sendMessage(result).queue();
 
-      }else if(command.equalsIgnoreCase("clear")) {
+      } else if(command.equalsIgnoreCase("clear")) {
 
         event.getTextChannel().sendTyping().complete();
         String result = CommandManagement.clearCommand(message.substring(6));
@@ -316,7 +314,7 @@ public class EventListener extends ListenerAdapter{
         Summoner result;
         try {
           result = Ressources.getRiotApi().getSummonerByName(Platform.EUW, message.substring(13));
-        } catch (RiotApiException e) {
+        } catch(RiotApiException e) {
           logger.error(e.toString());
           event.getTextChannel().sendMessage("Erreur d'api").queue();
           return;
@@ -329,7 +327,7 @@ public class EventListener extends ListenerAdapter{
 
   private List<Role> initializeRolesFromSender(MessageReceivedEvent event) {
     List<Role> roles = new ArrayList<>();
-    roles.addAll(event.getMember().getRoles());   
+    roles.addAll(event.getMember().getRoles());
     return roles;
   }
 

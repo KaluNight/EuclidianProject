@@ -1,10 +1,8 @@
 package ch.euclidian.main.model.discord.command.music;
 
 import java.util.List;
-
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-
 import ch.euclidian.main.Main;
 import ch.euclidian.main.music.BotMusicManager;
 import ch.euclidian.main.util.Ressources;
@@ -21,7 +19,7 @@ public class PlayCommand extends Command {
     this.help = "Ajoute dans la liste ou joue la musique envoyé";
     this.guildOnly = true;
   }
-  
+
   @Override
   protected void execute(CommandEvent event) {
 
@@ -54,14 +52,15 @@ public class PlayCommand extends Command {
       }
       if(actualVoiceChannel == null) {
         event.getTextChannel().sendMessage("Veuillez rentrez dans un channel vocal pour que je puisse vous rejoindre").queue();
-      }else {
+      } else {
         botMusique.setActualVoiceChannel(actualVoiceChannel);
         botMusique.loadAndPlay(event.getTextChannel(), url);
       }
 
-    }else {
-      event.getTextChannel().sendMessage("Vous n'avez pas envoyé correctement l'URL avec le message,"
-          + " je ne peux pas faire grand chose sans ¯\\_(ツ)_/¯").queue();
+    } else {
+      event.getTextChannel()
+          .sendMessage("Vous n'avez pas envoyé correctement l'URL avec le message," + " je ne peux pas faire grand chose sans ¯\\_(ツ)_/¯")
+          .queue();
     }
 
   }

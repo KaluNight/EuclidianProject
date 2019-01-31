@@ -2,14 +2,12 @@ package ch.euclidian.main.util;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import ch.euclidian.main.model.Player;
 
 public class NameConversion {
 
-  private NameConversion() {
-  }
-  
+  private NameConversion() {}
+
   public static String convertStringToTinyString(String stringToConvert) {
     if(stringToConvert.length() > 6) {
       return stringToConvert.substring(0, 4) + "..";
@@ -21,32 +19,45 @@ public class NameConversion {
 
     if(stringToConvert.equals("CLASSIC")) {
       return "Faille de l'invocateur";
-    }else if(stringToConvert.equals("GAMEMOEDEX")) {
+    } else if(stringToConvert.equals("GAMEMOEDEX")) {
       return "Mode de jeu en rotation";
-    }else {
+    } else {
       return stringToConvert;
     }
   }
 
   public static String convertGameQueueIdToString(int id) {
     switch(id) {
-    case 0 : return "Partie personnalisée";
-    case 400: return "Normal Draft | Faille de l'invocateur";
-    case 420: return "Classé Solo/Duo | Faille de l'invocateur";
-    case 430: return "Normal Draft | Faille de l'invocateur";
-    case 440: return "Classé Flex | Faille de l'invocateur";
-    case 450: return "ARAM | Abîme Hurlant";
-    case 470: return "Classé 3v3 | Forêt torturée";
-    case 700: return "Clash | Faille de l'invocateur";
-    case 800:
-    case 810:
-    case 820: return "Coop vs IA | Forêt torturée";
-    case 830:
-    case 840:
-    case 850: return "Coop vs IA | Faille de l'invocateur";
-    case 900: return "ARURF | Faille de l'invocateur";
-    case 1200: return "Raid du Nexus | Faille de l'invocateur";
-    default: return "Mode temporaire";
+      case 0:
+        return "Partie personnalisée";
+      case 400:
+        return "Normal Draft | Faille de l'invocateur";
+      case 420:
+        return "Classé Solo/Duo | Faille de l'invocateur";
+      case 430:
+        return "Normal Draft | Faille de l'invocateur";
+      case 440:
+        return "Classé Flex | Faille de l'invocateur";
+      case 450:
+        return "ARAM | Abîme Hurlant";
+      case 470:
+        return "Classé 3v3 | Forêt torturée";
+      case 700:
+        return "Clash | Faille de l'invocateur";
+      case 800:
+      case 810:
+      case 820:
+        return "Coop vs IA | Forêt torturée";
+      case 830:
+      case 840:
+      case 850:
+        return "Coop vs IA | Faille de l'invocateur";
+      case 900:
+        return "ARURF | Faille de l'invocateur";
+      case 1200:
+        return "Raid du Nexus | Faille de l'invocateur";
+      default:
+        return "Mode temporaire";
     }
   }
 
@@ -54,7 +65,7 @@ public class NameConversion {
 
     if(stringToConvert.equals("MATCHED_GAME")) {
       return "Matchmaking";
-    }else {
+    } else {
       return stringToConvert;
     }
   }
@@ -66,7 +77,7 @@ public class NameConversion {
       String name = "";
       if(players.get(j).isMentionnable()) {
         name = players.get(j).getDiscordUser().getAsMention();
-      }else {
+      } else {
         name = players.get(j).getDiscordUser().getName();
       }
       playersName.add(name);

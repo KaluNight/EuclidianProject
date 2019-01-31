@@ -4,14 +4,12 @@ import java.util.TimerTask;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ch.euclidian.main.model.BotStatus;
 
-public class ContinuousTimeChecking extends TimerTask{
+public class ContinuousTimeChecking extends TimerTask {
 
   private static DateTime nextTimePanelRefresh;
 
@@ -20,13 +18,13 @@ public class ContinuousTimeChecking extends TimerTask{
   private static DateTime nextTimeSendReport;
 
   private static DateTime nextTimeStatusRefresh;
-  
+
   private static DateTime nextTimeCheckLive;
 
   private static int nbProcs = Runtime.getRuntime().availableProcessors();
 
-  private static ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(nbProcs, nbProcs, 30,
-      TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+  private static ThreadPoolExecutor threadPoolExecutor =
+      new ThreadPoolExecutor(nbProcs, nbProcs, 30, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
 
   private static Logger logger = LoggerFactory.getLogger(ContinuousTimeChecking.class);
 
@@ -67,7 +65,7 @@ public class ContinuousTimeChecking extends TimerTask{
         threadPoolExecutor.submit(new ContinuousStatusRefresh());
       }
     }
-    
+
     if(nextTimeCheckLive.isBeforeNow()) {
       setNextTimeCheckLive(nextTimeCheckLive.plusMinutes(2));
       if(!ContinuousStreamOnlineChecking.isRunning()) {

@@ -2,7 +2,6 @@ package ch.euclidian.main.model.discord.command.music;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-
 import ch.euclidian.main.util.Ressources;
 
 public class SkipCommand extends Command {

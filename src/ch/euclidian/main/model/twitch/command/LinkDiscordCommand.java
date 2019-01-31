@@ -14,12 +14,13 @@ public class LinkDiscordCommand extends Command {
     setDescription("Donne un lien permanant vers le discord");
     getRequiredPermissions().add(CommandPermission.EVERYONE);
   }
-  
+
   @Override
   public void executeCommand(ChannelMessageEvent messageEvent) {
     super.executeCommand(messageEvent);
-    
-    Ressources.getMessageInterface().sendMessage(messageEvent.getChannel().getName(), "Le lien de notre Discord : https://discord.gg/BsxD9HD");
+
+    Ressources.getMessageInterface().sendMessage(messageEvent.getChannel().getName(),
+        "Le lien de notre Discord : https://discord.gg/BsxD9HD");
     LogHelper.logSender(messageEvent.getUser().getDisplayName() + " à demandé le discord de la team");
   }
 }

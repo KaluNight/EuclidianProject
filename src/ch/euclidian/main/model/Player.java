@@ -2,8 +2,6 @@ package ch.euclidian.main.model;
 
 import java.util.ArrayList;
 import java.util.List;
-
-
 import net.dv8tion.jda.core.entities.User;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 
@@ -22,18 +20,18 @@ public class Player {
     this.mentionnable = mentionnable;
   }
 
-  public double getListMoyenneWinrate(){
+  public double getListMoyenneWinrate() {
     int totaleWin = 0;
     int totalGame = 0;
 
-    for (int i = 0; i < listDataOfWeek.size(); i++) {
+    for(int i = 0; i < listDataOfWeek.size(); i++) {
       totaleWin += listDataOfWeek.get(i).getNbrWin();
       totalGame += listDataOfWeek.get(i).getNbrGames();
     }
 
     if(totaleWin == 0) {
       return 0.0;
-    }else {
+    } else {
       return (totaleWin / (double) totalGame) * 100;
     }
   }

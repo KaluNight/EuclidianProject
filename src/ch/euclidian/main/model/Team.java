@@ -3,7 +3,6 @@ package ch.euclidian.main.model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
-
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Category;
 import net.dv8tion.jda.core.entities.Role;

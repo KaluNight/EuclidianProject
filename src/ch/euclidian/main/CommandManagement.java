@@ -3,7 +3,6 @@ package ch.euclidian.main;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import ch.euclidian.main.model.Player;
 import ch.euclidian.main.model.Postulation;
 import ch.euclidian.main.model.Team;
@@ -24,20 +23,19 @@ import net.rithms.riot.constant.Platform;
 
 public class CommandManagement {
 
-  private CommandManagement() {
-  }
+  private CommandManagement() {}
 
-  //							Main Command Section
-  //-------------------------------------------------------------------------
+  // Main Command Section
+  // -------------------------------------------------------------------------
 
   public static String deleteCommand(String commande) {
     if(commande.substring(0, 4).equalsIgnoreCase("team")) {
       return deleteTeamCommand(commande);
     } else if(commande.substring(0, 14).equalsIgnoreCase("playerFromTeam")) {
       return deletePlayerOfTeamCommand(commande.substring(14));
-    } else if (commande.substring(0, 7).equalsIgnoreCase("reports")){
+    } else if(commande.substring(0, 7).equalsIgnoreCase("reports")) {
       return deleteReportsCommand();
-    }else {
+    } else {
       return "Erreur dans le choix de la suppression";
     }
   }
@@ -45,23 +43,21 @@ public class CommandManagement {
   public static String clearCommand(String commande) {
     if(commande.substring(0, 3).equalsIgnoreCase("bot")) {
       return clearSelectedChannel(Main.getGuild().getTextChannelById(commande.substring(4)), true);
-    }else if (commande.substring(0, 3).equalsIgnoreCase("all")){
+    } else if(commande.substring(0, 3).equalsIgnoreCase("all")) {
       return clearSelectedChannel(Main.getGuild().getTextChannelById(commande.substring(4)), false);
-    }else {
+    } else {
       return "Erreur dans le choix du type de suppression";
     }
 
   }
 
-  //               Clear Command
-  //-----------------------------------------------------------------------
+  // Clear Command
+  // -----------------------------------------------------------------------
 
   public static String clearSelectedChannel(TextChannel textChannel, boolean onlyBot) {
 
-    List<Message> messages = textChannel.getIterableHistory().stream()
-        .limit(1000)
-        .filter(m-> m.getAuthor().equals(Main.getJda().getSelfUser()))
-        .collect(Collectors.toList());
+    List<Message> messages = textChannel.getIterableHistory().stream().limit(1000)
+        .filter(m -> m.getAuthor().equals(Main.getJda().getSelfUser())).collect(Collectors.toList());
 
     if(onlyBot) {
 
@@ -70,13 +66,13 @@ public class CommandManagement {
       }
       return "Mes messages ont bien été supprimé !";
 
-    }else {
+    } else {
       return "On ne supprime pas tous les messages de tous le monde comme sa voyons, un peu de bon sens";
     }
   }
 
-  //							 Show Command
-  //-----------------------------------------------------------------------
+  // Show Command
+  // -----------------------------------------------------------------------
 
   public static List<MessageEmbed> showPostulationsCommand(String commande) throws RiotApiException {
     ArrayList<MessageEmbed> listesPostulation = new ArrayList<MessageEmbed>();
@@ -88,7 +84,7 @@ public class CommandManagement {
     return listesPostulation;
   }
 
-  public static List<String> showReportsCommand(){
+  public static List<String> showReportsCommand() {
     ArrayList<String> listReport = new ArrayList<>();
 
     for(int i = 0; i < Main.getReportList().size(); i++) {
@@ -100,8 +96,8 @@ public class CommandManagement {
   }
 
 
-  //							Delete Command
-  //-------------------------------------------------------------------------
+  // Delete Command
+  // -------------------------------------------------------------------------
 
   public static String deleteTeamCommand(String commande) {
     Team team = Main.getTeamByName(commande.split(" ")[1]);
@@ -129,7 +125,7 @@ public class CommandManagement {
 
     return "Les reports ont bien été supprimé";
   }
-  
+
   public static String deletePlayerOfTeamCommand(String command) {
     String[] split = command.split(" ");
     if(split.length == 2) {
@@ -144,32 +140,32 @@ public class CommandManagement {
           }
         }
         return "Id dans aucune équipe";
-        
-      }else {
+
+      } else {
         return "Id discord incorrect";
       }
-    }else {
+    } else {
       return "Vous devez mettre l'id discord du joueur à supprimer";
     }
   }
 
-  //							Postulation Command
-  //-------------------------------------------------------------------------
+  // Postulation Command
+  // -------------------------------------------------------------------------
 
   public static String postulationCommand(String[] postulation, Member member) {
     String lolPseudo = "";
     try {
       lolPseudo = postulation[1].split(":")[1].replaceAll(" ", "");
-    } catch (Exception e) {
+    } catch(Exception e) {
       return "Erreur dans le format du Pseudo. (Format : \"Mon pseudo : *Pseudo*\")";
     }
 
     Summoner summoner;
     try {
       summoner = Ressources.getRiotApi().getSummonerByName(Platform.EUW, lolPseudo);
-    } catch (IllegalArgumentException e) {
+    } catch(IllegalArgumentException e) {
       return "Votre pseudo n'est pas valide. Merci de vérifier la typographie du pseudo (Note : Il doit obligatoirement être de la région EUW)";
-    } catch (RiotApiException e) {
+    } catch(RiotApiException e) {
       e.printStackTrace();
       return "L'api à rencontré un problème";
     }
@@ -178,7 +174,7 @@ public class CommandManagement {
 
     try {
       position = postulation[2].split(":")[1].split(",");
-    }catch (Exception e) {
+    } catch(Exception e) {
       return "Erreur dans le format des rôles. (Format : \"Les rôles que je peux jouer : *Role, Role, Role*\")";
     }
 
@@ -189,18 +185,18 @@ public class CommandManagement {
         position[i] = position[i].replaceAll(" ", "");
         if(Main.getPositionRoleByName(position[i]) == null) {
           throw new NullPointerException();
-        }else {
+        } else {
           roles.add(Main.getPositionRoleByName(position[i]));
         }
       }
-    }catch (NullPointerException e) {
+    } catch(NullPointerException e) {
       return "Erreur dans la sélection des postes !";
     }
 
     String horaire = "";
     try {
       horaire = postulation[3].split(":")[1];
-    }catch (Exception e) {
+    } catch(Exception e) {
       return "Erreur dans le format de l'heure. (Format : \"Horaires : *VosHoraires*\")";
     }
 
@@ -220,15 +216,14 @@ public class CommandManagement {
       LogHelper.logSender("Postulation de " + member.getUser().getName() + " modifié");
 
       return "Votre postulation a bien été modifié";
-    }else {
+    } else {
       Main.getPostulationsList().add(postulationObject);
       Main.getController().addRolesToMember(member, roleWithPostulant).queue();
 
       LogHelper.logSender("Nouvelle postulation créé par " + member.getUser().getName());
 
       return "Merci d'avoir postulé ! Vous recevrez des informations concernant votre potentiel recrutement très bientôt !\n"
-      + "Votre postulations (Vous pouvez la modifier en renvoyant une postulation) : \n \n"
-      + postulationObject.toString();
+          + "Votre postulations (Vous pouvez la modifier en renvoyant une postulation) : \n \n" + postulationObject.toString();
     }
   }
 
@@ -236,19 +231,22 @@ public class CommandManagement {
     Postulation postulation;
     try {
       postulation = Main.getPostulationsList().get(accepted);
-    }catch (IndexOutOfBoundsException e) {
+    } catch(IndexOutOfBoundsException e) {
       return "Erreur dans la sélection de la postulation (index)";
     }
 
     PrivateChannel privateChannel = postulation.getMember().getUser().openPrivateChannel().complete();
     privateChannel.sendTyping().queue();
-    privateChannel.sendMessage("Votre postulation à été accepté, vous recevrez très bientôt des informations concernant votre futur affiliation, "
-        + "C'est " + user.getName() + " qui s'occupera de vous contacter.").queue();
+    privateChannel
+        .sendMessage("Votre postulation à été accepté, vous recevrez très bientôt des informations concernant votre futur affiliation, "
+            + "C'est " + user.getName() + " qui s'occupera de vous contacter.")
+        .queue();
 
     String result = "Vous avez accepter la postulation de " + postulation.getMember().getUser().getName() + ". "
         + "Il a été automatiquement enregistré en tant que joueur.";
 
-    Player player = new Player(postulation.getMember().getUser().getName(), postulation.getMember().getUser(), postulation.getSummoner(), false);
+    Player player =
+        new Player(postulation.getMember().getUser().getName(), postulation.getMember().getUser(), postulation.getSummoner(), false);
     Main.getController().addRolesToMember(postulation.getMember(), Main.getRegisteredRole()).queue();
 
     for(int i = 0; i < Main.getPlayerList().size(); i++) {

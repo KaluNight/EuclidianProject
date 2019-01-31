@@ -15,7 +15,7 @@ public class KDA {
     if(deaths == 0) {
       return kills + assists;
     }
-    return (kills + assists) / (double) deaths; //TODO: Check if the formula is correct
+    return (kills + assists) / (double) deaths; // TODO: Check if the formula is correct
   }
 
   public int getKills() {

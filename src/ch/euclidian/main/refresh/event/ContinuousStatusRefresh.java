@@ -1,7 +1,6 @@
 package ch.euclidian.main.refresh.event;
 
 import java.util.Random;
-
 import ch.euclidian.main.Main;
 import ch.euclidian.main.model.BotStatus;
 import net.dv8tion.jda.core.entities.Game;
@@ -16,8 +15,8 @@ public class ContinuousStatusRefresh implements Runnable {
 
   private static final String[] LIST_QUOTE_PANEL_REFRESH = {"analyser des parties", "créer des cartes informatives"};
 
-  private static final String[] LIST_QUOTE_REPORT_CONTRUCTION = {"analyser les parties de la semaines", "retourner dans le passés", 
-  "se balader dans les archives"};
+  private static final String[] LIST_QUOTE_REPORT_CONTRUCTION =
+      {"analyser les parties de la semaines", "retourner dans le passés", "se balader dans les archives"};
 
   private static final Random random = new Random();
 
@@ -33,27 +32,27 @@ public class ContinuousStatusRefresh implements Runnable {
 
       if(ContinuousKeepData.isRunning()) {
         quote = LIST_QUOTE_REPORT_CONTRUCTION[randInt(0, LIST_QUOTE_REPORT_CONTRUCTION.length)];
-      }else {
+      } else {
         switch(status) {
-        case IDLE:
-          quote = LIST_QUOTE_IDLE[randInt(0, LIST_QUOTE_IDLE.length)];
-          break;
-        case PANEL_REFRESH:
-          quote = LIST_QUOTE_PANEL_REFRESH[randInt(0, LIST_QUOTE_PANEL_REFRESH.length)];
-          break;
-        case REPORT_CONSTRUCTION:
-          quote = LIST_QUOTE_REPORT_CONTRUCTION[randInt(0, LIST_QUOTE_REPORT_CONTRUCTION.length)];
-          break;
-        case SAVE_DATA:
-          quote = LIST_QUOTE_SAVE_DATA[randInt(0, LIST_QUOTE_SAVE_DATA.length)];
-          break;
+          case IDLE:
+            quote = LIST_QUOTE_IDLE[randInt(0, LIST_QUOTE_IDLE.length)];
+            break;
+          case PANEL_REFRESH:
+            quote = LIST_QUOTE_PANEL_REFRESH[randInt(0, LIST_QUOTE_PANEL_REFRESH.length)];
+            break;
+          case REPORT_CONSTRUCTION:
+            quote = LIST_QUOTE_REPORT_CONTRUCTION[randInt(0, LIST_QUOTE_REPORT_CONTRUCTION.length)];
+            break;
+          case SAVE_DATA:
+            quote = LIST_QUOTE_SAVE_DATA[randInt(0, LIST_QUOTE_SAVE_DATA.length)];
+            break;
         }
       }
       setStatus(BotStatus.IDLE);
 
       Main.getJda().getPresence().setGame(Game.of(GameType.DEFAULT, quote));
 
-    }finally {
+    } finally {
       setRunning(false);
     }
   }
