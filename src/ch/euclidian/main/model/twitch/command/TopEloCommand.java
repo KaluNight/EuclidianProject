@@ -27,7 +27,7 @@ public class TopEloCommand extends Command {
     super.executeCommand(messageEvent);
 
     Ressources.getMessageInterface().sendMessage(messageEvent.getChannel().getName(), getRankOfAllTeamMembers());
-    
+
     LogHelper.logSender(messageEvent.getUser().getDisplayName() + " à demandé l'elo des membres du bataillon");
   }
 
@@ -40,13 +40,11 @@ public class TopEloCommand extends Command {
       for(int j = 0; j < players.size(); j++) {
         builder.append(players.get(j).getDiscordUser().getName() + " : " + RiotRequest.getSoloqRank(players.get(j).getSummoner().getId()));
 
-        if(players.size() != i + 1 && Main.getTeamList().size() != i + 1) {
-          builder.append(" | "); 
-        }
+        builder.append(" | "); 
       }
     }
 
-    return builder.toString();
+    return builder.toString().substring(0, builder.toString().length() - 2);
   }
 
 }
