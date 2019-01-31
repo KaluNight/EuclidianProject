@@ -9,9 +9,9 @@ import java.util.TimerTask;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ch.euclidian.main.model.Team;
 import ch.euclidian.main.model.discord.command.PostulationCommand;
+import ch.euclidian.main.model.twitch.command.LinkDiscordCommand;
 import ch.euclidian.main.model.twitch.command.TopEloCommand;
 import ch.euclidian.main.music.BotMusicManager;
 import ch.euclidian.main.refresh.event.ContinuousTimeChecking;
@@ -163,15 +163,17 @@ public class EventListener extends ListenerAdapter{
         .withAutoSaveConfiguration(true)
         .build();
     twitchClient.connect();
-
+    
     twitchClient.getDispatcher().registerListener(new TwitchChannelEvent());
+    
     twitchClient.getCommandHandler().registerCommand(TopEloCommand.class);
-
+    twitchClient.getCommandHandler().registerCommand(LinkDiscordCommand.class);
+    
     Ressources.setTwitchApi(twitchClient);
     Ressources.setMessageInterface(twitchClient.getMessageInterface());
     Ressources.setChannelEndpoint(twitchClient.getChannelEndpoint());
     Ressources.setStreamEndpoint(twitchClient.getStreamEndpoint());
-
+    
     Ressources.getMessageInterface().joinChannel(Ressources.TWITCH_CHANNEL_NAME);
   }
 
