@@ -1,7 +1,6 @@
 package ch.euclidian.main.model;
 
 import java.util.List;
-
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;

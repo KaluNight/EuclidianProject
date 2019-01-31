@@ -30,7 +30,7 @@ public class ContinuousStreamOnlineChecking implements Runnable {
 
         annonceChannel.sendMessage("Hey @here ! Nous sommes actuellement en live ! Hésitez pas à venir passez le bonjour !").queue();
         setEmbendedMessage(annonceChannel.sendMessage(MessageBuilderRequest.createInfoStreamMessage(channel)).complete());
-      } else if (!streamIsLive && wasOnline) {
+      } else if(!streamIsLive && wasOnline) {
         setWasOnline(false);
         setEmbendedMessage(null);
       } else if(streamIsLive) {

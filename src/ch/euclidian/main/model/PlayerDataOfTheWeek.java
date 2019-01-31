@@ -2,13 +2,12 @@ package ch.euclidian.main.model;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.joda.time.Duration;
 
 public class PlayerDataOfTheWeek {
 
-  private String weekStart; //ISO 8601
-  private String weekEnd; //ISO 8601
+  private String weekStart; // ISO 8601
+  private String weekEnd; // ISO 8601
   private List<Duration> listeDuration;
   private List<Double> listTotCreep10Minute;
   private List<Double> listTotCreep20Minute;
@@ -26,13 +25,13 @@ public class PlayerDataOfTheWeek {
   }
 
   public double getWinRateOfTheWeek() {
-    if(nbrGames == 0){
+    if(nbrGames == 0) {
       return 0;
     }
     return (nbrWin / (double) nbrGames) * 100;
   }
 
-  public double getKDAOfTheWeek(){
+  public double getKDAOfTheWeek() {
     double totalKdaScores = 0;
 
     for(int i = 0; i < listOfKDA.size(); i++) {
@@ -128,51 +127,67 @@ public class PlayerDataOfTheWeek {
   public List<Duration> getListeDuration() {
     return listeDuration;
   }
+
   public void setListeDuration(List<Duration> listeDuration) {
     this.listeDuration = listeDuration;
   }
+
   public List<Double> getListTotCreep10Minute() {
     return listTotCreep10Minute;
   }
+
   public void setListTotCreep10Minute(List<Double> listTotCreep10Minute) {
     this.listTotCreep10Minute = listTotCreep10Minute;
   }
+
   public void setListTotCreep20Minute(List<Double> listTotCreep20Minute) {
     this.listTotCreep20Minute = listTotCreep20Minute;
   }
+
   public List<Double> getListTotCreep30Minute() {
     return listTotCreep30Minute;
   }
+
   public void setListTotCreep30Minute(List<Double> listTotCreep30Minute) {
     this.listTotCreep30Minute = listTotCreep30Minute;
   }
+
   public List<Integer> getListOfSummonerSpellUsed() {
     return listOfSummonerSpellUsedId;
   }
+
   public void setListOfSummonerSpellUsed(List<Integer> listOfSummonerSpellUsed) {
     this.listOfSummonerSpellUsedId = listOfSummonerSpellUsed;
   }
+
   public List<KDA> getListOfKDA() {
     return listOfKDA;
   }
+
   public void setListOfKDA(List<KDA> listOfKDA) {
     this.listOfKDA = listOfKDA;
   }
+
   public List<Integer> getListOfChampionPlayed() {
     return listOfChampionPlayedId;
   }
+
   public void setListOfChampionPlayed(List<Integer> listOfChampionPlayed) {
     this.listOfChampionPlayedId = listOfChampionPlayed;
   }
+
   public int getNbrGames() {
     return nbrGames;
   }
+
   public void setNbrGames(int nbrGames) {
     this.nbrGames = nbrGames;
   }
+
   public int getNbrWin() {
     return nbrWin;
   }
+
   public void setNbrWin(int nbrWin) {
     this.nbrWin = nbrWin;
   }

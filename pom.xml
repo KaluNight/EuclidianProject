@@ -85,12 +85,8 @@
 			<scope>compile</scope>
 			<type>pom</type>
 		</dependency>
-
-		<dependency>
-			<groupId>com.github.taycaldwell</groupId>
-			<artifactId>riot-api-java</artifactId>
-			<version>4.1.0</version>
-		</dependency>
+		
+		<!-- TODO UPDATE RIOT API FOR V4 -->
 
 		<dependency>
 			<groupId>joda-time</groupId>
@@ -162,6 +158,8 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
 
 </project>

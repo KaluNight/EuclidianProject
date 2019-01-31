@@ -1,23 +1,23 @@
 package ch.euclidian.main.model;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
-
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Category;
 import net.dv8tion.jda.core.entities.Role;
 
 public class Team {
 
-  private static ArrayList<Permission> permissionsList;
+  private static List<Permission> permissionsList;
 
   private String name;
-  private ArrayList<Player> players;
+  private List<Player> players;
   private Timer timer;
   private Category category;
   private Role role;
 
-  public Team(String name, ArrayList<Player> players) {
+  public Team(String name, List<Player> players) {
     this.name = name;
     this.players = players;
   }
@@ -26,7 +26,7 @@ public class Team {
     this.name = name;
     this.category = category;
     this.role = role;
-    players = new ArrayList<Player>();
+    players = new ArrayList<>();
   }
 
   public String getName() {
@@ -37,11 +37,11 @@ public class Team {
     this.name = name;
   }
 
-  public ArrayList<Player> getPlayers() {
+  public List<Player> getPlayers() {
     return players;
   }
 
-  public void setPlayers(ArrayList<Player> players) {
+  public void setPlayers(List<Player> players) {
     this.players = players;
   }
 
@@ -53,11 +53,11 @@ public class Team {
     this.timer = timer;
   }
 
-  public static ArrayList<Permission> getPermissionsList() {
+  public static List<Permission> getPermissionsList() {
     return permissionsList;
   }
 
-  public static void setPermissionsList(ArrayList<Permission> permissionsList) {
+  public static void setPermissionsList(List<Permission> permissionsList) {
     Team.permissionsList = permissionsList;
   }
 

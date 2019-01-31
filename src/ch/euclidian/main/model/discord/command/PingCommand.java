@@ -1,7 +1,6 @@
-package ch.euclidian.main.model.command;
+package ch.euclidian.main.model.discord.command;
 
 import java.time.temporal.ChronoUnit;
-
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 
@@ -17,7 +16,7 @@ public class PingCommand extends Command {
   protected void execute(CommandEvent event) {
     event.reply("Ping: ...", m -> {
       long ping = event.getMessage().getCreationTime().until(m.getCreationTime(), ChronoUnit.MILLIS);
-      m.editMessage("Ping: " + ping  + "ms | Websocket: " + event.getJDA().getPing() + "ms").queue();
+      m.editMessage("Ping: " + ping + "ms | Websocket: " + event.getJDA().getPing() + "ms").queue();
     });
   }
 

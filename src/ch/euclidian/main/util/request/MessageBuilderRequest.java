@@ -3,13 +3,9 @@ package ch.euclidian.main.util.request;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ch.euclidian.main.model.Champion;
 import ch.euclidian.main.model.Player;
 import ch.euclidian.main.model.Postulation;
@@ -21,7 +17,6 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.MessageEmbed.Field;
 import net.dv8tion.jda.core.entities.User;
-import net.rithms.riot.api.RiotApiException;
 import net.rithms.riot.api.endpoints.spectator.dto.CurrentGameInfo;
 import net.rithms.riot.api.endpoints.spectator.dto.CurrentGameParticipant;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
@@ -29,13 +24,10 @@ import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 public class MessageBuilderRequest {
 
   private static final DateTimeFormatter dateFormatter = DateTimeFormat.forPattern("HH:mm");
-  
+
   private static final Color STREAM_COLOR = Color.getHSBColor(281, 85, 84);
 
-  private static Logger logger = LoggerFactory.getLogger(MessageBuilderRequest.class);
-
-  private MessageBuilderRequest() {
-  }
+  private MessageBuilderRequest() {}
 
   public static MessageEmbed createInfoCard1summoner(User user, Summoner summoner, CurrentGameInfo match) {
 
@@ -43,7 +35,8 @@ public class MessageBuilderRequest {
 
     message.setAuthor(user.getName(), null, user.getAvatarUrl());
 
-    message.setTitle("Info sur la partie de " + user.getName() + " : " + NameConversion.convertGameQueueIdToString(match.getGameQueueConfigId()));
+    message.setTitle(
+        "Info sur la partie de " + user.getName() + " : " + NameConversion.convertGameQueueIdToString(match.getGameQueueConfigId()));
 
     int blueTeamID = 0;
 
@@ -72,24 +65,20 @@ public class MessageBuilderRequest {
       Champion champion = null;
       champion = Ressources.getChampionDataById(blueTeam.get(i).getChampionId());
 
-      String rank = null;
-      try {
-        rank = RiotRequest.getSoloqRank(blueTeam.get(i).getSummonerId());
-      } catch (RiotApiException e) {
-        logger.error(e.getMessage());
-        return null;
-      }
+      String rank = RiotRequest.getSoloqRank(blueTeam.get(i).getSummonerId());
 
       if(summoner.getName().equals(blueTeam.get(i).getSummonerName())) {
-        blueTeamString.append(champion.getName() + " | __**" + NameConversion.convertStringToTinyString(blueTeam.get(i).getSummonerName()) + "**__" + "\n");
-      }else {
-        blueTeamString.append(champion.getName() + " | " + NameConversion.convertStringToTinyString(blueTeam.get(i).getSummonerName()) + "\n");
+        blueTeamString.append(
+            champion.getName() + " | __**" + NameConversion.convertStringToTinyString(blueTeam.get(i).getSummonerName()) + "**__" + "\n");
+      } else {
+        blueTeamString
+            .append(champion.getName() + " | " + NameConversion.convertStringToTinyString(blueTeam.get(i).getSummonerName()) + "\n");
       }
 
       blueTeamRankString.append(rank + "\n");
 
-      blueTeamWinRateLastMonth.append(RiotRequest.getMasterysScore(blueTeam.get(i).getSummonerId(), blueTeam.get(i).getChampionId())
-          + " | " + RiotRequest.getMood(blueTeam.get(i).getSummonerId()) + "\n");
+      blueTeamWinRateLastMonth.append(RiotRequest.getMasterysScore(blueTeam.get(i).getSummonerId(), blueTeam.get(i).getChampionId()) + " | "
+          + RiotRequest.getMood(blueTeam.get(i).getSummonerId()) + "\n");
     }
 
     message.addField("Équipe Bleu", blueTeamString.toString(), true);
@@ -104,23 +93,19 @@ public class MessageBuilderRequest {
       Champion champion = null;
       champion = Ressources.getChampionDataById(redTeam.get(i).getChampionId());
 
-      String rank = null;
-      try {
-        rank = RiotRequest.getSoloqRank(redTeam.get(i).getSummonerId());
-      } catch (RiotApiException e) {
-        logger.error(e.getMessage());
-        return null;
-      }
+      String rank = RiotRequest.getSoloqRank(redTeam.get(i).getSummonerId());
 
       if(summoner.getName().equals(redTeam.get(i).getSummonerName())) {
-        redTeamString.append(champion.getName() + " | __**" + NameConversion.convertStringToTinyString(redTeam.get(i).getSummonerName()) + "**__" + "\n");
-      }else {
-        redTeamString.append(champion.getName() + " | " + NameConversion.convertStringToTinyString(redTeam.get(i).getSummonerName()) + "\n");
+        redTeamString.append(
+            champion.getName() + " | __**" + NameConversion.convertStringToTinyString(redTeam.get(i).getSummonerName()) + "**__" + "\n");
+      } else {
+        redTeamString
+            .append(champion.getName() + " | " + NameConversion.convertStringToTinyString(redTeam.get(i).getSummonerName()) + "\n");
       }
       redTeamRankString.append(rank + "\n");
 
-      redTeamWinrateString.append(RiotRequest.getMasterysScore(redTeam.get(i).getSummonerId(), redTeam.get(i).getChampionId())
-          + " | " + RiotRequest.getMood(redTeam.get(i).getSummonerId()) + "\n");
+      redTeamWinrateString.append(RiotRequest.getMasterysScore(redTeam.get(i).getSummonerId(), redTeam.get(i).getChampionId()) + " | "
+          + RiotRequest.getMood(redTeam.get(i).getSummonerId()) + "\n");
     }
 
     message.addField("Équipe Rouge", redTeamString.toString(), true);
@@ -132,7 +117,7 @@ public class MessageBuilderRequest {
     int minutesGameLength = Integer.parseInt(stringMinutesSecondes[0]);
     int secondesGameLength = (int) (Double.parseDouble("0." + stringMinutesSecondes[1]) * 60.0);
 
-    String gameLenght = String.format("%02d", minutesGameLength) + ":" + String.format("%02d",secondesGameLength);
+    String gameLenght = String.format("%02d", minutesGameLength) + ":" + String.format("%02d", secondesGameLength);
 
     message.setFooter("Heure de création du message : " + DateTime.now().plusHours(1).toString(dateFormatter)
         + " | Durée actuel de la partie : " + gameLenght, null);
@@ -153,9 +138,9 @@ public class MessageBuilderRequest {
     for(int i = 0; i < players.size(); i++) {
       if(i + 1 == players.size()) {
         title.append(" et de " + players.get(i).getDiscordUser().getName());
-      }else if(i + 2 == players.size()) {
+      } else if(i + 2 == players.size()) {
         title.append(" " + players.get(i).getDiscordUser().getName());
-      }else {
+      } else {
         title.append(" " + players.get(i).getDiscordUser().getName() + ",");
       }
     }
@@ -183,7 +168,7 @@ public class MessageBuilderRequest {
       }
     }
 
-    ArrayList<Long> listIdPlayers = new ArrayList<>();
+    ArrayList<String> listIdPlayers = new ArrayList<>();
 
     for(int i = 0; i < players.size(); i++) {
       listIdPlayers.add(players.get(i).getSummoner().getId());
@@ -197,24 +182,20 @@ public class MessageBuilderRequest {
       Champion champion = null;
       champion = Ressources.getChampionDataById(blueTeam.get(i).getChampionId());
 
-      String rank = null;
-      try {
-        rank = RiotRequest.getSoloqRank(blueTeam.get(i).getSummonerId());
-      } catch (RiotApiException e) {
-        logger.error(e.getMessage());
-        return null;
-      }
+      String rank = RiotRequest.getSoloqRank(blueTeam.get(i).getSummonerId());
 
       if(listIdPlayers.contains(blueTeam.get(i).getSummonerId())) {
-        blueTeamString.append(champion.getName() + " | __" + NameConversion.convertStringToTinyString(blueTeam.get(i).getSummonerName()) + "__" + "\n");
-      }else {
-        blueTeamString.append(champion.getName() + " | " + NameConversion.convertStringToTinyString(blueTeam.get(i).getSummonerName()) + "\n");
+        blueTeamString.append(
+            champion.getName() + " | __**" + NameConversion.convertStringToTinyString(blueTeam.get(i).getSummonerName()) + "**__" + "\n");
+      } else {
+        blueTeamString
+            .append(champion.getName() + " | " + NameConversion.convertStringToTinyString(blueTeam.get(i).getSummonerName()) + "\n");
       }
 
       blueTeamRankString.append(rank + "\n");
 
-      blueTeamWinrateString.append(RiotRequest.getMasterysScore(blueTeam.get(i).getSummonerId(), blueTeam.get(i).getChampionId())
-          + " | " + RiotRequest.getMood(blueTeam.get(i).getSummonerId()) + "\n");
+      blueTeamWinrateString.append(RiotRequest.getMasterysScore(blueTeam.get(i).getSummonerId(), blueTeam.get(i).getChampionId()) + " | "
+          + RiotRequest.getMood(blueTeam.get(i).getSummonerId()) + "\n");
     }
 
     message.addField("Équipe Bleu", blueTeamString.toString(), true);
@@ -229,24 +210,20 @@ public class MessageBuilderRequest {
       Champion champion = null;
       champion = Ressources.getChampionDataById(redTeam.get(i).getChampionId());
 
-      String rank = null;
-      try {
-        rank = RiotRequest.getSoloqRank(redTeam.get(i).getSummonerId());
-      } catch (RiotApiException e) {
-        logger.error(e.getMessage());
-        return null;
-      }
+      String rank = RiotRequest.getSoloqRank(redTeam.get(i).getSummonerId());
 
       if(listIdPlayers.contains(redTeam.get(i).getSummonerId())) {
-        redTeamString.append(champion.getName() + " | __" + NameConversion.convertStringToTinyString(redTeam.get(i).getSummonerName()) + "__" + "\n");
-      }else {
-        redTeamString.append(champion.getName() + " | " + NameConversion.convertStringToTinyString(redTeam.get(i).getSummonerName()) + "\n");
+        redTeamString.append(
+            champion.getName() + " | __**" + NameConversion.convertStringToTinyString(redTeam.get(i).getSummonerName()) + "**__" + "\n");
+      } else {
+        redTeamString
+            .append(champion.getName() + " | " + NameConversion.convertStringToTinyString(redTeam.get(i).getSummonerName()) + "\n");
       }
 
       redTeamRankString.append(rank + "\n");
 
-      redTeamWinrateString.append(RiotRequest.getMasterysScore(redTeam.get(i).getSummonerId(), redTeam.get(i).getChampionId())
-          + " | " + RiotRequest.getMood(redTeam.get(i).getSummonerId()) + "\n");
+      redTeamWinrateString.append(RiotRequest.getMasterysScore(redTeam.get(i).getSummonerId(), redTeam.get(i).getChampionId()) + " | "
+          + RiotRequest.getMood(redTeam.get(i).getSummonerId()) + "\n");
     }
 
     message.addField("Équipe Rouge", redTeamString.toString(), true);
@@ -258,7 +235,7 @@ public class MessageBuilderRequest {
     int minutesGameLength = Integer.parseInt(stringMinutesSecondes[0]);
     int secondesGameLength = (int) (Double.parseDouble("0." + stringMinutesSecondes[1]) * 60.0);
 
-    String gameLenght = String.format("%02d", minutesGameLength) + ":" + String.format("%02d",secondesGameLength);
+    String gameLenght = String.format("%02d", minutesGameLength) + ":" + String.format("%02d", secondesGameLength);
 
     message.setFooter("Heure de création du message : " + DateTime.now().plusHours(1).toString(dateFormatter)
         + " | Durée actuel de la partie : " + gameLenght, null);
@@ -268,7 +245,7 @@ public class MessageBuilderRequest {
     return message.build();
   }
 
-  public static MessageEmbed createShowPostulation(Postulation postulation, int postulationNbr) throws RiotApiException {
+  public static MessageEmbed createShowPostulation(Postulation postulation, int postulationNbr) {
 
     EmbedBuilder message = new EmbedBuilder();
 
@@ -315,7 +292,7 @@ public class MessageBuilderRequest {
 
     message.setThumbnail(channel.getLogo());
 
-    //message.setImage(LINK_BANNER); TODO: When we have a banner, add it
+    message.setImage(actualStream.getPreview().getLarge()); // TODO: When we have a banner, add it
 
     message.setColor(STREAM_COLOR);
 

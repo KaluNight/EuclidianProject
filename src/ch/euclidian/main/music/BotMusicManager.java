@@ -7,7 +7,6 @@ import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.managers.AudioManager;
@@ -29,7 +28,7 @@ public class BotMusicManager {
 
   public void loadAndPlay(final TextChannel channel, final String trackUrl) {
     setActualTextChannel(channel);
-    
+
     playerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
       @Override
       public void trackLoaded(AudioTrack track) {
@@ -45,7 +44,7 @@ public class BotMusicManager {
         if(firstTrack != null) {
           channel.sendMessage("Ajout à la liste de : " + firstTrack.getInfo().title + ")").queue();
           play(musicManager, firstTrack);
-        }else {
+        } else {
           for(AudioTrack track : playlist.getTracks()) {
             musicManager.scheduler.queue(track);
           }
@@ -66,21 +65,21 @@ public class BotMusicManager {
       }
     });
   }
-  
+
   public String skipActualTrack() {
     String oldTrack = "";
-    
+
     oldTrack = musicManager.player.getPlayingTrack().getInfo().title;
     musicManager.scheduler.nextTrack();
-    
+
     if(musicManager.player.getPlayingTrack() == null) {
       return "Musique \"" + oldTrack + "\" passé. Aucune musique suivante dans la liste";
-    }else {
+    } else {
       String newTrack = musicManager.player.getPlayingTrack().getInfo().title;
       return "Musique \"" + oldTrack + "\" passé. Vous écoutez maintenant \"" + newTrack + "\"";
     }
   }
-  
+
   public void leaveVoiceChannel() {
     musicManager.player.stopTrack();
     musicManager.scheduler.deleteTheQueue();
@@ -88,7 +87,7 @@ public class BotMusicManager {
     setActualVoiceChannel(null);
     setActualTextChannel(null);
   }
-  
+
   public void clearQueue() {
     musicManager.scheduler.deleteTheQueue();
   }
@@ -102,12 +101,15 @@ public class BotMusicManager {
   public AudioPlayerManager getPlayerManager() {
     return playerManager;
   }
+
   public void setPlayerManager(AudioPlayerManager playerManager) {
     this.playerManager = playerManager;
   }
+
   public MusicManager getMusicManager() {
     return musicManager;
   }
+
   public void setMusicManager(MusicManager musicManager) {
     this.musicManager = musicManager;
   }

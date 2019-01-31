@@ -1,29 +1,28 @@
 package ch.euclidian.main.model;
 
 import java.util.List;
-
 import org.joda.time.DateTime;
-
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 
 public class InfoCard {
-  
+
   private List<Player> players;
   private MessageEmbed card;
   private Message title;
   private Message message;
-  private DateTime creationTime = DateTime.now();
-  
+  private DateTime creationTime;
+
   public InfoCard(List<Player> players, MessageEmbed card) {
     this.players = players;
     this.card = card;
+    this.creationTime = DateTime.now();
   }
-  
+
   public List<Player> getPlayers() {
     return players;
   }
-  
+
   public void setPlayers(List<Player> players) {
     this.players = players;
   }
