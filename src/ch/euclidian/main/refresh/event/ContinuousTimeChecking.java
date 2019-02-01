@@ -23,7 +23,8 @@ public class ContinuousTimeChecking extends TimerTask {
 
   private static DateTime nextTimeCheckLive;
 
-  private static LocalTime timeToTierSave = LocalTime.of(15, 48);
+  private static LocalTime timeToTierSave = LocalTime.of(23, 15);
+  private static LocalTime timeToUnlock = LocalTime.of(23, 30);
   private static boolean saveTierDone = false;
 
   private static int nbProcs = Runtime.getRuntime().availableProcessors();
@@ -83,6 +84,10 @@ public class ContinuousTimeChecking extends TimerTask {
       setSaveTierDone(true);
       logger.info("Launch Tier Save");
       threadPoolExecutor.submit(new ContinuousTierKeeping());
+    }
+    
+    if(LocalTime.now().truncatedTo(ChronoUnit.MINUTES).equals(timeToUnlock)) {
+      setSaveTierDone(false);
     }
   }
 

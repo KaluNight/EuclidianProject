@@ -46,6 +46,8 @@ public class ContinuousTierKeeping implements Runnable {
       addNewDataToSave(listsOfDatedFullTier);
 
       saveTiers(listsOfDatedFullTier);
+      
+      LogHelper.logSender("Tier des joueurs pour la journée sauvegardé");
 
     }catch(Exception e) {
       logger.error(e.toString());
