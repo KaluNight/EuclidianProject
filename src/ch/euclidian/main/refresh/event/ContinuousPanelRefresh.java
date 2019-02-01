@@ -33,7 +33,7 @@ public class ContinuousPanelRefresh implements Runnable {
   private static LocalDateTime nextRefreshPanel;
 
   private static HashMap<String, CurrentGameInfo> currentGames = new HashMap<>();
-
+  
   private static List<Long> gamesIdAlreadySended = new ArrayList<>();
 
   private static List<InfoCard> infoCards = new ArrayList<>();

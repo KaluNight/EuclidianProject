@@ -8,9 +8,9 @@ import java.util.Set;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ch.euclidian.main.model.FullRank;
-import ch.euclidian.main.model.Rank;
+import ch.euclidian.main.model.FullTier;
 import ch.euclidian.main.model.Tier;
+import ch.euclidian.main.model.Rank;
 import ch.euclidian.main.util.NameConversion;
 import ch.euclidian.main.util.Ressources;
 import net.rithms.riot.api.RiotApiException;
@@ -35,33 +35,33 @@ public class RiotRequest {
 
   private RiotRequest() {}
 
-  public static FullRank getSoloqRank(String summonerID) {
+  public static FullTier getSoloqRank(String summonerID) {
 
     Set<LeaguePosition> listLeague;
     try {
       listLeague = Ressources.getRiotApi().getLeaguePositionsBySummonerId(Platform.EUW, summonerID);
     } catch(RiotApiException e) {
       logger.warn("Impossible d'obtenir le rank de la personne : {}", e.getMessage(), e);
-      return new FullRank(Rank.UNKNOWN, Tier.UNKNOWN, 0);
+      return new FullTier(Tier.UNKNOWN, Rank.UNKNOWN, 0);
     }
 
     Iterator<LeaguePosition> gettableList = listLeague.iterator();
 
-    Rank rank = Rank.UNRANKED;
-    Tier tier = Tier.UNRANKED;
+    Tier rank = Tier.UNRANKED;
+    Rank tier = Rank.UNRANKED;
     int leaguePoints = 0;
 
     while(gettableList.hasNext()) {
       LeaguePosition leaguePosition = gettableList.next();
 
       if(leaguePosition.getQueueType().equals("RANKED_SOLO_5x5")) {
-        rank = Rank.valueOf(leaguePosition.getRank());
-        tier = Tier.valueOf(leaguePosition.getTier());
+        rank = Tier.valueOf(leaguePosition.getTier());
+        tier = Rank.valueOf(leaguePosition.getRank());
         leaguePoints = leaguePosition.getLeaguePoints();
       }
     }
 
-    return new FullRank(rank, tier, leaguePoints);
+    return new FullTier(rank, tier, leaguePoints);
   }
 
   public static String getWinrateLast20Games(String summonerId) {

@@ -165,8 +165,13 @@ public class Main {
         new LeaveCommand(), new PlayCommand(), new ResetCommand(), new SkipCommand());
 
     try {
-      jda = new JDABuilder(AccountType.BOT).setToken(discordTocken).setStatus(OnlineStatus.DO_NOT_DISTURB).addEventListener(waiter)
-          .addEventListener(client.build()).addEventListener(new EventListener()).build();
+      jda = new JDABuilder(AccountType.BOT)//
+          .setToken(discordTocken)//
+          .setStatus(OnlineStatus.DO_NOT_DISTURB)//
+          .addEventListener(waiter)//
+          .addEventListener(client.build())//
+          .addEventListener(new EventListener())//
+          .build();//
     } catch(IndexOutOfBoundsException e) {
       logger.error("You must provide a token.");
       return;

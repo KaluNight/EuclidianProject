@@ -139,6 +139,7 @@ public class ContinuousKeepData implements Runnable {
 
     } finally {
       setRunning(false);
+      ContinuousTimeChecking.setSaveTierDone(false);
     }
   }
 

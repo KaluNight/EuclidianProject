@@ -1,5 +1,7 @@
 package ch.euclidian.main.refresh.event;
 
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.TimerTask;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -20,6 +22,9 @@ public class ContinuousTimeChecking extends TimerTask {
   private static DateTime nextTimeStatusRefresh;
 
   private static DateTime nextTimeCheckLive;
+
+  private static LocalTime timeToTierSave = LocalTime.of(15, 48);
+  private static boolean saveTierDone = false;
 
   private static int nbProcs = Runtime.getRuntime().availableProcessors();
 
@@ -73,6 +78,12 @@ public class ContinuousTimeChecking extends TimerTask {
         threadPoolExecutor.submit(new ContinuousStreamOnlineChecking());
       }
     }
+
+    if(LocalTime.now().truncatedTo(ChronoUnit.MINUTES).equals(timeToTierSave) && !ContinuousTierKeeping.isRunning() && !isSaveTierDone()) {
+      setSaveTierDone(true);
+      logger.info("Launch Tier Save");
+      threadPoolExecutor.submit(new ContinuousTierKeeping());
+    }
   }
 
   public static DateTime getNextTimePanelRefresh() {
@@ -117,6 +128,14 @@ public class ContinuousTimeChecking extends TimerTask {
 
   public static void setNextTimeCheckLive(DateTime nextTimeCheckLive) {
     ContinuousTimeChecking.nextTimeCheckLive = nextTimeCheckLive;
+  }
+
+  public static boolean isSaveTierDone() {
+    return saveTierDone;
+  }
+
+  public static void setSaveTierDone(boolean saveTierDone) {
+    ContinuousTimeChecking.saveTierDone = saveTierDone;
   }
 
 }
