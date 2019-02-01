@@ -16,7 +16,7 @@ public class FullRank {
   
   public int value() throws NoValueRankException {
     if(rank == Rank.UNRANKED || rank == Rank.UNKNOWN) {
-      throw new NoValueRankException("Impossible to get Value of FullRank with Unranked");
+      throw new NoValueRankException("Impossible to get Value of FullRank with Unranked or Unknown rank or tier");
     }
     return rank.getValue() + tier.getValue() + leaguePoints;
   }
