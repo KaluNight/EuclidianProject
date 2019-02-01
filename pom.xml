@@ -85,8 +85,12 @@
 			<scope>compile</scope>
 			<type>pom</type>
 		</dependency>
-		
-		<!-- TODO UPDATE RIOT API FOR V4 -->
+
+		<dependency>
+			<groupId>com.github.taycaldwell</groupId>
+			<artifactId>riot-api-java</artifactId>
+			<version>4.2.0</version>
+		</dependency>
 
 		<dependency>
 			<groupId>joda-time</groupId>
