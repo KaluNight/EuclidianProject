@@ -51,10 +51,6 @@ public class Ressources {
     return null;
   }
 
-  public static void resetChampionCache() {
-    championsData = new ArrayList<>();
-  }
-
   public static RiotApi getRiotApi() {
     return riotApi;
   }

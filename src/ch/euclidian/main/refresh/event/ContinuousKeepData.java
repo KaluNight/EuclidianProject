@@ -52,9 +52,6 @@ public class ContinuousKeepData implements Runnable {
     try {
       setRunning(true);
 
-      // Reset ChampionDataCache
-      Ressources.resetChampionCache();
-
       statsChannel.sendTyping().complete();
       statsChannel.sendMessage("Je commence l'analyse de vos parties de la semaine, cela devrait me prendre quelques minutes").complete();
 
