@@ -16,7 +16,11 @@ public class DatedFullTier {
     return fullTier;
   }
   
-  public String getCreationTime() {
+  public String getCreationTimeString() {
     return creationTime;
+  }
+  
+  public DateTime getCreationTime() {
+	  return DateTime.parse(creationTime);
   }
 }
