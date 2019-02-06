@@ -1,6 +1,5 @@
 package ch.euclidian.main.model.discord.command;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -75,15 +74,16 @@ public class TierChartPlayerCommand extends Command {
     
     XYChart chart = createChart(datedFullTier, user.getName());
     
+    byte[] chartPicture;
+    
     try {
-      BitmapEncoder.saveBitmapWithDPI(chart, "/temp/" + user.getId() + ".png", BitmapFormat.PNG, 300);
+      chartPicture = BitmapEncoder.getBitmapBytes(chart, BitmapFormat.PNG);
     } catch (IOException e) {
       event.reply("Erreur dans la sauvegarde du graphique");
       return;
     }
-
-    event.getTextChannel().sendFile(new File("temp/" + user.getId() + ".png"), "Votre graphique de ranked :").complete();
     
+    event.getTextChannel().sendFile(chartPicture, "Votre graphique de ranked :").complete();
   }
 
   private XYChart createChart(List<DatedFullTier> datedFullTier, String playerName) {
