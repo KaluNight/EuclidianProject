@@ -3,11 +3,11 @@ package ch.euclidian.main.model.discord.command;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.joda.time.DateTime;
 import org.knowm.xchart.BitmapEncoder;
 import org.knowm.xchart.BitmapEncoder.BitmapFormat;
 import org.knowm.xchart.XYChart;
@@ -27,13 +27,15 @@ import ch.euclidian.main.util.Ressources;
 import net.dv8tion.jda.core.entities.User;
 
 public class TierChartPlayerCommand extends Command {
+  
+  private static final String DATE_PATTERN = "MM/dd";
 
   private static final Logger logger = LoggerFactory.getLogger(Ressources.class);
 
   public TierChartPlayerCommand() {
     this.name = "playerGraph";
     this.arguments = "MentionJoueur";
-    this.help = "Crée un graphique avec les données d'un joueurs";
+    this.help = "Crée un graphique avec les données d'un joueur";
   }
 
   @Override
@@ -79,16 +81,18 @@ public class TierChartPlayerCommand extends Command {
     try {
       chartPicture = BitmapEncoder.getBitmapBytes(chart, BitmapFormat.PNG);
     } catch (IOException e) {
-      event.reply("Erreur dans la sauvegarde du graphique");
+      event.reply("Erreur dans la création du graphique");
       return;
     }
     
-    event.getTextChannel().sendFile(chartPicture, "Votre graphique de ranked :").complete();
+    event.getTextChannel().sendMessage("Voici le graphique de " + player.getDiscordUser().getName() + " :").complete();
+    event.getTextChannel().sendFile(chartPicture, player.getDiscordUser().getName() + "Graph.png").complete();
+    
   }
 
   private XYChart createChart(List<DatedFullTier> datedFullTier, String playerName) {
 
-    List<Integer> valueData = new ArrayList<>();
+    List<Number> valueData = new ArrayList<>();
 
     for(int i = 0; i < datedFullTier.size(); i++) {
       try {
@@ -97,13 +101,11 @@ public class TierChartPlayerCommand extends Command {
         valueData.add(null);
       }
     }
-    
-    List<String> dateData = new ArrayList<>();
+     
+    List<Date> dateData = new ArrayList<>();
 
     for(int i = 0; i < datedFullTier.size(); i++) {
-      DateTime creationTime = datedFullTier.get(i).getCreationTime();
-      
-      dateData.add(creationTime.getDayOfMonth() + "." + creationTime.getMonthOfYear());
+      dateData.add(datedFullTier.get(i).getCreationTime().toDate());
     }
     
     XYChartBuilder chartBuilder = new XYChartBuilder();
@@ -145,9 +147,10 @@ public class TierChartPlayerCommand extends Command {
     yMarkMap.put(3100.0, "Diamant 3");
     yMarkMap.put(3200.0, "Diamant 2");
     yMarkMap.put(3300.0, "Diamant 1");
-    yMarkMap.put(3400.0, "Master+");
+    yMarkMap.put(3400.0, "Maître+");
     
     chart.setYAxisLabelOverrideMap(yMarkMap);
+    chart.getStyler().setDatePattern(DATE_PATTERN);
     
     chart.getStyler().setAntiAlias(true);
     
