@@ -74,7 +74,13 @@ public class TierChartPlayerCommand extends Command {
       return;
     }
     
-    XYChart chart = createChart(datedFullTier, user.getName());
+    XYChart chart;
+    try {
+      chart = createChart(datedFullTier, user.getName());
+    } catch (NoValueRankException e) {
+      event.reply(e.getMessage());
+      return;
+    }
     
     byte[] chartPicture;
     
@@ -90,7 +96,7 @@ public class TierChartPlayerCommand extends Command {
     
   }
 
-  private XYChart createChart(List<DatedFullTier> datedFullTier, String playerName) {
+  private XYChart createChart(List<DatedFullTier> datedFullTier, String playerName) throws NoValueRankException {
 
     List<Number> valueData = new ArrayList<>();
 
@@ -101,7 +107,19 @@ public class TierChartPlayerCommand extends Command {
         valueData.add(null);
       }
     }
-     
+    
+    boolean hasANumber = false;
+    
+    for(Number number : valueData) {
+      if(number != null) {
+        hasANumber = true;
+      }
+    }
+    
+    if(!hasANumber) {
+      throw new NoValueRankException(playerName + " n'a pas encore été classé !");
+    }
+    
     List<Date> dateData = new ArrayList<>();
 
     for(int i = 0; i < datedFullTier.size(); i++) {
