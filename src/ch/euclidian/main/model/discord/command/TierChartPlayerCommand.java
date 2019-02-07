@@ -5,9 +5,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
 import org.knowm.xchart.BitmapEncoder;
 import org.knowm.xchart.BitmapEncoder.BitmapFormat;
 import org.knowm.xchart.XYChart;
@@ -15,10 +12,8 @@ import org.knowm.xchart.XYChartBuilder;
 import org.knowm.xchart.style.Styler.ChartTheme;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-
 import ch.euclidian.main.Main;
 import ch.euclidian.main.exception.NoValueRankException;
 import ch.euclidian.main.model.DatedFullTier;
@@ -140,34 +135,7 @@ public class TierChartPlayerCommand extends Command {
     
     chart.addSeries(playerName, dateData, valueData);
     
-    Map<Double, Object> yMarkMap = new TreeMap<>();
-    yMarkMap.put(1000.0, "Fer 4");
-    yMarkMap.put(1100.0, "Fer 3");
-    yMarkMap.put(1200.0, "Fer 2");
-    yMarkMap.put(1300.0, "Fer 1");
-    yMarkMap.put(1400.0, "Bronze 4");
-    yMarkMap.put(1500.0, "Bronze 3");
-    yMarkMap.put(1600.0, "Bronze 2");
-    yMarkMap.put(1700.0, "Bronze 1");
-    yMarkMap.put(1800.0, "Argent 4");
-    yMarkMap.put(1900.0, "Argent 3");
-    yMarkMap.put(2000.0, "Argent 2");
-    yMarkMap.put(2100.0, "Argent 1");
-    yMarkMap.put(2200.0, "Or 4");
-    yMarkMap.put(2300.0, "Or 3");
-    yMarkMap.put(2400.0, "Or 2");
-    yMarkMap.put(2500.0, "Or 1");
-    yMarkMap.put(2600.0, "Platine 4");
-    yMarkMap.put(2700.0, "Platine 3");
-    yMarkMap.put(2800.0, "Platine 2");
-    yMarkMap.put(2900.0, "Platine 1");
-    yMarkMap.put(3000.0, "Diamant 4");
-    yMarkMap.put(3100.0, "Diamant 3");
-    yMarkMap.put(3200.0, "Diamant 2");
-    yMarkMap.put(3300.0, "Diamant 1");
-    yMarkMap.put(3400.0, "Maître+");
-    
-    chart.setYAxisLabelOverrideMap(yMarkMap);
+    chart.setYAxisLabelOverrideMap(Ressources.getTableCorrespondanceRank());
     chart.getStyler().setDatePattern(DATE_PATTERN);
     
     chart.getStyler().setAntiAlias(true);

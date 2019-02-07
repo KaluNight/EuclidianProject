@@ -8,7 +8,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +35,8 @@ public class Ressources {
   public static final String FOLDER_TO_TIER_SAVE = "ressources/tierData/";
 
   private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+  
+  private static Map<Double, Object> tableCorrespondanceRank;
 
   private static final Logger logger = LoggerFactory.getLogger(Ressources.class);
 
@@ -193,5 +195,13 @@ public class Ressources {
 
   public static void setMusicBot(BotMusicManager musicBot) {
     Ressources.musicBot = musicBot;
+  }
+
+  public static Map<Double, Object> getTableCorrespondanceRank() {
+    return tableCorrespondanceRank;
+  }
+
+  public static void setTableCorrespondanceRank(Map<Double, Object> tableCorrespondanceRank) {
+    Ressources.tableCorrespondanceRank = tableCorrespondanceRank;
   }
 }

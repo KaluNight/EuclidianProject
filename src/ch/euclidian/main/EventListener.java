@@ -4,8 +4,10 @@ import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.TreeMap;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +61,36 @@ public class EventListener extends ListenerAdapter {
   private void initializeGuild() {
     Main.setGuild(Main.getLogBot().getGuild());
     Main.setController(Main.getGuild().getController());
+    
+    Map<Double, Object> tablCorrespondanceRank = new TreeMap<>();
+    tablCorrespondanceRank.put(1000.0, "Fer 4");
+    tablCorrespondanceRank.put(1100.0, "Fer 3");
+    tablCorrespondanceRank.put(1200.0, "Fer 2");
+    tablCorrespondanceRank.put(1300.0, "Fer 1");
+    tablCorrespondanceRank.put(1400.0, "Bronze 4");
+    tablCorrespondanceRank.put(1500.0, "Bronze 3");
+    tablCorrespondanceRank.put(1600.0, "Bronze 2");
+    tablCorrespondanceRank.put(1700.0, "Bronze 1");
+    tablCorrespondanceRank.put(1800.0, "Argent 4");
+    tablCorrespondanceRank.put(1900.0, "Argent 3");
+    tablCorrespondanceRank.put(2000.0, "Argent 2");
+    tablCorrespondanceRank.put(2100.0, "Argent 1");
+    tablCorrespondanceRank.put(2200.0, "Or 4");
+    tablCorrespondanceRank.put(2300.0, "Or 3");
+    tablCorrespondanceRank.put(2400.0, "Or 2");
+    tablCorrespondanceRank.put(2500.0, "Or 1");
+    tablCorrespondanceRank.put(2600.0, "Platine 4");
+    tablCorrespondanceRank.put(2700.0, "Platine 3");
+    tablCorrespondanceRank.put(2800.0, "Platine 2");
+    tablCorrespondanceRank.put(2900.0, "Platine 1");
+    tablCorrespondanceRank.put(3000.0, "Diamant 4");
+    tablCorrespondanceRank.put(3100.0, "Diamant 3");
+    tablCorrespondanceRank.put(3200.0, "Diamant 2");
+    tablCorrespondanceRank.put(3300.0, "Diamant 1");
+    tablCorrespondanceRank.put(3400.0, "Maître+");
+    
+    Ressources.setTableCorrespondanceRank(tablCorrespondanceRank);
+    
 
     ArrayList<Permission> teamMemberPermissionList = new ArrayList<>();
 

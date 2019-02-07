@@ -1,23 +1,32 @@
 package ch.euclidian.main.refresh.event;
 
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import org.checkerframework.checker.units.qual.s;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.Minutes;
+import org.knowm.xchart.XYChart;
+import org.knowm.xchart.XYChartBuilder;
+import org.knowm.xchart.style.Styler.ChartTheme;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import ch.euclidian.main.Main;
+import ch.euclidian.main.exception.NoValueRankException;
 import ch.euclidian.main.model.ChangedStats;
+import ch.euclidian.main.model.DatedFullTier;
 import ch.euclidian.main.model.KDA;
 import ch.euclidian.main.model.Player;
 import ch.euclidian.main.model.PlayerDataOfTheWeek;
 import ch.euclidian.main.model.StatsType;
+import ch.euclidian.main.model.Team;
 import ch.euclidian.main.util.LogHelper;
 import ch.euclidian.main.util.Ressources;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -32,6 +41,8 @@ import net.rithms.riot.constant.Platform;
 public class ContinuousKeepData implements Runnable {
 
   public static final String FOLDER_DATA_PLAYERS = "ressources/playersData/";
+  
+  private static final String DATE_PATTERN = "MM/dd";
 
   private static boolean running;
 
@@ -44,8 +55,6 @@ public class ContinuousKeepData implements Runnable {
   private static ArrayList<String> messagesToSend;
 
   private static final Logger logger = LoggerFactory.getLogger(ContinuousKeepData.class);
-
-  // IDEA: Do a treatment of data each end of day (?) for prevent chaine lose after 3 lose ?
 
   @Override
   public void run() {
@@ -80,7 +89,7 @@ public class ContinuousKeepData implements Runnable {
           matchHistory = Ressources.getRiotApi().getMatchListByAccountId(Platform.EUW, summoner.getAccountId(), null, null, null,
               weekDateStart.getMillis(), weekDateEnd.getMillis(), -1, -1);
         } catch(RiotApiException e) {
-          logger.debug(player.getDiscordUser().getName() + " ne possede pas de games pour la période envoyé");
+          logger.debug(player.getDiscordUser().getName() + " ne possède pas de games pour la période envoyé");
         }
 
         if(matchHistory != null) {
@@ -90,7 +99,6 @@ public class ContinuousKeepData implements Runnable {
           if(playerDataOfTheWeek != null) {
             List<PlayerDataOfTheWeek> savedDatasPlayer = Main.getPlayerList().get(i).getListDataOfWeek(); // Check if copy
             savedDatasPlayer.add(playerDataOfTheWeek);
-            Main.getPlayerList().get(i).setListDataOfWeek(savedDatasPlayer);
 
             List<ChangedStats> changedStats = generatingStats(player);
 
@@ -109,11 +117,11 @@ public class ContinuousKeepData implements Runnable {
 
       try {
         saveData();
-        LogHelper.logSender("Donnés sauvegardés ! Les rapports sont envoyés ...");
+        LogHelper.logSender("Donnés sauvegardés ! Envoi des rapports personnels");
       } catch(IOException e) {
-        LogHelper.logSender("Des logs on essayé d'être écrite alors que Witer était fermé ! " + "Les données ne sont donc pas sauvegardés");
+        LogHelper.logSender("Des logs on essayé d'être écrite alors que Writer était fermé ! Les données ne sont donc pas sauvegardés");
       }
-
+      
       statsChannel.sendTyping().complete();
       statsChannel.sendMessage("Me revoilà !\nVoici vos rapports :D").complete();
 
@@ -121,6 +129,30 @@ public class ContinuousKeepData implements Runnable {
         statsChannel.sendTyping().complete();
         statsChannel.sendMessage(messagesToSend.get(i)).complete();
       }
+      
+      LogHelper.logSender("Les rapports personnelles ont été envoyés ! Création des rapports d'équipes ...");
+      
+      statsChannel.sendTyping().complete();
+      statsChannel.sendMessage("Je reviens dans quelques minutes avec cette fois-ci des stats par rapport au équipes !").complete();
+      
+      for(Team team : Main.getTeamList()) {
+        List<List<DatedFullTier>> datedFullTier = new ArrayList<>();
+        List<String> listPseudo = new ArrayList<>();
+        
+        for(Player player : team.getPlayers()) {
+          try {
+            datedFullTier.add(Ressources.loadTierOnePlayer(player.getDiscordUser().getId()));
+            listPseudo.add(player.getDiscordUser().getName());
+          } catch (FileNotFoundException e) {
+            logger.info("{} ne possède pas de fichier de Tier", player.getName());
+          }
+        }
+        
+        XYChart chartTierTeam = createChart(datedFullTier, team.getName(), listPseudo);
+      }
+      
+      LogHelper.logSender("Analyse par équipe terminé ! Les rapports sont envoyés ...");
+      
 
       LogHelper.logSender("Tous les rapports ont été envoyé !");
 
@@ -137,6 +169,50 @@ public class ContinuousKeepData implements Runnable {
     } finally {
       setRunning(false);
     }
+  }
+  
+  private XYChart createChart(List<List<DatedFullTier>> datedFullTier, String teamName, List<String> memberName) {
+    XYChartBuilder chartBuilder = new XYChartBuilder();
+    
+    chartBuilder.title = "Rangs de la " + teamName;
+    chartBuilder.chartTheme = ChartTheme.GGPlot2;
+
+    chartBuilder.xAxisTitle("Jours");
+    chartBuilder.yAxisTitle("Rangs");
+    
+    XYChart chart = chartBuilder.build();
+    
+    
+    for(int i = 0; i < datedFullTier.size(); i++) {
+      String actualName = memberName.get(i);
+      List<DatedFullTier> actualTierData = datedFullTier.get(i);
+      
+      List<Number> valueData = new ArrayList<>();
+
+      for(int j = 0; j < actualTierData.size(); j++) {
+        try {
+          valueData.add(actualTierData.get(j).getFullTier().value());
+        } catch (NoValueRankException e) {
+          valueData.add(null);
+        }
+      }
+      
+      List<Date> dateData = new ArrayList<>();
+
+      for(int j = 0; j < actualTierData.size(); j++) {
+        dateData.add(actualTierData.get(j).getCreationTime().toDate());
+      }
+      
+      
+      chart.addSeries(actualName, dateData, valueData);
+    }
+    
+    chart.setYAxisLabelOverrideMap(Ressources.getTableCorrespondanceRank());
+    chart.getStyler().setDatePattern(DATE_PATTERN);
+    
+    chart.getStyler().setAntiAlias(true);
+    
+    return chart;
   }
 
   private void saveData() throws IOException {
