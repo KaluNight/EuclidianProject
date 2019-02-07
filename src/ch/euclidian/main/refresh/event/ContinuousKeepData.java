@@ -7,7 +7,6 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import org.checkerframework.checker.units.qual.s;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.Minutes;
@@ -202,8 +201,6 @@ public class ContinuousKeepData implements Runnable {
       for(int j = 0; j < actualTierData.size(); j++) {
         dateData.add(actualTierData.get(j).getCreationTime().toDate());
       }
-      
-      
       chart.addSeries(actualName, dateData, valueData);
     }
     
