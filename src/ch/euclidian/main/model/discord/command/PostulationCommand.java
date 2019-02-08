@@ -13,7 +13,6 @@ import ch.euclidian.main.model.Postulation;
 import ch.euclidian.main.util.LogHelper;
 import ch.euclidian.main.util.Ressources;
 import ch.euclidian.main.util.request.MessageBuilderRequest;
-import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.PrivateChannel;
@@ -225,66 +224,31 @@ public class PostulationCommand extends Command {
 
     addMessageToList(event.getAuthor(), event.getMessage());
 
-    MessageBuilder builder = new MessageBuilder();
-
-    builder.append("Terminé ! Valider vous les informations ci-dessous ? Répondez **Ok** pour valider l'enregistrement,"
-        + " sinon **Stop** pour l'annuler");
-
     postulations.put(event.getAuthor(), new Postulation(event.getMember(), summoner, listRole.get(event.getAuthor()), dispo));
 
     MessageEmbed embended;
     embended = MessageBuilderRequest.createShowPostulation(postulations.get(event.getAuthor()), 1);
 
-    Message validationMessage = builder.build();
+    Main.getPostulationsList().add(postulations.get(event.getAuthor()));
+    Main.getController().addRolesToMember(event.getMember(), listRole.get(event.getAuthor())).queue();
+    Main.getController().addSingleRoleToMember(event.getMember(), Main.getPostulantRole()).queue();
 
-    addMessageToList(event.getAuthor(), event.getTextChannel().sendMessage(validationMessage).complete());
+    LogHelper.logSender("Nouvelle postulation créé par " + event.getAuthor().getName());
+
+    addMessageToList(event.getAuthor(),
+        event.getTextChannel()
+            .sendMessage("Merci d'avoir postulé ! Vous recevrez des informations concernant votre potentiel recrutement très bientôt !")
+            .complete());
+    
     addMessageToList(event.getAuthor(), event.getTextChannel().sendMessage(embended).complete());
 
-    waiter.waitForEvent(MessageReceivedEvent.class,
-        e -> e.getAuthor().equals(event.getAuthor()) && e.getChannel().equals(event.getChannel()), e -> validation(e), 1, TimeUnit.MINUTES,
-        () -> endRegistrationTime(event));
-  }
-
-  private void validation(MessageReceivedEvent event) {
-    event.getTextChannel().sendTyping().complete();
-    String response = event.getMessage().getContentRaw();
-    addMessageToList(event.getAuthor(), event.getMessage());
-
-    if(response.equalsIgnoreCase("Ok")) {
-      Main.getPostulationsList().add(postulations.get(event.getAuthor()));
-      Main.getController().addRolesToMember(event.getMember(), listRole.get(event.getAuthor())).queue();
-      Main.getController().addSingleRoleToMember(event.getMember(), Main.getPostulantRole()).queue();
-
-      LogHelper.logSender("Nouvelle postulation créé par " + event.getAuthor().getName());
-
-      addMessageToList(event.getAuthor(),
-          event.getTextChannel()
-              .sendMessage("Merci d'avoir postulé ! Vous recevrez des informations concernant votre potentiel recrutement très bientôt !")
-              .complete());
-
-      try {
-        PrivateChannel privateChannel = event.getAuthor().openPrivateChannel().complete();
-        privateChannel.sendMessage("Merci d'avoir postulé ! On essaye en général de répondre dans les 72h"
-            + " mais il arrive parfois qu'on y arrive pas à temps. N'hésitez pas à nous le signaler (aux admins) si cela devait arriver,"
-            + " on s'occupera au plus vite de vous.\nBonne Journée !").complete();
-      } finally {
-        endRegistration(event);
-      }
-
-    } else if(response.equalsIgnoreCase("Stop")) {
-      addMessageToList(event.getAuthor(), event.getTextChannel()
-          .sendMessage("Vous avez décidé d'annuler votre postulation. Vous pouvez à tous moment en refaire une").complete());
+    try {
+      PrivateChannel privateChannel = event.getAuthor().openPrivateChannel().complete();
+      privateChannel.sendMessage("Merci d'avoir postulé ! On essaye en général de répondre dans les 72h"
+          + " mais il arrive parfois qu'on y arrive pas à temps. N'hésitez pas à nous le signaler (aux admins) si cela devait arriver,"
+          + " on s'occupera au plus vite de vous.\nBonne Journée !").complete();
+    } finally {
       endRegistration(event);
-    } else {
-      addMessageToList(event.getAuthor(),
-          event.getTextChannel()
-              .sendMessage(
-                  "Le message que vous avez envoyé ne correspond pas à Ok ou Stop. Merci de écrire exactement l'une de ces réponsese")
-              .complete());
-
-      waiter.waitForEvent(MessageReceivedEvent.class,
-          e -> e.getAuthor().equals(event.getAuthor()) && e.getChannel().equals(event.getChannel()), e -> validation(e), 1,
-          TimeUnit.MINUTES, () -> endRegistrationTime(event));
     }
   }
 

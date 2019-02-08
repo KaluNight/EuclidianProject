@@ -139,8 +139,6 @@ public class ContinuousKeepData implements Runnable {
       
       List<GraphData> graphDatas = generateGraphForTeam();;
       
-      
-      
       LogHelper.logSender("Analyse par équipe terminé ! Les rapports sont envoyés ...");
       
       for(GraphData graphData : graphDatas) {
