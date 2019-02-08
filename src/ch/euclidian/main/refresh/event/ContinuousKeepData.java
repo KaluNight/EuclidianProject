@@ -10,8 +10,10 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.Minutes;
+import org.knowm.xchart.BitmapEncoder;
 import org.knowm.xchart.XYChart;
 import org.knowm.xchart.XYChartBuilder;
+import org.knowm.xchart.BitmapEncoder.BitmapFormat;
 import org.knowm.xchart.style.Styler.ChartTheme;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +23,7 @@ import ch.euclidian.main.Main;
 import ch.euclidian.main.exception.NoValueRankException;
 import ch.euclidian.main.model.ChangedStats;
 import ch.euclidian.main.model.DatedFullTier;
+import ch.euclidian.main.model.GraphData;
 import ch.euclidian.main.model.KDA;
 import ch.euclidian.main.model.Player;
 import ch.euclidian.main.model.PlayerDataOfTheWeek;
@@ -134,24 +137,16 @@ public class ContinuousKeepData implements Runnable {
       statsChannel.sendTyping().complete();
       statsChannel.sendMessage("Je reviens dans quelques minutes avec cette fois-ci des stats par rapport au équipes !").complete();
       
-      for(Team team : Main.getTeamList()) {
-        List<List<DatedFullTier>> datedFullTier = new ArrayList<>();
-        List<String> listPseudo = new ArrayList<>();
-        
-        for(Player player : team.getPlayers()) {
-          try {
-            datedFullTier.add(Ressources.loadTierOnePlayer(player.getDiscordUser().getId()));
-            listPseudo.add(player.getDiscordUser().getName());
-          } catch (FileNotFoundException e) {
-            logger.info("{} ne possède pas de fichier de Tier", player.getName());
-          }
-        }
-        
-        XYChart chartTierTeam = createChart(datedFullTier, team.getName(), listPseudo);
-      }
+      List<GraphData> graphDatas = generateGraphForTeam();;
+      
+      
       
       LogHelper.logSender("Analyse par équipe terminé ! Les rapports sont envoyés ...");
       
+      for(GraphData graphData : graphDatas) {
+        statsChannel.sendMessage(graphData.getMessageString()).complete();
+        statsChannel.sendFile(graphData.getGraphData(), graphData.getGraphName()).complete();
+      }
 
       LogHelper.logSender("Tous les rapports ont été envoyé !");
 
@@ -168,6 +163,44 @@ public class ContinuousKeepData implements Runnable {
     } finally {
       setRunning(false);
     }
+  }
+
+  private List<GraphData> generateGraphForTeam() {
+    List<GraphData> graphDatas = new ArrayList<>();
+    
+    for(Team team : Main.getTeamList()) {
+      List<List<DatedFullTier>> datedFullTier = new ArrayList<>();
+      List<String> listPseudo = new ArrayList<>();
+      
+      for(Player player : team.getPlayers()) {
+        try {
+          datedFullTier.add(Ressources.loadTierOnePlayer(player.getDiscordUser().getId()));
+          listPseudo.add(player.getDiscordUser().getName());
+        } catch (FileNotFoundException e) {
+          logger.info("{} ne possède pas de fichier de Tier", player.getName());
+        }
+      }
+      
+      XYChart chartTierTeam = createChart(datedFullTier, team.getName(), listPseudo);
+      
+      byte[] chartPicture = null;
+      
+      try {
+        chartPicture = BitmapEncoder.getBitmapBytes(chartTierTeam, BitmapFormat.PNG);
+      } catch (IOException e) {
+        logger.warn("Impossible de créer le graph de ranked pour l'équipe {} : {}", team.getName(), e.getMessage());
+      }
+      
+      if(chartPicture != null) {
+        GraphData graphData = new GraphData(
+            "Graph de ranked pour l'équipe " + team.getRole().getAsMention(),
+            "RankedGraph" + team.getName() + ".png",
+            chartPicture);
+        
+        graphDatas.add(graphData);
+      }
+    }
+    return graphDatas;
   }
   
   private XYChart createChart(List<List<DatedFullTier>> datedFullTier, String teamName, List<String> memberName) {
