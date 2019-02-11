@@ -125,8 +125,6 @@ public class TierChartPlayerCommand extends Command {
     
     chartBuilder.title = "Classement en ranked par jour";
     chartBuilder.chartTheme = ChartTheme.GGPlot2;
-    chartBuilder.height = 400;
-    chartBuilder.width = 600;
     
     chartBuilder.xAxisTitle("Jours");
     chartBuilder.yAxisTitle("Rangs");

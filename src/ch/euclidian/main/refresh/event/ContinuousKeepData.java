@@ -128,22 +128,22 @@ public class ContinuousKeepData implements Runnable {
       statsChannel.sendMessage("Me revoilà !\nVoici vos rapports :D").complete();
 
       for(int i = 0; i < messagesToSend.size(); i++) {
-        statsChannel.sendTyping().complete();
-        statsChannel.sendMessage(messagesToSend.get(i)).complete();
+        statsChannel.sendTyping().queue();
+        statsChannel.sendMessage(messagesToSend.get(i)).queue();
       }
       
       LogHelper.logSender("Les rapports personnelles ont été envoyés ! Création des rapports d'équipes ...");
       
       statsChannel.sendTyping().complete();
-      statsChannel.sendMessage("Je reviens dans quelques minutes avec cette fois-ci des stats par rapport au équipes !").complete();
+      statsChannel.sendMessage("Je reviens rapidement avec cette fois-ci des stats par rapport au équipes !").complete();
       
       List<GraphData> graphDatas = generateGraphForTeam();;
       
       LogHelper.logSender("Analyse par équipe terminé ! Les rapports sont envoyés ...");
       
       for(GraphData graphData : graphDatas) {
-        statsChannel.sendMessage(graphData.getMessageString()).complete();
-        statsChannel.sendFile(graphData.getGraphData(), graphData.getGraphName()).complete();
+        statsChannel.sendMessage(graphData.getMessageString()).queue();
+        statsChannel.sendFile(graphData.getGraphData(), graphData.getGraphName()).queue();
       }
 
       LogHelper.logSender("Tous les rapports ont été envoyé !");
