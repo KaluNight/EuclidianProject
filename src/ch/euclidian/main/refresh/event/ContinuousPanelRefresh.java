@@ -33,7 +33,7 @@ public class ContinuousPanelRefresh implements Runnable {
   private static LocalDateTime nextRefreshPanel;
 
   private static HashMap<String, CurrentGameInfo> currentGames = new HashMap<>();
-
+  
   private static List<Long> gamesIdAlreadySended = new ArrayList<>();
 
   private static List<InfoCard> infoCards = new ArrayList<>();
@@ -70,7 +70,7 @@ public class ContinuousPanelRefresh implements Runnable {
       manageInfoCards();
 
     } catch(Exception e) {
-      logger.error(e.getMessage());
+      logger.error("Erreur dans ContinuousPanelRefresh : {}", e);
     } finally {
       setRunning(false);
     }

@@ -75,7 +75,7 @@
 		<dependency>
 			<groupId>net.dv8tion</groupId>
 			<artifactId>JDA</artifactId>
-			<version>3.8.1_443</version>
+			<version>3.8.2_459</version>
 		</dependency>
 
 		<dependency>
@@ -85,8 +85,12 @@
 			<scope>compile</scope>
 			<type>pom</type>
 		</dependency>
-		
-		<!-- TODO UPDATE RIOT API FOR V4 -->
+
+		<dependency>
+			<groupId>com.github.taycaldwell</groupId>
+			<artifactId>riot-api-java</artifactId>
+			<version>4.2.0</version>
+		</dependency>
 
 		<dependency>
 			<groupId>joda-time</groupId>
@@ -153,6 +157,11 @@
 		<repository>
 			<id>jitpack.io</id>
 			<url>https://jitpack.io</url>
+		</repository>
+		<repository> <!-- Required for OkHTTP 3.13.0-SNAPSHOT -->
+			<id>sonatype</id>
+			<name>sonatype-snapshots</name>
+			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
 		</repository>
 	</repositories>
 

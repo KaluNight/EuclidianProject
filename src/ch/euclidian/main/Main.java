@@ -35,6 +35,7 @@ import ch.euclidian.main.model.discord.command.PostulationCommand;
 import ch.euclidian.main.model.discord.command.RegisterPlayerCommand;
 import ch.euclidian.main.model.discord.command.ShowCommand;
 import ch.euclidian.main.model.discord.command.ShutDownCommand;
+import ch.euclidian.main.model.discord.command.TierChartPlayerCommand;
 import ch.euclidian.main.model.discord.command.create.CreateTeamCommand;
 import ch.euclidian.main.model.discord.command.music.LeaveCommand;
 import ch.euclidian.main.model.discord.command.music.PlayCommand;
@@ -159,14 +160,19 @@ public class Main {
 
         // Guild Command
         new PostulationCommand(waiter), new RegisterPlayerCommand(), new CreateTeamCommand(), new AddPlayerToTeamCommand(),
-        new ShowCommand(),
+        new ShowCommand(), new TierChartPlayerCommand(),
 
         // Music Command
         new LeaveCommand(), new PlayCommand(), new ResetCommand(), new SkipCommand());
 
     try {
-      jda = new JDABuilder(AccountType.BOT).setToken(discordTocken).setStatus(OnlineStatus.DO_NOT_DISTURB).addEventListener(waiter)
-          .addEventListener(client.build()).addEventListener(new EventListener()).build();
+      jda = new JDABuilder(AccountType.BOT)//
+          .setToken(discordTocken)//
+          .setStatus(OnlineStatus.DO_NOT_DISTURB)//
+          .addEventListener(waiter)//
+          .addEventListener(client.build())//
+          .addEventListener(new EventListener())//
+          .build();//
     } catch(IndexOutOfBoundsException e) {
       logger.error("You must provide a token.");
       return;
