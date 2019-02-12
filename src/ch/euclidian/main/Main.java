@@ -523,9 +523,13 @@ public class Main {
 
     while(!customEmotes.isEmpty()) {
 
-      jda.createGuild("ZoeTrainer Emotes Guild " + emoteGuild.size()).complete();
-
+      jda.createGuild("ZoeTrainer Emotes Guild " + emoteGuild.size()).complete(); //TODO HANDLE GUILD JOIN EVENT
+      
+      while(jda.getGuildsByName("ZoeTrainer Emotes Guild " +  emoteGuild.size(), true).isEmpty()) {
+      }
+      
       Guild guild = jda.getGuildsByName("ZoeTrainer Emotes Guild " +  emoteGuild.size(), true).get(0);
+      
       emoteGuild.add(guild);
 
       GuildController guildController = guild.getController();

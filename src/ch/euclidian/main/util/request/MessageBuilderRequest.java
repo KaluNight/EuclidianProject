@@ -72,7 +72,7 @@ public class MessageBuilderRequest {
             champion.getName() + " | __**" + NameConversion.convertStringToTinyString(blueTeam.get(i).getSummonerName()) + "**__" + "\n");
       } else {
         blueTeamString
-            .append(champion.getName() + " | " + NameConversion.convertStringToTinyString(blueTeam.get(i).getSummonerName()) + "\n");
+            .append(champion.getEmote().getAsMention() + " | " + NameConversion.convertStringToTinyString(blueTeam.get(i).getSummonerName()) + "\n");
       }
 
       blueTeamRankString.append(rank + "\n");
@@ -100,7 +100,7 @@ public class MessageBuilderRequest {
             champion.getName() + " | __**" + NameConversion.convertStringToTinyString(redTeam.get(i).getSummonerName()) + "**__" + "\n");
       } else {
         redTeamString
-            .append(champion.getName() + " | " + NameConversion.convertStringToTinyString(redTeam.get(i).getSummonerName()) + "\n");
+            .append(champion.getEmote().getAsMention() + " | " + NameConversion.convertStringToTinyString(redTeam.get(i).getSummonerName()) + "\n");
       }
       redTeamRankString.append(rank + "\n");
 
@@ -189,7 +189,7 @@ public class MessageBuilderRequest {
             champion.getName() + " | __**" + NameConversion.convertStringToTinyString(blueTeam.get(i).getSummonerName()) + "**__" + "\n");
       } else {
         blueTeamString
-            .append(champion.getName() + " | " + NameConversion.convertStringToTinyString(blueTeam.get(i).getSummonerName()) + "\n");
+            .append(champion.getEmote().getAsMention() + " | " + NameConversion.convertStringToTinyString(blueTeam.get(i).getSummonerName()) + "\n");
       }
 
       blueTeamRankString.append(rank + "\n");
@@ -217,7 +217,7 @@ public class MessageBuilderRequest {
             champion.getName() + " | __**" + NameConversion.convertStringToTinyString(redTeam.get(i).getSummonerName()) + "**__" + "\n");
       } else {
         redTeamString
-            .append(champion.getName() + " | " + NameConversion.convertStringToTinyString(redTeam.get(i).getSummonerName()) + "\n");
+            .append(champion.getEmote().getAsMention() + " | " + NameConversion.convertStringToTinyString(redTeam.get(i).getSummonerName()) + "\n");
       }
 
       redTeamRankString.append(rank + "\n");

@@ -224,6 +224,11 @@ public class EventListener extends ListenerAdapter {
     
     for(Guild guild : listGuild) {
       uploadedEmotes.addAll(guild.getEmotes());
+      
+      if(!guild.getName().equals("Bataillon Euclidien")) {
+        guild.delete().complete(); //TODO DELETE WHEN DEBUG FINISH
+      }
+      
     }
     
     List<CustomEmote> emotesInFile = Main.loadEmoteInFile();
