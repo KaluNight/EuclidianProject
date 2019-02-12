@@ -11,6 +11,8 @@ import java.util.TreeMap;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ch.euclidian.main.model.Champion;
+import ch.euclidian.main.model.CustomEmote;
 import ch.euclidian.main.model.Team;
 import ch.euclidian.main.model.discord.command.PostulationCommand;
 import ch.euclidian.main.model.twitch.command.LinkDiscordCommand;
@@ -24,6 +26,8 @@ import me.philippheuer.twitch4j.TwitchClient;
 import me.philippheuer.twitch4j.TwitchClientBuilder;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Emote;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.PrivateChannel;
 import net.dv8tion.jda.core.entities.Role;
@@ -212,7 +216,50 @@ public class EventListener extends ListenerAdapter {
     musicBot.setAudioManager(Main.getGuild().getAudioManager());
     Ressources.setMusicBot(musicBot);
   }
+  
+  private void loadCustomEmotes() throws IOException {
+    
+    List<Emote> uploadedEmotes = new ArrayList<>();
+    List<Guild> listGuild = Main.getJda().getGuilds();
+    
+    for(Guild guild : listGuild) {
+      uploadedEmotes.addAll(guild.getEmotes());
+    }
+    
+    List<CustomEmote> emotesInFile = Main.loadEmoteInFile();
+    
+    for(CustomEmote customeEmote : emotesInFile) {
+      for(Emote emote : uploadedEmotes) {
+        if(emote.getName().equalsIgnoreCase(customeEmote.getName())) {
+          customeEmote.setEmote(emote);
+        }
+      }
+    }
+    
+    List<CustomEmote> emotesNeedToBeUploaded = new ArrayList<>();
+    
+    for(CustomEmote customEmote : emotesInFile) {
+      if(customEmote.getEmote() == null) {
+        emotesNeedToBeUploaded.add(customEmote);
+      }
+    }
+    
+    Main.uploadEmotes(emotesNeedToBeUploaded);
+    
+    Ressources.setCustomEmote(emotesInFile);
+  }
 
+  private void assigneEmotesToChampion() {
+    
+    for(CustomEmote emote : Ressources.getCustomEmote()) {
+      for(Champion champion : Ressources.getChampions()) {
+        if(champion.getChampionLogo().getName().equals(emote.getFile().getName())) {
+          champion.setEmote(emote.getEmote());
+        }
+      }
+    }
+  }
+  
   @Override
   public void onReady(ReadyEvent event) {
     Main.setLogBot(Main.getJda().getTextChannelById(ID_LOG_BOT_CHANNEL));
@@ -227,7 +274,23 @@ public class EventListener extends ListenerAdapter {
     } else {
       LogHelper.logSenderDirectly("Une erreur est survenu lors du chargement des champions, les infos cards ne s'afficheront pas !");
     }
-
+    
+    LogHelper.logSenderDirectly("Chargement des emotes ...");
+    
+    try {
+      loadCustomEmotes();
+    } catch(IOException e) {
+      logger.error("Erreur lors du chargment des emotes : {}", e.getMessage());
+      LogHelper.logSenderDirectly("Erreur lors du chargement des emotes !");
+    }
+    
+    LogHelper.logSenderDirectly("Chargement des emotes terminé !");
+    LogHelper.logSenderDirectly("Assignation des emotes au champions ...");
+    
+    assigneEmotesToChampion();
+    
+    LogHelper.logSenderDirectly("Assignation des emotes au champions terminé !");
+    
     LogHelper.logSenderDirectly("Chargement des sauvegardes détaillés...");
 
     try {

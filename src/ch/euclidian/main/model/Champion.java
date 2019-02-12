@@ -1,12 +1,14 @@
 package ch.euclidian.main.model;
 
 import java.io.File;
+import net.dv8tion.jda.core.entities.Emote;
 
 public class Champion {
   private int key;
   private String id;
   private String name;
   private File championLogo;
+  private Emote emote;
 
   public Champion(final int key, final String id, final String name, File championLogo) {
     this.id = id;
@@ -44,5 +46,13 @@ public class Champion {
 
   public void setChampionLogo(File championLogo) {
     this.championLogo = championLogo;
+  }
+
+  public Emote getEmote() {
+    return emote;
+  }
+
+  public void setEmote(Emote emote) {
+    this.emote = emote;
   }
 }

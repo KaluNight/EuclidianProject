@@ -25,6 +25,7 @@ import com.google.gson.reflect.TypeToken;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import ch.euclidian.main.model.Champion;
+import ch.euclidian.main.model.CustomEmote;
 import ch.euclidian.main.model.Player;
 import ch.euclidian.main.model.PlayerDataOfTheWeek;
 import ch.euclidian.main.model.Postulation;
@@ -53,8 +54,10 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Category;
+import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Icon;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -70,6 +73,10 @@ import net.rithms.riot.constant.Platform;
 public class Main {
 
   private static File SAVE_TXT_FILE = new File("ressources/save.txt");
+
+  private static final File GUILD_EMOTES_FILE = new File("ressources/guilds.txt");
+
+  private static final int MAX_EMOTE_BY_GUILD = 50;
 
   private static final File SECRET_FILE = new File("secret.txt");
 
@@ -454,6 +461,103 @@ public class Main {
     } finally {
       reader.close();
     }
+  }
+
+  public static List<CustomEmote> loadEmoteInFile() {
+    List<CustomEmote> emotes = new ArrayList<>();
+
+    File folder = new File(Ressources.FOLDER_TO_EMOTES);
+    File[] listOfFiles = folder.listFiles();
+
+    for(int i = 0; i < listOfFiles.length; i++) {
+      String name = listOfFiles[i].getName();
+      if(name.endsWith(".png") || name.endsWith(".jpg")) {
+        name = name.substring(0, name.length() - 4);
+        emotes.add(new CustomEmote(name, listOfFiles[i]));
+      }
+    }
+    return emotes;
+  }
+
+  public static List<CustomEmote> uploadEmotes(List<CustomEmote> customEmotes) throws IOException {
+
+    List<Guild> emoteGuild = new ArrayList<>();
+
+    try(BufferedReader reader = new BufferedReader(new FileReader(GUILD_EMOTES_FILE));){
+      int numberOfGuild = Integer.parseInt(reader.readLine());
+
+      for(int i = 0; i < numberOfGuild; i++) {
+        emoteGuild.add(jda.getGuildById(numberOfGuild));
+      }
+    }
+
+    List<CustomEmote> emotesUploaded = new ArrayList<>();
+
+    for(Guild guild : emoteGuild) {
+      List<Emote> emotes = guild.getEmotes();
+
+      List<Emote> emotesNonAnimated = new ArrayList<>();
+      for(Emote emote : emotes) {
+        if(!emote.isAnimated()) {
+          emotesNonAnimated.add(emote);
+        }
+      }
+
+      GuildController guildController = guild.getController();
+
+      if(emotes.size() < MAX_EMOTE_BY_GUILD) {
+        for(int i = emotes.size(); i < MAX_EMOTE_BY_GUILD; i++) {
+          if(customEmotes.isEmpty()) {
+            break;
+          }
+          CustomEmote customEmote = customEmotes.get(0);
+          Icon icon = Icon.from(customEmote.getFile());
+          Emote emote = guildController.createEmote(customEmote.getName(), icon, guild.getPublicRole()).complete();
+
+          customEmote.setEmote(emote);
+          emotesUploaded.add(customEmote);
+          customEmotes.remove(0);
+        }
+      }
+    }
+
+    while(!customEmotes.isEmpty()) {
+
+      jda.createGuild("ZoeTrainer Emotes Guild " + emoteGuild.size()).complete();
+
+      Guild guild = jda.getGuildsByName("ZoeTrainer Emotes Guild " +  emoteGuild.size(), true).get(0);
+      emoteGuild.add(guild);
+
+      GuildController guildController = guild.getController();
+
+      for(int i = 0; i < MAX_EMOTE_BY_GUILD; i++) {
+        if(customEmotes.isEmpty()) {
+          break;
+        }
+
+        CustomEmote customEmote = customEmotes.get(0);
+        Icon icon = Icon.from(customEmote.getFile());
+        Emote emote = guildController.createEmote(customEmote.getName(), icon, guild.getPublicRole()).complete();
+
+        customEmote.setEmote(emote);
+        emotesUploaded.add(customEmote);
+        customEmotes.remove(0);
+      }
+    }
+
+    StringBuilder saveGuildBuilder = new StringBuilder();
+    
+    saveGuildBuilder.append(emoteGuild.size() + "\n");
+    
+    for(Guild guild : emoteGuild) {
+      saveGuildBuilder.append(guild.getId() + "\n");
+    }
+    
+    try(PrintWriter writer = new PrintWriter(GUILD_EMOTES_FILE, "UTF-8");){
+      writer.write(saveGuildBuilder.toString());
+    }
+
+    return customEmotes;
   }
 
   private static boolean isPlayersAlreadyCopied(String discordUserId) {
