@@ -12,6 +12,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,6 +81,8 @@ public class Main {
   private static final int MAX_EMOTE_BY_GUILD = 50;
 
   private static final File SECRET_FILE = new File("secret.txt");
+  
+  private static final ConcurrentLinkedQueue<List<CustomEmote>> emotesNeedToBeUploaded = new ConcurrentLinkedQueue<>();
 
   // ------------------------------
 
@@ -521,44 +525,24 @@ public class Main {
       }
     }
 
+    int j = 0;
+    
     while(!customEmotes.isEmpty()) {
-
-      jda.createGuild("ZoeTrainer Emotes Guild " + emoteGuild.size()).complete(); //TODO HANDLE GUILD JOIN EVENT
+      j++;
+      jda.createGuild("ZoeTrainer Emotes Guild " + emoteGuild.size() + j).complete(); //TODO HANDLE GUILD JOIN EVENT
       
-      while(jda.getGuildsByName("ZoeTrainer Emotes Guild " +  emoteGuild.size(), true).isEmpty()) {
-      }
-      
-      Guild guild = jda.getGuildsByName("ZoeTrainer Emotes Guild " +  emoteGuild.size(), true).get(0);
-      
-      emoteGuild.add(guild);
-
-      GuildController guildController = guild.getController();
+      List<CustomEmote> listEmoteForActualGuild = new ArrayList<>();
 
       for(int i = 0; i < MAX_EMOTE_BY_GUILD; i++) {
         if(customEmotes.isEmpty()) {
           break;
         }
-
-        CustomEmote customEmote = customEmotes.get(0);
-        Icon icon = Icon.from(customEmote.getFile());
-        Emote emote = guildController.createEmote(customEmote.getName(), icon, guild.getPublicRole()).complete();
-
-        customEmote.setEmote(emote);
-        emotesUploaded.add(customEmote);
+        
+        listEmoteForActualGuild.add(customEmotes.get(0));
         customEmotes.remove(0);
       }
-    }
-
-    StringBuilder saveGuildBuilder = new StringBuilder();
-    
-    saveGuildBuilder.append(emoteGuild.size() + "\n");
-    
-    for(Guild guild : emoteGuild) {
-      saveGuildBuilder.append(guild.getId() + "\n");
-    }
-    
-    try(PrintWriter writer = new PrintWriter(GUILD_EMOTES_FILE, "UTF-8");){
-      writer.write(saveGuildBuilder.toString());
+      
+      emotesNeedToBeUploaded.add(listEmoteForActualGuild);
     }
 
     return customEmotes;
@@ -708,5 +692,9 @@ public class Main {
 
   public static void setReportList(ArrayList<String> reportList) {
     Main.reportList = reportList;
+  }
+  
+  public static ConcurrentLinkedQueue<List<CustomEmote>> getEmotesNeedToBeUploaded() {
+    return emotesNeedToBeUploaded;
   }
 }
