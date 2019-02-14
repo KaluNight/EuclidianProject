@@ -221,10 +221,56 @@ public class EventListener extends ListenerAdapter {
   }
 
   private void loadCustomEmotes() throws IOException {
+    List<Emote> uploadedEmotes = getAllGuildCustomEmotes();
+    List<CustomEmote> picturesInFile = Main.loadPicturesInFile();
 
+    assigneAlreadyUploadedEmoteToPicturesInFile(uploadedEmotes, picturesInFile);
+
+    List<CustomEmote> emotesNeedToBeUploaded = getEmoteNeedToBeUploaded(picturesInFile);
+
+    Main.prepareUploadOfEmotes(emotesNeedToBeUploaded);
+
+    List<CustomEmote> emoteAlreadyUploded = getEmoteAlreadyUploaded(picturesInFile);
+    
+    Ressources.setCustomEmote(emoteAlreadyUploded);
+  }
+
+  private List<CustomEmote> getEmoteAlreadyUploaded(List<CustomEmote> picturesInFile) {
+    List<CustomEmote> emoteAlreadyUploded = new ArrayList<>();
+    
+    for(CustomEmote customEmote : picturesInFile) {
+      if(customEmote.getEmote() != null) {
+        emoteAlreadyUploded.add(customEmote);
+      }
+    }
+    return emoteAlreadyUploded;
+  }
+
+  private List<CustomEmote> getEmoteNeedToBeUploaded(List<CustomEmote> picturesInFile) {
+    List<CustomEmote> emotesNeedToBeUploaded = new ArrayList<>();
+
+    for(CustomEmote customEmote : picturesInFile) {
+      if(customEmote.getEmote() == null) {
+        emotesNeedToBeUploaded.add(customEmote);
+      }
+    }
+    return emotesNeedToBeUploaded;
+  }
+
+  private void assigneAlreadyUploadedEmoteToPicturesInFile(List<Emote> uploadedEmotes, List<CustomEmote> picturesInFile) {
+    for(CustomEmote customeEmote : picturesInFile) {
+      for(Emote emote : uploadedEmotes) {
+        if(emote.getName().equalsIgnoreCase(customeEmote.getName())) {
+          customeEmote.setEmote(emote);
+        }
+      }
+    }
+  }
+
+  private List<Emote> getAllGuildCustomEmotes() {
     List<Emote> uploadedEmotes = new ArrayList<>();
     List<Guild> listGuild = Main.getJda().getGuilds();
-
+    
     for(Guild guild : listGuild) {
       uploadedEmotes.addAll(guild.getEmotes());
 
@@ -232,28 +278,7 @@ public class EventListener extends ListenerAdapter {
         guild.delete().complete(); //TODO DELETE WHEN DEBUG FINISH
       }
     }
-
-    List<CustomEmote> emotesInFile = Main.loadEmoteInFile();
-
-    for(CustomEmote customeEmote : emotesInFile) {
-      for(Emote emote : uploadedEmotes) {
-        if(emote.getName().equalsIgnoreCase(customeEmote.getName())) {
-          customeEmote.setEmote(emote);
-        }
-      }
-    }
-
-    List<CustomEmote> emotesNeedToBeUploaded = new ArrayList<>();
-
-    for(CustomEmote customEmote : emotesInFile) {
-      if(customEmote.getEmote() == null) {
-        emotesNeedToBeUploaded.add(customEmote);
-      }
-    }
-
-    Main.uploadEmotes(emotesNeedToBeUploaded);
-
-    Ressources.setCustomEmote(emotesInFile);
+    return uploadedEmotes;
   }
 
   private void assigneEmotesToChampion() {

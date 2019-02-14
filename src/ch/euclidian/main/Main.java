@@ -467,7 +467,7 @@ public class Main {
     }
   }
 
-  public static List<CustomEmote> loadEmoteInFile() {
+  public static List<CustomEmote> loadPicturesInFile() {
     List<CustomEmote> emotes = new ArrayList<>();
 
     File folder = new File(Ressources.FOLDER_TO_EMOTES);
@@ -483,53 +483,17 @@ public class Main {
     return emotes;
   }
 
-  public static List<CustomEmote> uploadEmotes(List<CustomEmote> customEmotes) throws IOException {
+  public static List<CustomEmote> prepareUploadOfEmotes(List<CustomEmote> customEmotes) throws IOException {
 
-    List<Guild> emoteGuild = new ArrayList<>();
+    List<Guild> emoteGuilds = getEmoteGuilds();
 
-    try(BufferedReader reader = new BufferedReader(new FileReader(GUILD_EMOTES_FILE));){
-      int numberOfGuild = Integer.parseInt(reader.readLine());
-
-      for(int i = 0; i < numberOfGuild; i++) {
-        emoteGuild.add(jda.getGuildById(numberOfGuild));
-      }
-    }
-
-    List<CustomEmote> emotesUploaded = new ArrayList<>();
-
-    for(Guild guild : emoteGuild) {
-      List<Emote> emotes = guild.getEmotes();
-
-      List<Emote> emotesNonAnimated = new ArrayList<>();
-      for(Emote emote : emotes) {
-        if(!emote.isAnimated()) {
-          emotesNonAnimated.add(emote);
-        }
-      }
-
-      GuildController guildController = guild.getController();
-
-      if(emotes.size() < MAX_EMOTE_BY_GUILD) {
-        for(int i = emotes.size(); i < MAX_EMOTE_BY_GUILD; i++) {
-          if(customEmotes.isEmpty()) {
-            break;
-          }
-          CustomEmote customEmote = customEmotes.get(0);
-          Icon icon = Icon.from(customEmote.getFile());
-          Emote emote = guildController.createEmote(customEmote.getName(), icon, guild.getPublicRole()).complete();
-
-          customEmote.setEmote(emote);
-          emotesUploaded.add(customEmote);
-          customEmotes.remove(0);
-        }
-      }
-    }
+    uploadEmoteInGuildAlreadyExist(customEmotes, emoteGuilds);
 
     int j = 0;
     
     while(!customEmotes.isEmpty()) {
       j++;
-      jda.createGuild("ZoeTrainer Emotes Guild " + emoteGuild.size() + j).complete(); //TODO HANDLE GUILD JOIN EVENT
+      jda.createGuild("ZoeTrainer Emotes Guild " + emoteGuilds.size() + j).complete(); //TODO HANDLE GUILD JOIN EVENT
       
       List<CustomEmote> listEmoteForActualGuild = new ArrayList<>();
 
@@ -544,8 +508,57 @@ public class Main {
       
       emotesNeedToBeUploaded.add(listEmoteForActualGuild);
     }
-
     return customEmotes;
+  }
+
+  private static List<CustomEmote> uploadEmoteInGuildAlreadyExist(List<CustomEmote> customEmotes, List<Guild> emoteGuilds) throws IOException {
+    List<CustomEmote> emotesUploaded = new ArrayList<>();
+
+    for(Guild guild : emoteGuilds) {
+      List<Emote> emotes = getNonAnimatedEmoteOfTheGuild(guild);
+
+      GuildController guildController = guild.getController();
+
+      int emotesSize = emotes.size();
+      
+      while(emotesSize < MAX_EMOTE_BY_GUILD) {
+        CustomEmote customEmote = customEmotes.get(0);
+        Icon icon = Icon.from(customEmote.getFile());
+        Emote emote = guildController.createEmote(customEmote.getName(), icon, guild.getPublicRole()).complete();
+        
+        emotesSize++;
+        
+        customEmote.setEmote(emote);
+        emotesUploaded.add(customEmote);
+        customEmotes.remove(0);
+      }
+    }
+    return emotesUploaded;
+  }
+
+  private static List<Emote> getNonAnimatedEmoteOfTheGuild(Guild guild) {
+    List<Emote> emotes = guild.getEmotes();
+
+    List<Emote> emotesNonAnimated = new ArrayList<>();
+    for(Emote emote : emotes) {
+      if(!emote.isAnimated()) {
+        emotesNonAnimated.add(emote);
+      }
+    }
+    return emotes;
+  }
+
+  private static List<Guild> getEmoteGuilds() throws IOException, FileNotFoundException {
+    List<Guild> emoteGuild = new ArrayList<>();
+
+    try(BufferedReader reader = new BufferedReader(new FileReader(GUILD_EMOTES_FILE));){
+      int numberOfGuild = Integer.parseInt(reader.readLine());
+
+      for(int i = 0; i < numberOfGuild; i++) {
+        emoteGuild.add(jda.getGuildById(numberOfGuild));
+      }
+    }
+    return emoteGuild;
   }
 
   private static boolean isPlayersAlreadyCopied(String discordUserId) {
