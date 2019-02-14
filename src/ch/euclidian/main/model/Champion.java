@@ -15,6 +15,13 @@ public class Champion {
     this.key = key;
     this.name = name;
   }
+  
+  public String getDisplayName() {
+    if(emote != null && !emote.isFake()) {
+      return emote.getAsMention();
+    }
+    return name;
+  }
 
   public int getKey() {
     return this.key;

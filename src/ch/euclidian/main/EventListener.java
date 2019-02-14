@@ -1,7 +1,10 @@
 package ch.euclidian.main;
 
 import java.awt.Color;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -231,13 +234,13 @@ public class EventListener extends ListenerAdapter {
     Main.prepareUploadOfEmotes(emotesNeedToBeUploaded);
 
     List<CustomEmote> emoteAlreadyUploded = getEmoteAlreadyUploaded(picturesInFile);
-    
+
     Ressources.setCustomEmote(emoteAlreadyUploded);
   }
 
   private List<CustomEmote> getEmoteAlreadyUploaded(List<CustomEmote> picturesInFile) {
     List<CustomEmote> emoteAlreadyUploded = new ArrayList<>();
-    
+
     for(CustomEmote customEmote : picturesInFile) {
       if(customEmote.getEmote() != null) {
         emoteAlreadyUploded.add(customEmote);
@@ -270,7 +273,7 @@ public class EventListener extends ListenerAdapter {
   private List<Emote> getAllGuildCustomEmotes() {
     List<Emote> uploadedEmotes = new ArrayList<>();
     List<Guild> listGuild = Main.getJda().getGuilds();
-    
+
     for(Guild guild : listGuild) {
       uploadedEmotes.addAll(guild.getEmotes());
 
@@ -351,12 +354,6 @@ public class EventListener extends ListenerAdapter {
     initTwitchClient();
 
     LogHelper.logSenderDirectly("Connection à l'api Twitch effectué !");
-    
-    LogHelper.logSenderDirectly("Assignation des emotes au champions ...");
-
-    assigneEmotesToChampion();
-
-    LogHelper.logSenderDirectly("Assignation des emotes au champions terminé !");
     LogHelper.logSenderDirectly("Démarrage des tâches continue...");
 
     setupContinousRefreshThread();
@@ -448,13 +445,13 @@ public class EventListener extends ListenerAdapter {
           return;
         }
         event.getTextChannel().sendMessage("Account Id de " + result.getName() + " : " + result.getAccountId()).queue();
-
       }
     }
   }
 
   @Override
   public void onGuildJoin(GuildJoinEvent event) {
+
     List<CustomEmote> customeEmotesList = Main.getEmotesNeedToBeUploaded().poll();
 
     if(customeEmotesList == null) {
@@ -465,22 +462,73 @@ public class EventListener extends ListenerAdapter {
       }
 
     }else {
-      GuildController guildController = event.getGuild().getController();
 
-      for(CustomEmote customEmote : customeEmotesList) {
-        try {
-          Icon icon;
-          icon = Icon.from(customEmote.getFile());
-
-          Emote emote = guildController.createEmote(customEmote.getName(), icon, event.getGuild().getPublicRole()).complete();
-
-          customEmote.setEmote(emote);
-        } catch (IOException e) {
-          logger.warn("Impossible de charger l'image !");
-        }
+      try {
+        sendAllEmotesInGuild(event, customeEmotesList);
+      }catch(Exception e) {
+        logger.warn("Error with emotes sending ! Guild will be deleted");
+        logger.info("Some of emotes will be probably disable");
+        event.getGuild().delete().queue();
+        return;
       }
-      
+
+      try {
+        updateFileSave(event.getGuild());
+      } catch(IOException e) {
+        logger.warn("Impossible to save the new Guild ! Guild will be deleted");
+        logger.info("Some of emotes will be probably disable");
+        event.getGuild().delete().queue();
+        return;
+      }
+
       Ressources.getCustomEmote().addAll(customeEmotesList);
+      
+      assigneEmotesToChampion();
+      
+      logger.info("New emote Guild \"{}\" initialized !", event.getGuild().getName());
+    }
+  }
+
+  private synchronized void updateFileSave(Guild guildToAdd) throws IOException {
+    List<Guild> emotesGuild = new ArrayList<>();
+
+    try(BufferedReader reader = new BufferedReader(new FileReader(Main.GUILD_EMOTES_FILE));){
+      int numberOfGuild;
+      numberOfGuild = Integer.parseInt(reader.readLine());
+
+      for(int i = 0; i < numberOfGuild; i++) {
+        emotesGuild.add(Main.getJda().getGuildById(numberOfGuild));
+      }
+    }
+
+    emotesGuild.add(guildToAdd);
+
+    StringBuilder saveString = new StringBuilder();
+    saveString.append(Integer.toString(emotesGuild.size()) + "\n");
+
+    for(Guild guild : emotesGuild) {
+      saveString.append(guild.getId() + "\n");
+    }
+
+    try(PrintWriter writer = new PrintWriter(Main.GUILD_EMOTES_FILE, "UTF-8");){
+      writer.write(saveString.toString());
+    }
+  }
+
+  private void sendAllEmotesInGuild(GuildJoinEvent event, List<CustomEmote> customeEmotesList) {
+    GuildController guildController = event.getGuild().getController();
+
+    for(CustomEmote customEmote : customeEmotesList) {
+      try {
+        Icon icon;
+        icon = Icon.from(customEmote.getFile());
+
+        Emote emote = guildController.createEmote(customEmote.getName(), icon, event.getGuild().getPublicRole()).complete();
+
+        customEmote.setEmote(emote);
+      } catch (IOException e) {
+        logger.warn("Impossible de charger l'image !");
+      }
     }
   }
 

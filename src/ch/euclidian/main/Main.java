@@ -76,7 +76,7 @@ public class Main {
 
   private static File SAVE_TXT_FILE = new File("ressources/save.txt");
 
-  private static final File GUILD_EMOTES_FILE = new File("ressources/guilds.txt");
+  public static final File GUILD_EMOTES_FILE = new File("ressources/guilds.txt");
 
   private static final int MAX_EMOTE_BY_GUILD = 50;
 
@@ -487,28 +487,32 @@ public class Main {
 
     List<Guild> emoteGuilds = getEmoteGuilds();
 
-    uploadEmoteInGuildAlreadyExist(customEmotes, emoteGuilds);
+    List<CustomEmote> uploadedEmote = uploadEmoteInGuildAlreadyExist(customEmotes, emoteGuilds);
+    Ressources.getCustomEmote().addAll(uploadedEmote);
 
+    createNewGuildsWithAssignedEmotes(customEmotes, emoteGuilds);
+    
+    return customEmotes;
+  }
+
+  private static void createNewGuildsWithAssignedEmotes(List<CustomEmote> customEmotes, List<Guild> emoteGuilds) {
     int j = 0;
     
     while(!customEmotes.isEmpty()) {
+      jda.createGuild("ZoeTrainer Emotes Guild " + emoteGuilds.size() + j).complete();
       j++;
-      jda.createGuild("ZoeTrainer Emotes Guild " + emoteGuilds.size() + j).complete(); //TODO HANDLE GUILD JOIN EVENT
       
-      List<CustomEmote> listEmoteForActualGuild = new ArrayList<>();
+      List<CustomEmote> listEmoteForCreatedGuild = new ArrayList<>();
 
-      for(int i = 0; i < MAX_EMOTE_BY_GUILD; i++) {
-        if(customEmotes.isEmpty()) {
-          break;
-        }
-        
-        listEmoteForActualGuild.add(customEmotes.get(0));
+      int numberOfEmoteForNewGuild = 0;
+      
+      while(numberOfEmoteForNewGuild < MAX_EMOTE_BY_GUILD || customEmotes.isEmpty()) {
+        listEmoteForCreatedGuild.add(customEmotes.get(0));
         customEmotes.remove(0);
       }
       
-      emotesNeedToBeUploaded.add(listEmoteForActualGuild);
+      emotesNeedToBeUploaded.add(listEmoteForCreatedGuild);
     }
-    return customEmotes;
   }
 
   private static List<CustomEmote> uploadEmoteInGuildAlreadyExist(List<CustomEmote> customEmotes, List<Guild> emoteGuilds) throws IOException {
@@ -548,7 +552,7 @@ public class Main {
     return emotes;
   }
 
-  private static List<Guild> getEmoteGuilds() throws IOException, FileNotFoundException {
+  private static List<Guild> getEmoteGuilds() throws IOException {
     List<Guild> emoteGuild = new ArrayList<>();
 
     try(BufferedReader reader = new BufferedReader(new FileReader(GUILD_EMOTES_FILE));){
