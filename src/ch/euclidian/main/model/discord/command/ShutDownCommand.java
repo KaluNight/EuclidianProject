@@ -27,6 +27,15 @@ public class ShutDownCommand extends Command {
   protected void execute(CommandEvent event) {
     EventListener.getStatusReportMessage().editMessage("Status : Hors Ligne").complete();
     event.getTextChannel().sendTyping().complete();
+    EventListener.getTimerTask().cancel();
+
+    try {
+      ContinuousTimeChecking.shutdownThreadPool(event.getTextChannel());
+    } catch(InterruptedException e) {
+      logger.warn("Les tâches n'ont pas put être arrêté normalement : {}", e.getMessage());
+      System.exit(1);
+      Thread.currentThread().interrupt();
+    }
 
     for(int i = 0; i < ContinuousPanelRefresh.getInfoCards().size(); i++) {
       ContinuousPanelRefresh.getInfoCards().get(i).getMessage().delete().complete();
@@ -38,11 +47,8 @@ public class ShutDownCommand extends Command {
     musicManager.scheduler.deleteTheQueue();
     Ressources.getMusicBot().getAudioManager().closeAudioConnection();
     Ressources.getMusicBot().setActualVoiceChannel(null);
-
-    EventListener.getTimerTask().cancel();
-    ContinuousTimeChecking.shutdownThreadPool();
+    
     event.getTextChannel().sendMessage("Je suis down !").complete();
-    Main.getJda().shutdownNow();
 
     try {
       Main.saveDataTxt();
@@ -55,6 +61,7 @@ public class ShutDownCommand extends Command {
     } catch(NullPointerException e) {
       logger.warn("NullPointerException : {}", e.getMessage());
     }
+    Main.getJda().shutdownNow();
 
     Ressources.getTwitchApi().disconnect();
     System.exit(0);

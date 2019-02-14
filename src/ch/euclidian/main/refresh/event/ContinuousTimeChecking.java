@@ -10,6 +10,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ch.euclidian.main.model.BotStatus;
+import net.dv8tion.jda.core.entities.TextChannel;
 
 public class ContinuousTimeChecking extends TimerTask {
 
@@ -115,8 +116,14 @@ public class ContinuousTimeChecking extends TimerTask {
     ContinuousTimeChecking.nextTimeSendReport = nextTimeSendReport;
   }
 
-  public static void shutdownThreadPool() {
-    threadPoolExecutor.shutdownNow();
+  public static void shutdownThreadPool(TextChannel channel) throws InterruptedException {
+    threadPoolExecutor.shutdown();
+    
+    channel.sendMessage("Arrêts des tâches en cours ...").complete();
+    
+    threadPoolExecutor.awaitTermination(3, TimeUnit.MINUTES);
+    
+    channel.sendMessage("Tâches stoppés !").complete();
   }
 
   public static DateTime getNextTimeStatusRefresh() {
