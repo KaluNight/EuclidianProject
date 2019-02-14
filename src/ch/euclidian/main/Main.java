@@ -81,7 +81,7 @@ public class Main {
   private static final int MAX_EMOTE_BY_GUILD = 50;
 
   private static final File SECRET_FILE = new File("secret.txt");
-  
+
   private static final ConcurrentLinkedQueue<List<CustomEmote>> emotesNeedToBeUploaded = new ConcurrentLinkedQueue<>();
 
   // ------------------------------
@@ -488,29 +488,32 @@ public class Main {
     List<Guild> emoteGuilds = getEmoteGuilds();
 
     List<CustomEmote> uploadedEmote = uploadEmoteInGuildAlreadyExist(customEmotes, emoteGuilds);
-    Ressources.getCustomEmote().addAll(uploadedEmote);
+    if(!uploadedEmote.isEmpty()) {
+      Ressources.getCustomEmote().addAll(uploadedEmote);
+    }
 
     createNewGuildsWithAssignedEmotes(customEmotes, emoteGuilds);
-    
+
     return customEmotes;
   }
 
   private static void createNewGuildsWithAssignedEmotes(List<CustomEmote> customEmotes, List<Guild> emoteGuilds) {
     int j = 0;
-    
+
     while(!customEmotes.isEmpty()) {
-      jda.createGuild("ZoeTrainer Emotes Guild " + emoteGuilds.size() + j).complete();
+      jda.createGuild("ZoeTrainer Emotes Guild " + (emoteGuilds.size() + j)).complete();
       j++;
-      
+
       List<CustomEmote> listEmoteForCreatedGuild = new ArrayList<>();
 
       int numberOfEmoteForNewGuild = 0;
-      
-      while(numberOfEmoteForNewGuild < MAX_EMOTE_BY_GUILD || customEmotes.isEmpty()) {
+
+      while(numberOfEmoteForNewGuild < MAX_EMOTE_BY_GUILD && !customEmotes.isEmpty()) {
         listEmoteForCreatedGuild.add(customEmotes.get(0));
         customEmotes.remove(0);
+        numberOfEmoteForNewGuild++;
       }
-      
+
       emotesNeedToBeUploaded.add(listEmoteForCreatedGuild);
     }
   }
@@ -524,14 +527,14 @@ public class Main {
       GuildController guildController = guild.getController();
 
       int emotesSize = emotes.size();
-      
-      while(emotesSize < MAX_EMOTE_BY_GUILD) {
+
+      while(emotesSize < MAX_EMOTE_BY_GUILD && !customEmotes.isEmpty()) {
         CustomEmote customEmote = customEmotes.get(0);
         Icon icon = Icon.from(customEmote.getFile());
         Emote emote = guildController.createEmote(customEmote.getName(), icon, guild.getPublicRole()).complete();
-        
+
         emotesSize++;
-        
+
         customEmote.setEmote(emote);
         emotesUploaded.add(customEmote);
         customEmotes.remove(0);
@@ -559,7 +562,7 @@ public class Main {
       int numberOfGuild = Integer.parseInt(reader.readLine());
 
       for(int i = 0; i < numberOfGuild; i++) {
-        emoteGuild.add(jda.getGuildById(numberOfGuild));
+        emoteGuild.add(jda.getGuildById(reader.readLine()));
       }
     }
     return emoteGuild;
@@ -710,7 +713,7 @@ public class Main {
   public static void setReportList(ArrayList<String> reportList) {
     Main.reportList = reportList;
   }
-  
+
   public static ConcurrentLinkedQueue<List<CustomEmote>> getEmotesNeedToBeUploaded() {
     return emotesNeedToBeUploaded;
   }

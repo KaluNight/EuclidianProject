@@ -63,7 +63,7 @@ public class Ressources {
 
   private static List<Champion> championsData = new ArrayList<>();
   
-  private static List<CustomEmote> customEmote;
+  private static List<CustomEmote> customEmote = new ArrayList<>();
 
   private Ressources() {}
 

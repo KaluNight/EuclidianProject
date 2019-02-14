@@ -17,7 +17,7 @@ public class Champion {
   }
   
   public String getDisplayName() {
-    if(emote != null && !emote.isFake()) {
+    if(emote != null) {
       return emote.getAsMention();
     }
     return name;

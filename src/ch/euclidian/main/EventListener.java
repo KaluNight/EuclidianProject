@@ -236,6 +236,8 @@ public class EventListener extends ListenerAdapter {
     List<CustomEmote> emoteAlreadyUploded = getEmoteAlreadyUploaded(picturesInFile);
 
     Ressources.setCustomEmote(emoteAlreadyUploded);
+    
+    assigneEmotesToChampion();
   }
 
   private List<CustomEmote> getEmoteAlreadyUploaded(List<CustomEmote> picturesInFile) {
@@ -276,10 +278,6 @@ public class EventListener extends ListenerAdapter {
 
     for(Guild guild : listGuild) {
       uploadedEmotes.addAll(guild.getEmotes());
-
-      if(!guild.getName().equals("Bataillon Euclidien")) {
-        guild.delete().complete(); //TODO DELETE WHEN DEBUG FINISH
-      }
     }
     return uploadedEmotes;
   }
@@ -288,7 +286,7 @@ public class EventListener extends ListenerAdapter {
 
     for(CustomEmote emote : Ressources.getCustomEmote()) {
       for(Champion champion : Ressources.getChampions()) {
-        if(champion.getId().equals(emote.getFile().getName())) {
+        if(champion.getId().equals(emote.getName())) {
           champion.setEmote(emote.getEmote());
         }
       }
@@ -497,7 +495,7 @@ public class EventListener extends ListenerAdapter {
       numberOfGuild = Integer.parseInt(reader.readLine());
 
       for(int i = 0; i < numberOfGuild; i++) {
-        emotesGuild.add(Main.getJda().getGuildById(numberOfGuild));
+        emotesGuild.add(Main.getJda().getGuildById(reader.readLine()));
       }
     }
 

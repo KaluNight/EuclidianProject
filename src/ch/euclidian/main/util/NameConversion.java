@@ -9,8 +9,8 @@ public class NameConversion {
   private NameConversion() {}
 
   public static String convertStringToTinyString(String stringToConvert) {
-    if(stringToConvert.length() > 6) {
-      return stringToConvert.substring(0, 4) + "..";
+    if(stringToConvert.length() > 12) {
+      return stringToConvert.substring(0, 10) + "..";
     }
     return stringToConvert;
   }
