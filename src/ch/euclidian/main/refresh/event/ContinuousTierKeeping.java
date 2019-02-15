@@ -3,6 +3,7 @@ package ch.euclidian.main.refresh.event;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ch.euclidian.main.Main;
@@ -28,7 +29,7 @@ public class ContinuousTierKeeping implements Runnable {
         actualTiers.put(player.getDiscordUser().getId(), new DatedFullTier(RiotRequest.getSoloqRank(player.getSummoner().getId())));
       }
 
-      HashMap<String, List<DatedFullTier>> listsOfDatedFullTier = Ressources.loadTierSave();
+      Map<String, List<DatedFullTier>> listsOfDatedFullTier = Ressources.loadTierSave();
 
       addNewDataToSave(listsOfDatedFullTier);
 
@@ -43,7 +44,7 @@ public class ContinuousTierKeeping implements Runnable {
     }
   }
 
-  private void addNewDataToSave(HashMap<String, List<DatedFullTier>> listsOfDatedFullTier) {
+  private void addNewDataToSave(Map<String, List<DatedFullTier>> listsOfDatedFullTier) {
     for(Player player : Main.getPlayerList()) {
       DatedFullTier tier = actualTiers.get(player.getDiscordUser().getId());
 

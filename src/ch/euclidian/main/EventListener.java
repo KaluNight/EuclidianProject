@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import ch.euclidian.main.model.Champion;
 import ch.euclidian.main.model.CustomEmote;
 import ch.euclidian.main.model.Team;
+import ch.euclidian.main.model.Tier;
 import ch.euclidian.main.model.discord.command.PostulationCommand;
 import ch.euclidian.main.model.twitch.command.LinkDiscordCommand;
 import ch.euclidian.main.model.twitch.command.TopEloCommand;
@@ -237,7 +238,7 @@ public class EventListener extends ListenerAdapter {
 
     Ressources.setCustomEmote(emoteAlreadyUploded);
     
-    assigneEmotesToChampion();
+    assigneCustomEmotesToData();
   }
 
   private List<CustomEmote> getEmoteAlreadyUploaded(List<CustomEmote> picturesInFile) {
@@ -278,16 +279,26 @@ public class EventListener extends ListenerAdapter {
 
     for(Guild guild : listGuild) {
       uploadedEmotes.addAll(guild.getEmotes());
+      
+      if(guild.getOwner().getUser().getId().equals(Main.getJda().getSelfUser().getId())) {
+        guild.delete().complete();
+      }
     }
     return uploadedEmotes;
   }
 
-  private void assigneEmotesToChampion() {
+  private void assigneCustomEmotesToData() {
 
     for(CustomEmote emote : Ressources.getCustomEmote()) {
       for(Champion champion : Ressources.getChampions()) {
         if(champion.getId().equals(emote.getName())) {
           champion.setEmote(emote.getEmote());
+        }
+      }
+      
+      for(Tier tier : Tier.values()) {
+        if(tier.toString().equalsIgnoreCase(emote.getName())) {
+          Ressources.getTierEmote().put(tier, emote);
         }
       }
     }
@@ -469,6 +480,7 @@ public class EventListener extends ListenerAdapter {
         sendAllEmotesInGuild(event, customeEmotesList);
       }catch(Exception e) {
         logger.warn("Error with emotes sending ! Guild will be deleted");
+        logger.warn("Error : {}", e.getMessage());
         logger.info("Some of emotes will be probably disable");
         event.getGuild().delete().queue();
         return;
@@ -485,7 +497,7 @@ public class EventListener extends ListenerAdapter {
 
       Ressources.getCustomEmote().addAll(customeEmotesList);
       
-      assigneEmotesToChampion();
+      assigneCustomEmotesToData();
       
       logger.info("New emote Guild \"{}\" initialized !", event.getGuild().getName());
     }
@@ -525,7 +537,7 @@ public class EventListener extends ListenerAdapter {
         Icon icon;
         icon = Icon.from(customEmote.getFile());
 
-        Emote emote = guildController.createEmote(customEmote.getName(), icon, event.getGuild().getPublicRole()).complete();
+        Emote emote = guildController.createEmote(customEmote.getName().replaceAll(" ", ""), icon, event.getGuild().getPublicRole()).complete();
 
         customEmote.setEmote(emote);
       } catch (IOException e) {
