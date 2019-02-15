@@ -1,7 +1,10 @@
 package ch.euclidian.main;
 
 import java.awt.Color;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +14,8 @@ import java.util.TreeMap;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ch.euclidian.main.model.Champion;
+import ch.euclidian.main.model.CustomEmote;
 import ch.euclidian.main.model.Team;
 import ch.euclidian.main.model.discord.command.PostulationCommand;
 import ch.euclidian.main.model.twitch.command.LinkDiscordCommand;
@@ -24,13 +29,18 @@ import me.philippheuer.twitch4j.TwitchClient;
 import me.philippheuer.twitch4j.TwitchClientBuilder;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Emote;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Icon;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.PrivateChannel;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.ReadyEvent;
+import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import net.dv8tion.jda.core.managers.GuildController;
 import net.dv8tion.jda.core.requests.restaction.RoleAction;
 import net.rithms.riot.api.RiotApiException;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
@@ -61,7 +71,7 @@ public class EventListener extends ListenerAdapter {
   private void initializeGuild() {
     Main.setGuild(Main.getLogBot().getGuild());
     Main.setController(Main.getGuild().getController());
-    
+
     Map<Double, Object> tablCorrespondanceRank = new TreeMap<>();
     tablCorrespondanceRank.put(1000.0, "Fer 4");
     tablCorrespondanceRank.put(1100.0, "Fer 3");
@@ -88,9 +98,9 @@ public class EventListener extends ListenerAdapter {
     tablCorrespondanceRank.put(3200.0, "Diamant 2");
     tablCorrespondanceRank.put(3300.0, "Diamant 1");
     tablCorrespondanceRank.put(3400.0, "Maître+");
-    
+
     Ressources.setTableCorrespondanceRank(tablCorrespondanceRank);
-    
+
 
     ArrayList<Permission> teamMemberPermissionList = new ArrayList<>();
 
@@ -190,7 +200,7 @@ public class EventListener extends ListenerAdapter {
   private void initTwitchClient() {
     TwitchClient twitchClient =
         TwitchClientBuilder.init().withClientId(Ressources.getTwitchClientId()).withClientSecret(Ressources.getTwitchClientSecret())
-            .withCredential(Ressources.getTwitchCredential()).withAutoSaveConfiguration(true).build();
+        .withCredential(Ressources.getTwitchCredential()).withAutoSaveConfiguration(true).build();
     twitchClient.connect();
 
     twitchClient.getDispatcher().registerListener(new TwitchChannelEvent());
@@ -213,6 +223,76 @@ public class EventListener extends ListenerAdapter {
     Ressources.setMusicBot(musicBot);
   }
 
+  private void loadCustomEmotes() throws IOException {
+    List<Emote> uploadedEmotes = getAllGuildCustomEmotes();
+    List<CustomEmote> picturesInFile = Main.loadPicturesInFile();
+
+    assigneAlreadyUploadedEmoteToPicturesInFile(uploadedEmotes, picturesInFile);
+
+    List<CustomEmote> emotesNeedToBeUploaded = getEmoteNeedToBeUploaded(picturesInFile);
+
+    Main.prepareUploadOfEmotes(emotesNeedToBeUploaded);
+
+    List<CustomEmote> emoteAlreadyUploded = getEmoteAlreadyUploaded(picturesInFile);
+
+    Ressources.setCustomEmote(emoteAlreadyUploded);
+    
+    assigneEmotesToChampion();
+  }
+
+  private List<CustomEmote> getEmoteAlreadyUploaded(List<CustomEmote> picturesInFile) {
+    List<CustomEmote> emoteAlreadyUploded = new ArrayList<>();
+
+    for(CustomEmote customEmote : picturesInFile) {
+      if(customEmote.getEmote() != null) {
+        emoteAlreadyUploded.add(customEmote);
+      }
+    }
+    return emoteAlreadyUploded;
+  }
+
+  private List<CustomEmote> getEmoteNeedToBeUploaded(List<CustomEmote> picturesInFile) {
+    List<CustomEmote> emotesNeedToBeUploaded = new ArrayList<>();
+
+    for(CustomEmote customEmote : picturesInFile) {
+      if(customEmote.getEmote() == null) {
+        emotesNeedToBeUploaded.add(customEmote);
+      }
+    }
+    return emotesNeedToBeUploaded;
+  }
+
+  private void assigneAlreadyUploadedEmoteToPicturesInFile(List<Emote> uploadedEmotes, List<CustomEmote> picturesInFile) {
+    for(CustomEmote customeEmote : picturesInFile) {
+      for(Emote emote : uploadedEmotes) {
+        if(emote.getName().equalsIgnoreCase(customeEmote.getName())) {
+          customeEmote.setEmote(emote);
+        }
+      }
+    }
+  }
+
+  private List<Emote> getAllGuildCustomEmotes() {
+    List<Emote> uploadedEmotes = new ArrayList<>();
+    List<Guild> listGuild = Main.getJda().getGuilds();
+
+    for(Guild guild : listGuild) {
+      uploadedEmotes.addAll(guild.getEmotes());
+    }
+    return uploadedEmotes;
+  }
+
+  private void assigneEmotesToChampion() {
+
+    for(CustomEmote emote : Ressources.getCustomEmote()) {
+      for(Champion champion : Ressources.getChampions()) {
+        if(champion.getId().equals(emote.getName())) {
+          champion.setEmote(emote.getEmote());
+        }
+      }
+    }
+  }
+
   @Override
   public void onReady(ReadyEvent event) {
     Main.setLogBot(Main.getJda().getTextChannelById(ID_LOG_BOT_CHANNEL));
@@ -227,6 +307,17 @@ public class EventListener extends ListenerAdapter {
     } else {
       LogHelper.logSenderDirectly("Une erreur est survenu lors du chargement des champions, les infos cards ne s'afficheront pas !");
     }
+
+    LogHelper.logSenderDirectly("Chargement des emotes ...");
+
+    try {
+      loadCustomEmotes();
+    } catch(IOException e) {
+      logger.error("Erreur lors du chargment des emotes : {}", e.getMessage());
+      LogHelper.logSenderDirectly("Erreur lors du chargement des emotes !");
+    }
+
+    LogHelper.logSenderDirectly("Chargement des emotes terminé !");
 
     LogHelper.logSenderDirectly("Chargement des sauvegardes détaillés...");
 
@@ -297,7 +388,7 @@ public class EventListener extends ListenerAdapter {
       privateChannel.sendTyping().queue();
       privateChannel.sendMessage(
           "On envoie uniquement des demandes de Postulation sur ce channel ! " + "(Note : Une postulation commence par \">postulation\")")
-          .queue();
+      .queue();
 
     }
 
@@ -352,7 +443,93 @@ public class EventListener extends ListenerAdapter {
           return;
         }
         event.getTextChannel().sendMessage("Account Id de " + result.getName() + " : " + result.getAccountId()).queue();
+      }
+    }
+  }
 
+  @Override
+  public void onGuildJoin(GuildJoinEvent event) {
+    
+    if(!event.getGuild().getOwner().getUser().getId().equals(Main.getJda().getSelfUser().getId())) {
+      return;
+    }
+
+    List<CustomEmote> customeEmotesList = Main.getEmotesNeedToBeUploaded().poll();
+
+    if(customeEmotesList == null) {
+      logger.error("Pas d'emote à envoyer ! Suppression de la guild ...");
+
+      if(event.getGuild().getOwner().getUser().equals(Main.getJda().getSelfUser())) {
+        event.getGuild().delete().queue();
+      }
+
+    }else {
+
+      try {
+        sendAllEmotesInGuild(event, customeEmotesList);
+      }catch(Exception e) {
+        logger.warn("Error with emotes sending ! Guild will be deleted");
+        logger.info("Some of emotes will be probably disable");
+        event.getGuild().delete().queue();
+        return;
+      }
+
+      try {
+        updateFileSave(event.getGuild());
+      } catch(IOException e) {
+        logger.warn("Impossible to save the new Guild ! Guild will be deleted");
+        logger.info("Some of emotes will be probably disable");
+        event.getGuild().delete().queue();
+        return;
+      }
+
+      Ressources.getCustomEmote().addAll(customeEmotesList);
+      
+      assigneEmotesToChampion();
+      
+      logger.info("New emote Guild \"{}\" initialized !", event.getGuild().getName());
+    }
+  }
+
+  private synchronized void updateFileSave(Guild guildToAdd) throws IOException {
+    List<Guild> emotesGuild = new ArrayList<>();
+
+    try(BufferedReader reader = new BufferedReader(new FileReader(Main.GUILD_EMOTES_FILE));){
+      int numberOfGuild;
+      numberOfGuild = Integer.parseInt(reader.readLine());
+
+      for(int i = 0; i < numberOfGuild; i++) {
+        emotesGuild.add(Main.getJda().getGuildById(reader.readLine()));
+      }
+    }
+
+    emotesGuild.add(guildToAdd);
+
+    StringBuilder saveString = new StringBuilder();
+    saveString.append(Integer.toString(emotesGuild.size()) + "\n");
+
+    for(Guild guild : emotesGuild) {
+      saveString.append(guild.getId() + "\n");
+    }
+
+    try(PrintWriter writer = new PrintWriter(Main.GUILD_EMOTES_FILE, "UTF-8");){
+      writer.write(saveString.toString());
+    }
+  }
+
+  private void sendAllEmotesInGuild(GuildJoinEvent event, List<CustomEmote> customeEmotesList) {
+    GuildController guildController = event.getGuild().getController();
+
+    for(CustomEmote customEmote : customeEmotesList) {
+      try {
+        Icon icon;
+        icon = Icon.from(customEmote.getFile());
+
+        Emote emote = guildController.createEmote(customEmote.getName(), icon, event.getGuild().getPublicRole()).complete();
+
+        customEmote.setEmote(emote);
+      } catch (IOException e) {
+        logger.warn("Impossible de charger l'image !");
       }
     }
   }

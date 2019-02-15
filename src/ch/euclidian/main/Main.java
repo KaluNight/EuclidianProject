@@ -12,6 +12,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +27,7 @@ import com.google.gson.reflect.TypeToken;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import ch.euclidian.main.model.Champion;
+import ch.euclidian.main.model.CustomEmote;
 import ch.euclidian.main.model.Player;
 import ch.euclidian.main.model.PlayerDataOfTheWeek;
 import ch.euclidian.main.model.Postulation;
@@ -53,8 +56,10 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Category;
+import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Icon;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -71,7 +76,13 @@ public class Main {
 
   private static File SAVE_TXT_FILE = new File("ressources/save.txt");
 
+  public static final File GUILD_EMOTES_FILE = new File("ressources/guilds.txt");
+
+  private static final int MAX_EMOTE_BY_GUILD = 50;
+
   private static final File SECRET_FILE = new File("secret.txt");
+
+  private static final ConcurrentLinkedQueue<List<CustomEmote>> emotesNeedToBeUploaded = new ConcurrentLinkedQueue<>();
 
   // ------------------------------
 
@@ -456,6 +467,107 @@ public class Main {
     }
   }
 
+  public static List<CustomEmote> loadPicturesInFile() {
+    List<CustomEmote> emotes = new ArrayList<>();
+
+    File folder = new File(Ressources.FOLDER_TO_EMOTES);
+    File[] listOfFiles = folder.listFiles();
+
+    for(int i = 0; i < listOfFiles.length; i++) {
+      String name = listOfFiles[i].getName();
+      if(name.endsWith(".png") || name.endsWith(".jpg")) {
+        name = name.substring(0, name.length() - 4);
+        emotes.add(new CustomEmote(name, listOfFiles[i]));
+      }
+    }
+    return emotes;
+  }
+
+  public static List<CustomEmote> prepareUploadOfEmotes(List<CustomEmote> customEmotes) throws IOException {
+
+    List<Guild> emoteGuilds = getEmoteGuilds();
+
+    List<CustomEmote> uploadedEmote = uploadEmoteInGuildAlreadyExist(customEmotes, emoteGuilds);
+    if(!uploadedEmote.isEmpty()) {
+      Ressources.getCustomEmote().addAll(uploadedEmote);
+    }
+
+    createNewGuildsWithAssignedEmotes(customEmotes, emoteGuilds);
+
+    return customEmotes;
+  }
+
+  private static void createNewGuildsWithAssignedEmotes(List<CustomEmote> customEmotes, List<Guild> emoteGuilds) {
+    int j = 0;
+
+    while(!customEmotes.isEmpty()) {
+      jda.createGuild("ZoeTrainer Emotes Guild " + (emoteGuilds.size() + j)).complete();
+      j++;
+
+      List<CustomEmote> listEmoteForCreatedGuild = new ArrayList<>();
+
+      int numberOfEmoteForNewGuild = 0;
+
+      while(numberOfEmoteForNewGuild < MAX_EMOTE_BY_GUILD && !customEmotes.isEmpty()) {
+        listEmoteForCreatedGuild.add(customEmotes.get(0));
+        customEmotes.remove(0);
+        numberOfEmoteForNewGuild++;
+      }
+
+      emotesNeedToBeUploaded.add(listEmoteForCreatedGuild);
+    }
+  }
+
+  private static List<CustomEmote> uploadEmoteInGuildAlreadyExist(List<CustomEmote> customEmotes, List<Guild> emoteGuilds) throws IOException {
+    List<CustomEmote> emotesUploaded = new ArrayList<>();
+
+    for(Guild guild : emoteGuilds) {
+      List<Emote> emotes = getNonAnimatedEmoteOfTheGuild(guild);
+
+      GuildController guildController = guild.getController();
+
+      int emotesSize = emotes.size();
+
+      while(emotesSize < MAX_EMOTE_BY_GUILD && !customEmotes.isEmpty()) {
+        CustomEmote customEmote = customEmotes.get(0);
+        Icon icon = Icon.from(customEmote.getFile());
+        Emote emote = guildController.createEmote(customEmote.getName(), icon, guild.getPublicRole()).complete();
+
+        emotesSize++;
+
+        customEmote.setEmote(emote);
+        emotesUploaded.add(customEmote);
+        customEmotes.remove(0);
+      }
+    }
+    return emotesUploaded;
+  }
+
+  private static List<Emote> getNonAnimatedEmoteOfTheGuild(Guild guild) {
+    List<Emote> emotes = guild.getEmotes();
+
+    List<Emote> emotesNonAnimated = new ArrayList<>();
+    for(Emote emote : emotes) {
+      if(!emote.isAnimated()) {
+        emotesNonAnimated.add(emote);
+      }
+    }
+    return emotes;
+  }
+
+  private static List<Guild> getEmoteGuilds() throws IOException {
+    List<Guild> emoteGuild = new ArrayList<>();
+
+    try(BufferedReader reader = new BufferedReader(new FileReader(GUILD_EMOTES_FILE));){
+      int numberOfGuild = Integer.parseInt(reader.readLine());
+
+      for(int i = 0; i < numberOfGuild; i++) {
+        emoteGuild.add(jda.getGuildById(reader.readLine()));
+      }
+    }
+    return emoteGuild;
+  }
+
   private static boolean isPlayersAlreadyCopied(String discordUserId) {
     for(int i = 0; i < playerList.size(); i++) {
       if(playerList.get(i).getDiscordUser().getId().equals(discordUserId)) {
@@ -600,5 +712,9 @@ public class Main {
 
   public static void setReportList(ArrayList<String> reportList) {
     Main.reportList = reportList;
+  }
+
+  public static ConcurrentLinkedQueue<List<CustomEmote>> getEmotesNeedToBeUploaded() {
+    return emotesNeedToBeUploaded;
   }
 }

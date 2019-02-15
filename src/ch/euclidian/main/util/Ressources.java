@@ -20,6 +20,7 @@ import com.google.gson.reflect.TypeToken;
 
 import ch.euclidian.main.Main;
 import ch.euclidian.main.model.Champion;
+import ch.euclidian.main.model.CustomEmote;
 import ch.euclidian.main.model.DatedFullTier;
 import ch.euclidian.main.model.Player;
 import ch.euclidian.main.music.BotMusicManager;
@@ -33,6 +34,8 @@ import net.rithms.riot.api.RiotApiException;
 public class Ressources {
 
   public static final String FOLDER_TO_TIER_SAVE = "ressources/tierData/";
+  
+  public static final String FOLDER_TO_EMOTES = "ressources/images";
 
   private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
   
@@ -59,6 +62,8 @@ public class Ressources {
   private static RiotApi riotApi;
 
   private static List<Champion> championsData = new ArrayList<>();
+  
+  private static List<CustomEmote> customEmote = new ArrayList<>();
 
   private Ressources() {}
 
@@ -203,5 +208,13 @@ public class Ressources {
 
   public static void setTableCorrespondanceRank(Map<Double, Object> tableCorrespondanceRank) {
     Ressources.tableCorrespondanceRank = tableCorrespondanceRank;
+  }
+
+  public static List<CustomEmote> getCustomEmote() {
+    return customEmote;
+  }
+
+  public static void setCustomEmote(List<CustomEmote> customEmote) {
+    Ressources.customEmote = customEmote;
   }
 }

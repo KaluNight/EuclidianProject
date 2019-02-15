@@ -69,10 +69,10 @@ public class MessageBuilderRequest {
 
       if(summoner.getName().equals(blueTeam.get(i).getSummonerName())) {
         blueTeamString.append(
-            champion.getName() + " | __**" + NameConversion.convertStringToTinyString(blueTeam.get(i).getSummonerName()) + "**__" + "\n");
+            champion.getDisplayName() + " | __**" + NameConversion.convertStringToTinyString(blueTeam.get(i).getSummonerName()) + "**__" + "\n");
       } else {
         blueTeamString
-            .append(champion.getName() + " | " + NameConversion.convertStringToTinyString(blueTeam.get(i).getSummonerName()) + "\n");
+            .append(champion.getDisplayName() + " | " + NameConversion.convertStringToTinyString(blueTeam.get(i).getSummonerName()) + "\n");
       }
 
       blueTeamRankString.append(rank + "\n");
@@ -97,10 +97,10 @@ public class MessageBuilderRequest {
 
       if(summoner.getName().equals(redTeam.get(i).getSummonerName())) {
         redTeamString.append(
-            champion.getName() + " | __**" + NameConversion.convertStringToTinyString(redTeam.get(i).getSummonerName()) + "**__" + "\n");
+            champion.getDisplayName() + " | __**" + NameConversion.convertStringToTinyString(redTeam.get(i).getSummonerName()) + "**__" + "\n");
       } else {
         redTeamString
-            .append(champion.getName() + " | " + NameConversion.convertStringToTinyString(redTeam.get(i).getSummonerName()) + "\n");
+            .append(champion.getDisplayName() + " | " + NameConversion.convertStringToTinyString(redTeam.get(i).getSummonerName()) + "\n");
       }
       redTeamRankString.append(rank + "\n");
 
@@ -186,10 +186,10 @@ public class MessageBuilderRequest {
 
       if(listIdPlayers.contains(blueTeam.get(i).getSummonerId())) {
         blueTeamString.append(
-            champion.getName() + " | __**" + NameConversion.convertStringToTinyString(blueTeam.get(i).getSummonerName()) + "**__" + "\n");
+            champion.getDisplayName() + " | __**" + NameConversion.convertStringToTinyString(blueTeam.get(i).getSummonerName()) + "**__" + "\n");
       } else {
         blueTeamString
-            .append(champion.getName() + " | " + NameConversion.convertStringToTinyString(blueTeam.get(i).getSummonerName()) + "\n");
+            .append(champion.getDisplayName() + " | " + NameConversion.convertStringToTinyString(blueTeam.get(i).getSummonerName()) + "\n");
       }
 
       blueTeamRankString.append(rank + "\n");
@@ -214,10 +214,10 @@ public class MessageBuilderRequest {
 
       if(listIdPlayers.contains(redTeam.get(i).getSummonerId())) {
         redTeamString.append(
-            champion.getName() + " | __**" + NameConversion.convertStringToTinyString(redTeam.get(i).getSummonerName()) + "**__" + "\n");
+            champion.getDisplayName() + " | __**" + NameConversion.convertStringToTinyString(redTeam.get(i).getSummonerName()) + "**__" + "\n");
       } else {
         redTeamString
-            .append(champion.getName() + " | " + NameConversion.convertStringToTinyString(redTeam.get(i).getSummonerName()) + "\n");
+            .append(champion.getDisplayName() + " | " + NameConversion.convertStringToTinyString(redTeam.get(i).getSummonerName()) + "\n");
       }
 
       redTeamRankString.append(rank + "\n");
