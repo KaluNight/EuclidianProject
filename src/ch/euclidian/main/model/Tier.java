@@ -9,8 +9,8 @@ public enum Tier {
   GOLD("Or", 2200),
   PLATINUM("Platine", 2600),
   DIAMOND("Diamant", 3000),
-  MASTER("Maître", 3400),
-  GRANDMASTER("Grand Maître", 3400),
+  MASTER("Maitre", 3400),
+  GRANDMASTER("Grand Maitre", 3400),
   CHALLENGER("Challenger", 3400);
   
   private String name;

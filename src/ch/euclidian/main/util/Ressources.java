@@ -6,6 +6,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +24,9 @@ import ch.euclidian.main.Main;
 import ch.euclidian.main.model.Champion;
 import ch.euclidian.main.model.CustomEmote;
 import ch.euclidian.main.model.DatedFullTier;
+import ch.euclidian.main.model.Mastery;
 import ch.euclidian.main.model.Player;
+import ch.euclidian.main.model.Tier;
 import ch.euclidian.main.music.BotMusicManager;
 import me.philippheuer.twitch4j.TwitchClient;
 import me.philippheuer.twitch4j.endpoints.ChannelEndpoint;
@@ -63,6 +67,10 @@ public class Ressources {
 
   private static List<Champion> championsData = new ArrayList<>();
   
+  private static Map<Tier, CustomEmote> tierEmote = Collections.synchronizedMap(new EnumMap<Tier, CustomEmote>(Tier.class));
+  
+  private static Map<Mastery, CustomEmote> masteryEmote = Collections.synchronizedMap(new EnumMap<Mastery, CustomEmote>(Mastery.class));
+  
   private static List<CustomEmote> customEmote = new ArrayList<>();
 
   private Ressources() {}
@@ -83,7 +91,7 @@ public class Ressources {
     return null;
   }
 
-  public static HashMap<String, List<DatedFullTier>> loadTierSave() throws IOException {
+  public static Map<String, List<DatedFullTier>> loadTierSave() throws IOException {
     HashMap<String, List<DatedFullTier>> listsOfDatedFullTier = new HashMap<>();
 
     for(Player player : Main.getPlayerList()) {
@@ -105,12 +113,10 @@ public class Ressources {
   public static List<DatedFullTier> loadTierOnePlayer(String discordId) throws FileNotFoundException {
     FileReader fr = new FileReader(FOLDER_TO_TIER_SAVE + discordId + ".json");
 
-    List<DatedFullTier> tierData = gson.fromJson(fr, new TypeToken<List<DatedFullTier>>() {}.getType());
-
-    return tierData;
+    return gson.fromJson(fr, new TypeToken<List<DatedFullTier>>() {}.getType());
   }
 
-  public static void saveTiers(HashMap<String, List<DatedFullTier>> listsOfDatedFullTier) throws IOException {
+  public static void saveTiers(Map<String, List<DatedFullTier>> listsOfDatedFullTier) throws IOException {
     for(Player player : Main.getPlayerList()) {
       List<DatedFullTier> dataPlayer = listsOfDatedFullTier.get(player.getDiscordUser().getId());
 
@@ -216,5 +222,17 @@ public class Ressources {
 
   public static void setCustomEmote(List<CustomEmote> customEmote) {
     Ressources.customEmote = customEmote;
+  }
+
+  public static Map<Tier, CustomEmote> getTierEmote() {
+    return tierEmote;
+  }
+
+  public static Map<Mastery, CustomEmote> getMasteryEmote() {
+    return masteryEmote;
+  }
+
+  public static void setMasteryEmote(Map<Mastery, CustomEmote> masteryEmote) {
+    Ressources.masteryEmote = masteryEmote;
   }
 }

@@ -15,7 +15,7 @@ public class CustomEmote {
   }
 
   public String getName() {
-    return name;
+    return name.replaceAll(" ", "");
   }
 
   public void setName(String name) {

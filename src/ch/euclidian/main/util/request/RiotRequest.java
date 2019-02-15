@@ -9,6 +9,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ch.euclidian.main.model.FullTier;
+import ch.euclidian.main.model.Mastery;
 import ch.euclidian.main.model.Tier;
 import ch.euclidian.main.model.Rank;
 import ch.euclidian.main.util.NameConversion;
@@ -145,17 +146,28 @@ public class RiotRequest {
       mastery = Ressources.getRiotApi().getChampionMasteriesBySummonerByChampion(Platform.EUW, summonerId, championId);
     } catch(RiotApiException e) {
       logger.warn("Impossible d'obtenir le score de mastery : {}", e.getMessage());
-      return "?";
+      return "0";
     }
+    
+    StringBuilder masteryString = new StringBuilder();
 
     long points = mastery.getChampionPoints();
     if(points > 1000 && points < 1000000) {
-      return points / 1000 + "K";
+      masteryString.append(points / 1000 + "K");
     } else if(points > 1000000) {
-      return points / 1000000 + "M";
+      masteryString.append(points / 1000000 + "M");
     } else {
-      return Long.toString(points);
+      masteryString.append(Long.toString(points));
     }
+    
+    try {
+      Mastery masteryLevel = Mastery.getEnum(mastery.getChampionLevel());
+      masteryString.append(Ressources.getMasteryEmote().get(masteryLevel).getEmote().getAsMention());
+    }catch(NullPointerException | IllegalArgumentException e) {
+      masteryString.append("");
+    }
+    
+    return masteryString.toString();
   }
 
   public static String getMood(String summonerId) {
