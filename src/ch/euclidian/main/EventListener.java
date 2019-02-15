@@ -279,10 +279,6 @@ public class EventListener extends ListenerAdapter {
 
     for(Guild guild : listGuild) {
       uploadedEmotes.addAll(guild.getEmotes());
-      
-      if(guild.getOwner().getUser().getId().equals(Main.getJda().getSelfUser().getId())) {
-        guild.delete().complete();
-      }
     }
     return uploadedEmotes;
   }
