@@ -449,6 +449,10 @@ public class EventListener extends ListenerAdapter {
 
   @Override
   public void onGuildJoin(GuildJoinEvent event) {
+    
+    if(!event.getGuild().getOwner().getUser().getId().equals(Main.getJda().getSelfUser().getId())) {
+      return;
+    }
 
     List<CustomEmote> customeEmotesList = Main.getEmotesNeedToBeUploaded().poll();
 
@@ -456,7 +460,7 @@ public class EventListener extends ListenerAdapter {
       logger.error("Pas d'emote à envoyer ! Suppression de la guild ...");
 
       if(event.getGuild().getOwner().getUser().equals(Main.getJda().getSelfUser())) {
-        event.getGuild().delete().complete();
+        event.getGuild().delete().queue();
       }
 
     }else {
