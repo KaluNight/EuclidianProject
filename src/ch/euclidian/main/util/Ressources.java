@@ -24,6 +24,7 @@ import ch.euclidian.main.Main;
 import ch.euclidian.main.model.Champion;
 import ch.euclidian.main.model.CustomEmote;
 import ch.euclidian.main.model.DatedFullTier;
+import ch.euclidian.main.model.Mastery;
 import ch.euclidian.main.model.Player;
 import ch.euclidian.main.model.Tier;
 import ch.euclidian.main.music.BotMusicManager;
@@ -67,6 +68,8 @@ public class Ressources {
   private static List<Champion> championsData = new ArrayList<>();
   
   private static Map<Tier, CustomEmote> tierEmote = Collections.synchronizedMap(new EnumMap<Tier, CustomEmote>(Tier.class));
+  
+  private static Map<Mastery, CustomEmote> masteryEmote = Collections.synchronizedMap(new EnumMap<Mastery, CustomEmote>(Mastery.class));
   
   private static List<CustomEmote> customEmote = new ArrayList<>();
 
@@ -223,5 +226,13 @@ public class Ressources {
 
   public static Map<Tier, CustomEmote> getTierEmote() {
     return tierEmote;
+  }
+
+  public static Map<Mastery, CustomEmote> getMasteryEmote() {
+    return masteryEmote;
+  }
+
+  public static void setMasteryEmote(Map<Mastery, CustomEmote> masteryEmote) {
+    Ressources.masteryEmote = masteryEmote;
   }
 }

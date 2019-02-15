@@ -14,16 +14,15 @@ import java.util.TreeMap;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ch.euclidian.main.model.Champion;
 import ch.euclidian.main.model.CustomEmote;
 import ch.euclidian.main.model.Team;
-import ch.euclidian.main.model.Tier;
 import ch.euclidian.main.model.discord.command.PostulationCommand;
 import ch.euclidian.main.model.twitch.command.LinkDiscordCommand;
 import ch.euclidian.main.model.twitch.command.TopEloCommand;
 import ch.euclidian.main.music.BotMusicManager;
 import ch.euclidian.main.refresh.event.ContinuousTimeChecking;
 import ch.euclidian.main.refresh.event.TwitchChannelEvent;
+import ch.euclidian.main.util.EventListenerUtil;
 import ch.euclidian.main.util.LogHelper;
 import ch.euclidian.main.util.Ressources;
 import me.philippheuer.twitch4j.TwitchClient;
@@ -284,19 +283,10 @@ public class EventListener extends ListenerAdapter {
   }
 
   private void assigneCustomEmotesToData() {
-
     for(CustomEmote emote : Ressources.getCustomEmote()) {
-      for(Champion champion : Ressources.getChampions()) {
-        if(champion.getId().equals(emote.getName())) {
-          champion.setEmote(emote.getEmote());
-        }
-      }
-      
-      for(Tier tier : Tier.values()) {
-        if(tier.toString().equalsIgnoreCase(emote.getName())) {
-          Ressources.getTierEmote().put(tier, emote);
-        }
-      }
+      EventListenerUtil.addToChampionIfIsSame(emote);
+      EventListenerUtil.addToTierIfisSame(emote);
+      EventListenerUtil.addToMasteryIfIsSame(emote);
     }
   }
 
@@ -533,7 +523,7 @@ public class EventListener extends ListenerAdapter {
         Icon icon;
         icon = Icon.from(customEmote.getFile());
 
-        Emote emote = guildController.createEmote(customEmote.getName().replaceAll(" ", ""), icon, event.getGuild().getPublicRole()).complete();
+        Emote emote = guildController.createEmote(customEmote.getName(), icon, event.getGuild().getPublicRole()).complete();
 
         customEmote.setEmote(emote);
       } catch (IOException e) {
