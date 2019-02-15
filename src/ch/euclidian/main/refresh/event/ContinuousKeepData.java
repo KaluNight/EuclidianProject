@@ -91,7 +91,7 @@ public class ContinuousKeepData implements Runnable {
           matchHistory = Ressources.getRiotApi().getMatchListByAccountId(Platform.EUW, summoner.getAccountId(), null, null, null,
               weekDateStart.getMillis(), weekDateEnd.getMillis(), -1, -1);
         } catch(RiotApiException e) {
-          logger.debug(player.getDiscordUser().getName() + " ne possède pas de games pour la période envoyé");
+          logger.debug("{} ne possède pas de games pour la période envoyé", player.getDiscordUser().getName());
         }
 
         if(matchHistory != null) {
@@ -99,7 +99,7 @@ public class ContinuousKeepData implements Runnable {
           PlayerDataOfTheWeek playerDataOfTheWeek = getDataFromTheHistory(matchHistory, player.getSummoner());
 
           if(playerDataOfTheWeek != null) {
-            List<PlayerDataOfTheWeek> savedDatasPlayer = Main.getPlayerList().get(i).getListDataOfWeek(); // Check if copy
+            List<PlayerDataOfTheWeek> savedDatasPlayer = Main.getPlayerList().get(i).getListDataOfWeek();
             savedDatasPlayer.add(playerDataOfTheWeek);
 
             List<ChangedStats> changedStats = generatingStats(player);
@@ -115,52 +115,59 @@ public class ContinuousKeepData implements Runnable {
         }
       }
 
-      LogHelper.logSender("Analyse terminé, les rapports sont sauvegardés ...");
-
-      try {
-        saveData();
-        LogHelper.logSender("Donnés sauvegardés ! Envoi des rapports personnels");
-      } catch(IOException e) {
-        LogHelper.logSender("Des logs on essayé d'être écrite alors que Writer était fermé ! Les données ne sont donc pas sauvegardés");
-      }
-      
-      statsChannel.sendTyping().complete();
-      statsChannel.sendMessage("Me revoilà !\nVoici vos rapports :D").complete();
-
-      for(int i = 0; i < messagesToSend.size(); i++) {
-        statsChannel.sendTyping().queue();
-        statsChannel.sendMessage(messagesToSend.get(i)).queue();
-      }
-      
-      LogHelper.logSender("Les rapports personnelles ont été envoyés ! Création des rapports d'équipes ...");
-      
-      statsChannel.sendTyping().complete();
-      statsChannel.sendMessage("Je reviens rapidement avec cette fois-ci des stats par rapport au équipes !").complete();
-      
-      List<GraphData> graphDatas = generateGraphForTeam();;
-      
-      LogHelper.logSender("Analyse par équipe terminé ! Les rapports sont envoyés ...");
-      
-      for(GraphData graphData : graphDatas) {
-        statsChannel.sendMessage(graphData.getMessageString()).queue();
-        statsChannel.sendFile(graphData.getGraphData(), graphData.getGraphName()).queue();
-      }
-
-      LogHelper.logSender("Tous les rapports ont été envoyé !");
-
-      setWeekDateEnd(weekDateEnd.plusWeeks(1));
-      setWeekDateStart(weekDateStart.plusWeeks(1));
-
-      statsChannel.sendTyping().complete();
-      statsChannel.sendMessage("Le prochain rapport que je ferai sera le **" + weekDateEnd.getDayOfMonth() + "."
-          + weekDateEnd.getMonthOfYear() + "." + weekDateEnd.getYear() + " à " + weekDateEnd.getHourOfDay() + ":"
-          + weekDateEnd.getMinuteOfHour() + "**.\nPassez une bonne journée !").complete();
-
-      setMessagesToSend(new ArrayList<>());
+      sendReports();
+      endGeneration();
 
     } finally {
       setRunning(false);
     }
+  }
+
+  private void sendReports() {
+    LogHelper.logSender("Analyse terminé, les rapports sont sauvegardés ...");
+
+    try {
+      saveData();
+      LogHelper.logSender("Donnés sauvegardés ! Envoi des rapports personnels");
+    } catch(IOException e) {
+      LogHelper.logSender("Des logs on essayé d'être écrite alors que Writer était fermé ! Les données ne sont donc pas sauvegardés");
+    }
+    
+    statsChannel.sendTyping().complete();
+    statsChannel.sendMessage("Me revoilà !\nVoici vos rapports :D").complete();
+
+    for(int i = 0; i < messagesToSend.size(); i++) {
+      statsChannel.sendTyping().queue();
+      statsChannel.sendMessage(messagesToSend.get(i)).queue();
+    }
+    
+    LogHelper.logSender("Les rapports personnelles ont été envoyés ! Création des rapports d'équipes ...");
+    
+    statsChannel.sendTyping().complete();
+    statsChannel.sendMessage("Je reviens rapidement avec cette fois-ci des stats par rapport au équipes !").complete();
+    
+    List<GraphData> graphDatas = generateGraphForTeam();
+    
+    LogHelper.logSender("Analyse par équipe terminé ! Les rapports sont envoyés ...");
+    
+    for(GraphData graphData : graphDatas) {
+      statsChannel.sendMessage(graphData.getMessageString()).queue();
+      statsChannel.sendFile(graphData.getGraphData(), graphData.getGraphName()).queue();
+    }
+  }
+
+  private void endGeneration() {
+    LogHelper.logSender("Tous les rapports ont été envoyé !");
+
+    setWeekDateEnd(weekDateEnd.plusWeeks(1));
+    setWeekDateStart(weekDateStart.plusWeeks(1));
+
+    statsChannel.sendTyping().complete();
+    statsChannel.sendMessage("Le prochain rapport que je ferai sera le **" + weekDateEnd.getDayOfMonth() + "."
+        + weekDateEnd.getMonthOfYear() + "." + weekDateEnd.getYear() + " à " + weekDateEnd.getHourOfDay() + ":"
+        + weekDateEnd.getMinuteOfHour() + "**.\nPassez une bonne journée !").complete();
+
+    setMessagesToSend(new ArrayList<>());
   }
 
   private List<GraphData> generateGraphForTeam() {
@@ -272,7 +279,7 @@ public class ContinuousKeepData implements Runnable {
   }
 
   private List<ChangedStats> generatingStats(Player player) {
-    // TODO: check value different value with ChangedStats
+    // TODO: check different value with ChangedStats
     if(player.getListDataOfWeek().size() == 1) {
       messagesToSend.add("C'est la première fois que vos donnés sont analysé, vous aurez un rapport la semaine prochaine.");
       return new ArrayList<>();
